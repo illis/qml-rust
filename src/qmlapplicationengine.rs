@@ -24,17 +24,17 @@ extern "C" {
 }
 
 /// Provides an entry point for building QML applications from Rust
-pub struct QmlEngine {
+pub struct QmlApplicationEngine {
     ptr: DosQmlApplicationEngine,
     stored: Vec<QVariant>,
 }
 
-impl QmlEngine {
+impl QmlApplicationEngine {
     /// Creates a QML context of a non-headless application
     pub fn new() -> Self {
         unsafe {
             dos_qguiapplication_create();
-            QmlEngine {
+            QmlApplicationEngine {
                 ptr: dos_qqmlapplicationengine_create(),
                 stored: Vec::new(),
             }
@@ -83,7 +83,7 @@ impl QmlEngine {
 
     /// Sets a property for this QML context
     ///
-    /// This variant stores qvariant, so it is removed, only when this QmlEngine is removed.
+    /// This variant stores qvariant, so it is removed, only when this QmlApplicationEngine is removed.
     pub fn set_and_store_property<T: Into<QVariant>>(&mut self, name: &str, value: T) {
         let val = value.into();
         unsafe {
@@ -104,13 +104,13 @@ impl QmlEngine {
 
 use utils::*;
 
-impl Default for QmlEngine {
+impl Default for QmlApplicationEngine {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl Drop for QmlEngine {
+impl Drop for QmlApplicationEngine {
     fn drop(&mut self) {
         unsafe {
             dos_qguiapplication_quit();

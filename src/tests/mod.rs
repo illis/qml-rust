@@ -1,3 +1,3 @@
 #![cfg(test)]
 
-mod qmlengine;
+mod qmlapplicationengine;

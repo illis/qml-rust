@@ -2,7 +2,7 @@ extern crate qml;
 
 use qml::*;
 fn main() {
-    let mut qqae = QmlEngine::new();
+    let mut qqae = QmlApplicationEngine::new();
     let qvar: QVariant = 10.into();
     qqae.set_and_store_property("qVar1", 5);
     qqae.set_and_store_property("qVar2", 8.6);

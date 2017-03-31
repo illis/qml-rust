@@ -34,7 +34,7 @@ pub Test as QTestSingleton{
 Q_REGISTERABLE_QML!(QTest: Test as TestRsObject 1=>0, from TestModule);
 Q_REGISTERABLE_QML!(QTestSingleton: Test as TestRsSingleton 1=>0, from TestModule);
 fn main() {
-    let mut qqae = QmlEngine::new();
+    let mut qqae = QmlApplicationEngine::new();
     Q_REGISTER_QML!(QTest);
     Q_REGISTER_SINGLETON_QML!(QTestSingleton);
     qqae.load_file("examples/qmlregister.qml");

@@ -5,7 +5,7 @@ extern crate libc;
 #[macro_use]
 extern crate lazy_static;
 
-mod qmlengine;
+mod qmlapplicationengine;
 mod qvariant;
 mod qabstactlistmodel;
 mod qinthasharray;
@@ -22,7 +22,7 @@ mod qmlregister;
 mod tests;
 mod qvariantlist;
 
-pub use qmlengine::QmlEngine;
+pub use qmlapplicationengine::QmlApplicationEngine;
 pub use qvariant::QVariant;
 pub use qabstactlistmodel::QListModel;
 pub use qobject::QObject;

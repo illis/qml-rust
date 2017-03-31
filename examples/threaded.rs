@@ -29,7 +29,7 @@ pub Logic as QLogic {
 }
 
 fn main() {
-    let mut qqae = QmlEngine::new();
+    let mut qqae = QmlApplicationEngine::new();
     let qlogic = QLogic::new(Logic);
     qqae.set_and_store_property("logic", qlogic.get_qobj());
     qqae.load_file("examples/threaded.qml");

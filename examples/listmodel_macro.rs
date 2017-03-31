@@ -31,7 +31,7 @@ Q_LISTMODEL_ITEM!{
 }
 
 fn main() {
-    let mut qqae = QmlEngine::new();
+    let mut qqae = QmlApplicationEngine::new();
     // Usage of Q_LISTMODEL macro generated wrappers
     let mut qalm = QTestModel::new();
     qalm.append_row("John".into(), 42);

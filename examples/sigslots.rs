@@ -26,7 +26,7 @@ impl QTest {
 }
 
 fn main() {
-    let mut qqae = QmlEngine::new();
+    let mut qqae = QmlApplicationEngine::new();
     let mut qtest = QTest::new(Test, "OAK".into(), qvarlist![2, 4, 5].into());
     qtest.set_name("Swapped".into());
     // assert_eq!(qtest.get_name(), "Swapped".to_string());

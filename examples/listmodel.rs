@@ -5,7 +5,7 @@ extern crate qml;
 use qml::*;
 
 fn main() {
-    let mut qqae = QmlEngine::new();
+    let mut qqae = QmlApplicationEngine::new();
     let mut qalm = QListModel::new(&["name", "number"]);
     qalm.append_row(qvarlist!["John", 42].into_iter());
     qalm.append_row(qvarlist!["Oak", 505].into_iter());
