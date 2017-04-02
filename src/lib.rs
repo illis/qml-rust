@@ -6,6 +6,7 @@ extern crate libc;
 extern crate lazy_static;
 
 mod qmlapplicationengine;
+mod qquickview;
 mod qvariant;
 mod qabstactlistmodel;
 mod qinthasharray;
@@ -23,6 +24,7 @@ mod tests;
 mod qvariantlist;
 
 pub use qmlapplicationengine::QmlApplicationEngine;
+pub use qquickview::QQuickView;
 pub use qvariant::QVariant;
 pub use qabstactlistmodel::QListModel;
 pub use qobject::QObject;
