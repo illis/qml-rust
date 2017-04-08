@@ -1,0 +1,83 @@
+{
+   xcb-param
+   Memcheck:Param
+   writev(vector[...])
+   ...
+   obj:/usr/lib64/libxcb.so.1.1.0
+   ...
+}
+{
+   x11-leak
+   Memcheck:Leak
+   fun:malloc
+   ...
+   obj:/usr/lib64/libX11.so.6.3.0
+   ...
+}
+{
+   dbus-leak
+   Memcheck:Leak
+   fun:calloc
+   ...
+   obj:/usr/lib64/libdbus-1.so.3.16.4
+   ...
+}
+{
+   qtqml-leak
+   Memcheck:Leak
+   ...
+   obj:/usr/lib64/libQt5Qml.so.5.7.1
+   ...
+}
+{
+   qtquick-leak
+   Memcheck:Leak
+   ...
+   obj:/usr/lib64/libQt5Quick.so.5.7.1
+   ...
+}
+{
+   gobject-leak-static
+   Memcheck:Leak
+   fun:realloc
+   ...
+   obj:/usr/lib64/libgobject-2.0.so.0.5000.3
+   fun:g_type_register_static
+   ...
+}
+{
+   gobject-leak-fundamental-m
+   Memcheck:Leak
+   fun:malloc
+   ...
+   obj:/usr/lib64/libgobject-2.0.so.0.5000.3
+   fun:g_type_register_fundamental
+   ...
+}
+{
+   gobject-leak-fundamental-c
+   Memcheck:Leak
+   fun:calloc
+   ...
+   obj:/usr/lib64/libgobject-2.0.so.0.5000.3
+   fun:g_type_register_fundamental
+   ...
+}
+{
+   gobject-call_init
+   Memcheck:Leak
+   fun:calloc
+   ...
+   obj:/usr/lib64/libgobject-2.0.so.0.5000.3
+   ...
+   fun:call_init
+   ...
+}
+{
+   qdbus-connectionmanager
+   Memcheck:Leak
+   fun:calloc
+   ...
+   fun:_ZN22QDBusConnectionManagerC1Ev
+   ...
+}

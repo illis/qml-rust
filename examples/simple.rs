@@ -12,22 +12,10 @@ pub fn get_local_file(path: &str) -> String {
     }
 }
 
-struct Test {
-
-}
-
-/*
-q_object!(pub Test as QTest {
-    signals:
-    slots:
-    properties:
-});
-*/
-
 fn main() {
     // let mut test = QTest::new();
-    /*let mut view = QQuickView::new();
+    let mut view = QQuickView::new();
     view.load_url(&get_local_file("examples/simple.qml"));
-    view.exec();*/
+    view.exec();
 }
 

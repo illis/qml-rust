@@ -2,24 +2,9 @@ extern crate cmake;
 extern crate pkg_config;
 
 use std::env;
-use std::env::consts;
 use std::path::PathBuf;
 
-fn build_dos(cmake_cfg: &mut cmake::Config) {
-    let dst = cmake_cfg.build();
-
-    println!("cargo:rustc-link-search=native={}", dst.join("lib").display());
-
-    if cfg!(windows) {
-        println!("cargo:rustc-link-search=native={}", dst.join("build").join("lib").join("Release").display());
-    } else {
-        println!("cargo:rustc-link-search=native={}", dst.join("build").join("lib").display());
-    }
-
-    println!("cargo:rustc-link-lib=static=DOtherSideStatic");
-}
-
-fn find_qt5(_: &mut cmake::Config) {
+fn find_and_link_qt5() {
     use pkg_config;
 
     println!("cargo:rustc-link-lib=dylib=stdc++");
@@ -39,18 +24,71 @@ fn find_qt5(_: &mut cmake::Config) {
     }
 }
 
-fn main() {
-    let mut cmake_cfg = cmake::Config::new("DOtherSide");
-    let dos_path = PathBuf::from("DOtherSide").join("CMakeLists.txt");
+fn find_and_link_dos(cmake_cfg: &mut cmake::Config) {
+    let dst = cmake_cfg.build();
+    let path = dst.join("build")
+        .join("src")
+        .join("3rdparty")
+        .join("DOtherSide")
+        .join("lib");
 
+    if cfg!(windows) {
+        println!("cargo:rustc-link-search=native={}", path.join("Release").display());
+    } else {
+        println!("cargo:rustc-link-search=native={}", path.display());
+    }
+
+    println!("cargo:rustc-link-lib=static=DOtherSideStatic");
+}
+
+fn find_and_link_de(cmake_cfg: &mut cmake::Config) {
+    let dst = cmake_cfg.build();
+    let path = dst.join("build")
+        .join("src")
+        .join("lib")
+        .join("DOtherSideExtra");
+
+    if cfg!(windows) {
+        println!("cargo:rustc-link-search=native={}", path.join("Release").display());
+    } else {
+        println!("cargo:rustc-link-search=native={}", path.display());
+    }
+
+    println!("cargo:rustc-link-lib=static=dothersideextra");
+}
+
+fn find_resources(cmake_cfg: &mut cmake::Config) {
+    let dst = cmake_cfg.build();
+    let path = dst.join("build")
+        .join("tests")
+        .join("resources");
+
+    if cfg!(windows) {
+        println!("cargo:rustc-link-search=native={}", path.join("Release").display());
+    } else {
+        println!("cargo:rustc-link-search=native={}", path.display());
+    }
+
+    println!("cargo:rustc-link-lib=static=testresources");
+}
+
+fn main() {
+    let dos_path = PathBuf::from("src")
+        .join("3rdparty")
+        .join("DOtherSide")
+        .join("CMakeLists.txt");
     if !dos_path.exists() {
         panic!("DOtherSide submodule not checked out. Please run 'git submodule init' followed by 'git submodule update'.");
     }
 
+    let mut cmake_cfg = cmake::Config::new(".");
     if let Ok(gen) = env::var("CMAKE_GENERATOR") {
         cmake_cfg.generator(gen);
     }
 
-    find_qt5(&mut cmake_cfg);
-    build_dos(&mut cmake_cfg);
+    println!("cargo:rustc-link-search=native={}", cmake_cfg.build().join("lib").display());
+    find_and_link_qt5();
+    find_and_link_dos(&mut cmake_cfg);
+    find_and_link_de(&mut cmake_cfg);
+    find_resources(&mut cmake_cfg);
 }
