@@ -14,7 +14,6 @@ license = "MIT"
 
 [dependencies]
 libc = "0.2"
-lazy_static = "0.2"
 
 [build-dependencies]
 cmake = "0.1"
