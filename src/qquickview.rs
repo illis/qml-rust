@@ -1,25 +1,8 @@
-use libc;
-use qurl::*;
-
-enum WQQuickView {}
-
-type DosQQuickView = *mut WQQuickView;
-
-extern "C" {
-    fn dos_qguiapplication_create();
-    fn dos_qguiapplication_exec();
-    fn dos_qguiapplication_quit();
-    fn dos_qguiapplication_delete();
-
-    fn dos_qquickview_create() -> DosQQuickView;
-    fn dos_qquickview_set_source_url(vptr: DosQQuickView, url: DosQUrl);
-    fn dos_qquickview_show(vptr: DosQQuickView);
-    fn dos_qquickview_delete(vptr: DosQQuickView);
-    fn dos_qquickview_set_resize_mode(vptr: DosQQuickView, resizeMode: libc::c_int);
-}
+use libc::{c_int, c_void};
+use qurl::QUrl;
 
 pub struct QQuickView {
-    ptr: DosQQuickView
+    ptr: *mut c_void,
 }
 
 impl QQuickView {
@@ -29,13 +12,14 @@ impl QQuickView {
             let view = dos_qquickview_create();
             dos_qquickview_set_resize_mode(view, 1);
             QQuickView {
-                ptr: view
+                ptr: view,
             }
         }
     }
 
-    pub fn load_url(&mut self, uri: &str) {
-        unsafe { dos_qquickview_set_source_url(self.ptr, construct_qurl(uri)) }
+    pub fn load_url(&mut self, url: &str) {
+        let qurl = QUrl::new(url);
+        unsafe { dos_qquickview_set_source_url(self.ptr, qurl.as_ptr()) }
     }
 
     pub fn exec(&mut self) {
@@ -51,12 +35,6 @@ impl QQuickView {
     }
 }
 
-impl Default for QQuickView {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 impl Drop for QQuickView {
     fn drop(&mut self) {
         unsafe {
@@ -64,5 +42,29 @@ impl Drop for QQuickView {
             dos_qquickview_delete(self.ptr);
             dos_qguiapplication_delete();
         }
+    }
+}
+
+extern "C" {
+    fn dos_qguiapplication_create();
+    fn dos_qguiapplication_exec();
+    fn dos_qguiapplication_quit();
+    fn dos_qguiapplication_delete();
+
+    fn dos_qquickview_create() -> *mut c_void;
+    fn dos_qquickview_set_source_url(vptr: *mut c_void, url: *mut c_void);
+    fn dos_qquickview_show(vptr: *mut c_void);
+    fn dos_qquickview_delete(vptr: *mut c_void);
+    fn dos_qquickview_set_resize_mode(vptr: *mut c_void, resize_mode: c_int);
+}
+
+#[cfg(test)]
+mod tests {
+    use super::QQuickView;
+    use std::ptr;
+
+    // #[test]
+    fn test_qurl_memory() {
+        let view = QQuickView::new();
     }
 }
