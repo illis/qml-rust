@@ -1,16 +1,17 @@
 extern crate qml;
-use qml::QQuickView;
+use qml::{QQuickView, QUrl};
 
 #[link(name="testresources", kind="static")]
 #[test]
 fn test_qquickview_memory() {
-    let mut view = QQuickView::new();
+    let mut view = QQuickView::new().unwrap();
+    let url = QUrl::new("qrc:///qml/tst_simple.qml").unwrap();
 
     unsafe {
         init_testresources();
     }
 
-    view.load_url("qrc:///qml/autoclose.qml");
+    view.load_url(url);
     view.exec();
 }
 

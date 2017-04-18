@@ -29,33 +29,46 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."
  */
 
-#include "testresources.h"
-#include <QMetaMethod>
-#include <QResource>
-#include <iostream>
+#include "deqobject.h"
+#include <DOtherSide/DosQMetaObject.h>
+#include <DOtherSide/DosQObjectImpl.h>
 
-void init_testresources()
+namespace {
+
+DOS::DosQObjectImpl::ParentMetaCall createParentMetaCall(QObject *parent)
 {
-    Q_INIT_RESOURCE(resources);
+    return [parent](QMetaObject::Call callType, int index, void **args) {
+        return parent->QObject::qt_metacall(callType, index, args);
+    };
+}
 }
 
-bool invoke_slot(void *ptr)
+DEQObject::DEQObject(DOS::DosIQMetaObjectPtr metaObject, void *dObject, DOS::OnSlotExecuted onSlotExecuted)
+    : m_impl{new DOS::DosQObjectImpl(this, ::createParentMetaCall(this), std::move(metaObject),
+                                     std::move(onSlotExecuted))}
+    , m_dObject{dObject}
 {
-    std::cout << "[C++] Invoking slot for " << ptr << std::endl;
-    auto qobject = static_cast<QObject *>(ptr);
-    auto metaObject = qobject->metaObject();
-    int methodIndex = metaObject->indexOfMethod("test_slot(int)");
-    if (methodIndex == -1) {
-        std::cout << "[C++] Slot not found" << std::endl;
-        return false;
-    }
-    auto metaMethod = metaObject->method(methodIndex);
-    int returned = 0;
-    if (!metaMethod.invoke(qobject, Q_RETURN_ARG(int, returned), Q_ARG(int, 42))) {
-        std::cout << "[C++] Failed to invoke the slot" << std::endl;
-        return false;
-    }
+}
 
-    std::cout << "[C++] Received result: " << returned << std::endl;
-    return returned == 42;
+bool DEQObject::emitSignal(QObject *emitter, const QString &name, const std::vector<QVariant> &args)
+{
+    Q_ASSERT(m_impl);
+    return m_impl->emitSignal(emitter, name, args);
+}
+
+const QMetaObject *DEQObject::metaObject() const
+{
+    Q_ASSERT(m_impl);
+    return m_impl->metaObject();
+}
+
+int DEQObject::qt_metacall(QMetaObject::Call call, int index, void **args)
+{
+    Q_ASSERT(m_impl);
+    return m_impl->qt_metacall(call, index, args);
+}
+
+void *DEQObject::dObject() const
+{
+    return m_dObject;
 }

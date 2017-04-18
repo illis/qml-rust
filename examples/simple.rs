@@ -1,7 +1,6 @@
 #![allow(non_snake_case)]
 extern crate qml;
-
-use qml::*;
+use qml::{QQuickView, QUrl};
 
 pub fn get_local_file(path: &str) -> String {
     let path_raw = ::std::env::current_dir().unwrap().join(path);
@@ -13,9 +12,9 @@ pub fn get_local_file(path: &str) -> String {
 }
 
 fn main() {
-    // let mut test = QTest::new();
-    let mut view = QQuickView::new();
-    view.load_url(&get_local_file("examples/simple.qml"));
+    let mut view = QQuickView::new().unwrap();
+    let url = QUrl::new(&get_local_file("examples/simple.qml")).unwrap();
+    view.load_url(url);
     view.exec();
 }
 

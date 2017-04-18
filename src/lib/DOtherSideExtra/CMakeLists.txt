@@ -15,7 +15,13 @@ else ()
 endif ()
 
 set(${PROJECT_NAME}_SRCS
-    types.h
+    detypes.h
+    deqml.cpp
+    deqmlregister.fwd.h
+    deqmlregister.h
+    deqmlregisterhelper.h
+    deqobject.cpp
+    deqobjectwrapper.h
     dothersideextra.cpp
 )
 

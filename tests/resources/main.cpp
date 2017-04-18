@@ -39,7 +39,7 @@ int main(int argc, char **argv)
     QGuiApplication app {argc, argv};
     QQuickView view {};
     QObject::connect(view.engine(), &QQmlEngine::quit, &app, &QCoreApplication::quit);
-    view.setSource(QUrl {"qrc:/qml/autoclose.qml"});
+    view.setSource(QUrl {"qrc:/qml/tst_simple.qml"});
     view.show();
     return app.exec();
 }

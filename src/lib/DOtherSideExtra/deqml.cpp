@@ -29,33 +29,31 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."
  */
 
-#include "testresources.h"
-#include <QMetaMethod>
-#include <QResource>
-#include <iostream>
+#include "deqml.h"
+#include "deqmlregister.h"
+#include "deqmlregisterhelper.h"
+#include "deqobjectwrapper.h"
 
-void init_testresources()
+int deQmlRegisterQObject(DOS::QmlRegisterType &&args)
 {
-    Q_INIT_RESOURCE(resources);
+    // 30 QObjects are allowed
+    static int i = 0;
+    using RegisterHelper = DeQmlRegisterHelper<DEQObjectWrapperRegisterHelper, 30, RegisterType>;
+    return RegisterHelper::registerType(i++, std::move(args));
 }
 
-bool invoke_slot(void *ptr)
+int deQmlRegisterUncreatableQObject(DOS::QmlRegisterType &&args)
 {
-    std::cout << "[C++] Invoking slot for " << ptr << std::endl;
-    auto qobject = static_cast<QObject *>(ptr);
-    auto metaObject = qobject->metaObject();
-    int methodIndex = metaObject->indexOfMethod("test_slot(int)");
-    if (methodIndex == -1) {
-        std::cout << "[C++] Slot not found" << std::endl;
-        return false;
-    }
-    auto metaMethod = metaObject->method(methodIndex);
-    int returned = 0;
-    if (!metaMethod.invoke(qobject, Q_RETURN_ARG(int, returned), Q_ARG(int, 42))) {
-        std::cout << "[C++] Failed to invoke the slot" << std::endl;
-        return false;
-    }
+    // 30 uncreatable QObjects are allowed
+    static int i = 0;
+    using RegisterHelper = DeQmlRegisterHelper<DEQObjectWrapperRegisterHelper, 30, RegisterUncreatableType>;
+    return RegisterHelper::registerType(i++, std::move(args));
+}
 
-    std::cout << "[C++] Received result: " << returned << std::endl;
-    return returned == 42;
+int deQmlRegisterSingletonQObject(DOS::QmlRegisterType &&args)
+{
+    // 5 singleton QObjects are allowed
+    static int i = 0;
+    using RegisterHelper = DeQmlRegisterHelper<DEQObjectWrapperRegisterHelper, 5, RegisterUncreatableType>;
+    return RegisterHelper::registerType(i++, std::move(args));
 }

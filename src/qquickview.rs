@@ -3,13 +3,13 @@ use std::ffi::CString;
 use libc::{c_char, c_int, c_void};
 use qurl::QUrl;
 
-pub struct QQuickView {
-    app: *mut c_void,
-    view: *mut c_void,
+pub struct QQuickView<'a> {
+    app: &'a mut c_void,
+    view: &'a mut c_void,
 }
 
-impl QQuickView {
-    pub fn new() -> Self {
+impl<'a> QQuickView<'a> {
+    pub fn new() -> Option<Self> {
         unsafe {
             let argv_strings = env::args()
                 .map(|arg| CString::new(arg).unwrap())
@@ -19,20 +19,25 @@ impl QQuickView {
                 .collect::<Vec<_>>();
 
 
-            let app = de_qguiapplication_create(argv.len() as c_int, argv.as_ptr());
-            let view = de_qquickview_create();
-            dos_qquickview_set_resize_mode(view, 1);
-            QQuickView {
-                app: app,
-                view: view,
-            }
+            let app = de_qguiapplication_create(argv.len() as c_int, argv.as_ptr()).as_mut();
+            let view = de_qquickview_create().as_mut();
+
+            app.and_then(move |app| {
+                view.map(move |view| {
+                    dos_qquickview_set_resize_mode(view, 1);
+
+                    QQuickView {
+                        app: app,
+                        view: view,
+                    }
+                })
+            })
         }
     }
 
-    pub fn load_url(&mut self, url: &str) {
-        let qurl = QUrl::new(url);
+    pub fn load_url(&mut self, url: QUrl) {
         unsafe {
-            dos_qquickview_set_source_url(self.view, qurl.as_ptr())
+            de_qquickview_set_source_url(self.view, url.as_ptr() as *const c_void)
         }
     }
 
@@ -49,7 +54,7 @@ impl QQuickView {
     }
 }
 
-impl Drop for QQuickView {
+impl<'a> Drop for QQuickView<'a> {
     fn drop(&mut self) {
         unsafe {
             dos_qguiapplication_quit();
@@ -66,7 +71,7 @@ extern "C" {
     fn de_qguiapplication_delete(vptr: *mut c_void);
 
     fn de_qquickview_create() -> *mut c_void;
-    fn dos_qquickview_set_source_url(vptr: *mut c_void, url: *mut c_void);
+    fn de_qquickview_set_source_url(vptr: *mut c_void, url: *const c_void);
     fn dos_qquickview_show(vptr: *mut c_void);
     fn dos_qquickview_delete(vptr: *mut c_void);
     fn dos_qquickview_set_resize_mode(vptr: *mut c_void, resize_mode: c_int);

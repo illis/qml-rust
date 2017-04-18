@@ -33,11 +33,11 @@
 #define TESTRESOURCES_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 void init_testresources();
+bool invoke_slot(void *ptr);
 
 #ifdef __cplusplus
 }

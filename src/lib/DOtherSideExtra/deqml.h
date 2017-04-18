@@ -29,33 +29,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."
  */
 
-#include "testresources.h"
-#include <QMetaMethod>
-#include <QResource>
-#include <iostream>
+#ifndef DEQML_H
+#define DEQML_H
 
-void init_testresources()
-{
-    Q_INIT_RESOURCE(resources);
-}
+#include <DOtherSide/DOtherSideTypesCpp.h>
 
-bool invoke_slot(void *ptr)
-{
-    std::cout << "[C++] Invoking slot for " << ptr << std::endl;
-    auto qobject = static_cast<QObject *>(ptr);
-    auto metaObject = qobject->metaObject();
-    int methodIndex = metaObject->indexOfMethod("test_slot(int)");
-    if (methodIndex == -1) {
-        std::cout << "[C++] Slot not found" << std::endl;
-        return false;
-    }
-    auto metaMethod = metaObject->method(methodIndex);
-    int returned = 0;
-    if (!metaMethod.invoke(qobject, Q_RETURN_ARG(int, returned), Q_ARG(int, 42))) {
-        std::cout << "[C++] Failed to invoke the slot" << std::endl;
-        return false;
-    }
+int deQmlRegisterQObject(DOS::QmlRegisterType &&args);
+int deQmlRegisterUncreatableQObject(DOS::QmlRegisterType &&args);
+int deQmlRegisterSingletonQObject(DOS::QmlRegisterType &&args);
 
-    std::cout << "[C++] Received result: " << returned << std::endl;
-    return returned == 42;
-}
+#endif // DEQML_H

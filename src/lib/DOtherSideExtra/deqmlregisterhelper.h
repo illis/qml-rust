@@ -29,33 +29,37 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."
  */
 
-#include "testresources.h"
-#include <QMetaMethod>
-#include <QResource>
-#include <iostream>
+#ifndef DEQMLREGISTERHELPER_H
+#define DEQMLREGISTERHELPER_H
 
-void init_testresources()
+#include <DOtherSide/DosQMetaObject.h>
+
+template <class TypedRegisterHelper, int RegisteryIndex, int RegistrationTypeId>
+class DeQmlRegisterHelper
 {
-    Q_INIT_RESOURCE(resources);
-}
+public:
+    static int registerType(int i, DOS::QmlRegisterType args)
+    {
+        if (i > RegisteryIndex) {
+            return -1;
+        } else if (i == RegisteryIndex) {
+            return TypedRegisterHelper::template registerType<RegisteryIndex, RegistrationTypeId>(std::move(args));
+        } else {
+            using NextDeQmlRegisterHelper =
+                DeQmlRegisterHelper<TypedRegisterHelper, RegisteryIndex - 1, RegistrationTypeId>;
+            return NextDeQmlRegisterHelper::registerType(i, std::move(args));
+        }
+    }
+};
 
-bool invoke_slot(void *ptr)
+template <class TypedRegisterHelper, int RegistrationTypeId>
+class DeQmlRegisterHelper<TypedRegisterHelper, 0, RegistrationTypeId>
 {
-    std::cout << "[C++] Invoking slot for " << ptr << std::endl;
-    auto qobject = static_cast<QObject *>(ptr);
-    auto metaObject = qobject->metaObject();
-    int methodIndex = metaObject->indexOfMethod("test_slot(int)");
-    if (methodIndex == -1) {
-        std::cout << "[C++] Slot not found" << std::endl;
-        return false;
+public:
+    static int registerType(int i, DOS::QmlRegisterType args)
+    {
+        return i == 0 ? TypedRegisterHelper::template registerType<0, RegistrationTypeId>(std::move(args)) : -1;
     }
-    auto metaMethod = metaObject->method(methodIndex);
-    int returned = 0;
-    if (!metaMethod.invoke(qobject, Q_RETURN_ARG(int, returned), Q_ARG(int, 42))) {
-        std::cout << "[C++] Failed to invoke the slot" << std::endl;
-        return false;
-    }
+};
 
-    std::cout << "[C++] Received result: " << returned << std::endl;
-    return returned == 42;
-}
+#endif // DEQMLREGISTERHELPER_H

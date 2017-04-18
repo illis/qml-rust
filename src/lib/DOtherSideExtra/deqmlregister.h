@@ -29,33 +29,56 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."
  */
 
-#include "testresources.h"
-#include <QMetaMethod>
-#include <QResource>
-#include <iostream>
+#ifndef DEQMLREGISTER_H
+#define DEQMLREGISTER_H
 
-void init_testresources()
+#include "deqmlregister.fwd.h"
+#include <QtQml/qqml.h>
+
+enum RegistrationTypeId
 {
-    Q_INIT_RESOURCE(resources);
+    RegisterType,
+    RegisterUncreatableType,
+    RegisterSingletonType
+};
+
+template <>
+class DERegistrationStrategy<RegisterType>
+{
+public:
+    template <class Type>
+    static int registerType(const char *uri, int major, int minor, const char *qmlName)
+    {
+        return qmlRegisterType<Type>(uri, major, minor, qmlName);
+    }
+};
+
+template <>
+class DERegistrationStrategy<RegisterUncreatableType>
+{
+public:
+    template <class Type>
+    static int registerType(const char *uri, int major, int minor, const char *qmlName)
+    {
+        return qmlRegisterUncreatableType<Type>(uri, major, minor, qmlName, "Uncreatabale");
+    }
+};
+
+template <class Type>
+static QObject *singletontype_provider(QQmlEngine *, QJSEngine *)
+{
+    return new Type();
 }
 
-bool invoke_slot(void *ptr)
+template <>
+class DERegistrationStrategy<RegisterSingletonType>
 {
-    std::cout << "[C++] Invoking slot for " << ptr << std::endl;
-    auto qobject = static_cast<QObject *>(ptr);
-    auto metaObject = qobject->metaObject();
-    int methodIndex = metaObject->indexOfMethod("test_slot(int)");
-    if (methodIndex == -1) {
-        std::cout << "[C++] Slot not found" << std::endl;
-        return false;
+public:
+    template <class Type>
+    static int registerType(const char *uri, int major, int minor, const char *qmlName)
+    {
+        return qmlRegisterSingletonType<Type>(uri, major, minor, qmlName, singletontype_provider<Type>);
     }
-    auto metaMethod = metaObject->method(methodIndex);
-    int returned = 0;
-    if (!metaMethod.invoke(qobject, Q_RETURN_ARG(int, returned), Q_ARG(int, 42))) {
-        std::cout << "[C++] Failed to invoke the slot" << std::endl;
-        return false;
-    }
+};
 
-    std::cout << "[C++] Received result: " << returned << std::endl;
-    return returned == 42;
-}
+#endif // DEQMLREGISTER_H

@@ -88,7 +88,40 @@ pub struct QmlRegisterType {
 pub type CreateDObject = extern "C" fn(c_int, *mut c_void, *mut *mut c_void, *mut *mut c_void);
 pub type DeleteDObject = extern "C" fn(c_int, *mut c_void);
 
+/*
+lazy_static!{
+    static ref REGISTERED_TYPES: UnsafeWrapper = UnsafeWrapper(UnsafeCell::new(HashMap::new()));
+}
+*/
+
+extern "C" fn create_dobject(id: i32,
+                             wrapper: *mut c_void,
+                             binded_qobject: *mut *const c_void,
+                             dos_qobject: *mut *const c_void) {
+    /*let map = unsafe { &*(REGISTERED_TYPES.0.get()) };
+    // Getting shallow object from the map
+    let shallow = map.get(&id).unwrap();
+    // Getting pointer to a created object
+    let binded = shallow.get_new();
+
+    // Returning pointers to a wrapper and to an DosQObject, then swapping DosQObject with a fresh one
+    // Comments are copied 'as is' from the DOtherSide docs to ensure correctness
+    unsafe {
+        let mut qobj = &mut *shallow.get_qobj_from_ptr(binded);
+        // # Retrieve the DosQObject created dos_qobject_create() inside the nimQObject
+        *dosQObject = get_qobj_ptr(qobj);
+        // # Store the pointer to the nimQObject
+        *binded_ptr = get_binded_ptr(qobj);
+        // # Swap the vptr inside the nimQObject with the wrapper
+        set_qobj_ptr(qobj, wrapper);
+    }
+    forget(binded);*/
+
+}
+
+extern "C" fn delete_dobject(id: i32, ptr: *const c_void) {}
+
 extern "C" {
-    fn dos_qdeclarative_qmlregistertype(qmlRegisterType: *const QmlRegisterType) -> c_int;
-    fn dos_qdeclarative_qmlregistersingletontype(qmlRegisterType: *const QmlRegisterType) -> c_int;
+    fn de_qqml_qmlregisterobject(qml_register_type: *const QmlRegisterType) -> c_int;
+    // fn dos_qdeclarative_qmlregistersingletontype(qmlRegisterType: *const QmlRegisterType) -> c_int;
 }

@@ -29,18 +29,10 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."
  */
 
-#ifndef TYPES_H
-#define TYPES_H
+#ifndef DEQMLREGISTER_FWD_H
+#define DEQMLREGISTER_FWD_H
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
+template <int RegistrationTypeId>
+class DERegistrationStrategy;
 
-typedef void DEApplication;
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif // TYPES_H
+#endif // DEQMLREGISTER_FWD_H

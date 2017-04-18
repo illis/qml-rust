@@ -29,33 +29,27 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."
  */
 
-#include "testresources.h"
-#include <QMetaMethod>
-#include <QResource>
-#include <iostream>
+#ifndef DEQOBJECT_H
+#define DEQOBJECT_H
 
-void init_testresources()
+#include <QObject>
+#include <functional>
+// DOtherSide
+#include <DOtherSide/DOtherSideTypesCpp.h>
+#include <DOtherSide/DosIQObjectImpl.h>
+
+class DEQObject : public QObject, public DOS::DosIQObjectImpl
 {
-    Q_INIT_RESOURCE(resources);
-}
+public:
+    DEQObject(DOS::DosIQMetaObjectPtr metaObject, void *dObject, DOS::OnSlotExecuted onSlotExecuted);
+    bool emitSignal(QObject *emitter, const QString &name, const std::vector<QVariant> &arguments) override;
+    const QMetaObject *metaObject() const override;
+    int qt_metacall(QMetaObject::Call, int, void **) override;
+    void *dObject() const;
 
-bool invoke_slot(void *ptr)
-{
-    std::cout << "[C++] Invoking slot for " << ptr << std::endl;
-    auto qobject = static_cast<QObject *>(ptr);
-    auto metaObject = qobject->metaObject();
-    int methodIndex = metaObject->indexOfMethod("test_slot(int)");
-    if (methodIndex == -1) {
-        std::cout << "[C++] Slot not found" << std::endl;
-        return false;
-    }
-    auto metaMethod = metaObject->method(methodIndex);
-    int returned = 0;
-    if (!metaMethod.invoke(qobject, Q_RETURN_ARG(int, returned), Q_ARG(int, 42))) {
-        std::cout << "[C++] Failed to invoke the slot" << std::endl;
-        return false;
-    }
+private:
+    std::unique_ptr<DOS::DosIQObjectImpl> m_impl;
+    void *m_dObject{nullptr};
+};
 
-    std::cout << "[C++] Received result: " << returned << std::endl;
-    return returned == 42;
-}
+#endif // DEQOBJECT_H

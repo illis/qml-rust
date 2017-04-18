@@ -1,5 +1,5 @@
 <RCC>
     <qresource prefix="/">
-        <file>qml/autoclose.qml</file>
+        <file>qml/tst_simple.qml</file>
     </qresource>
 </RCC>

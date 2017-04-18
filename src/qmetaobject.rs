@@ -13,6 +13,16 @@ pub struct SlotDefinition {
     parameters_meta_types: Vec<QMetaType>,
 }
 
+impl SlotDefinition {
+    pub fn new(name: &str, return_meta_type: QMetaType, parameters_meta_types: Vec<QMetaType>) -> Self {
+        SlotDefinition {
+            name: name.to_string(),
+            return_meta_type: return_meta_type,
+            parameters_meta_types: parameters_meta_types,
+        }
+    }
+}
+
 pub struct PropertyDefinition {
     name: String,
     property_meta_type: QMetaType,
@@ -21,57 +31,68 @@ pub struct PropertyDefinition {
     notify_signal: String,
 }
 
-pub struct QMetaObject {
-    ptr: *mut c_void,
+pub struct QMetaObject<'a> {
+    ptr: &'a mut c_void,
 }
 
-impl QMetaObject {
+impl<'a> QMetaObject<'a> {
     pub fn new_qobject(name: &str,
                        signal_definitions: Vec<SignalDefinition>,
                        slot_definitions: Vec<SlotDefinition>,
-                       property_definitions: Vec<PropertyDefinition>) -> QMetaObject {
-        unsafe {
-            let meta_obj = QMetaObject {
-                ptr: dos_qobject_qmetaobject(),
-            };
+                       property_definitions: Vec<PropertyDefinition>) -> Option<Self> {
+        let signal_definition_wrappers = convert_into(signal_definitions);
+        let signal_definitions = convert_as(&signal_definition_wrappers);
+        let c_signal_definitions = CSignalDefinitions {
+            count: signal_definition_wrappers.len() as c_int,
+            definitions: signal_definitions.as_ptr(),
+        };
 
-            let signal_definition_wrappers = convert_into(signal_definitions);
-            let signal_definitions = convert_as(&signal_definition_wrappers);
-            let c_signal_definitions = CSignalDefinitions {
-                count: signal_definition_wrappers.len() as c_int,
-                definitions: signal_definitions.as_ptr(),
-            };
+        let slot_definition_wrappers = convert_into(slot_definitions);
+        let slot_definition = convert_as(&slot_definition_wrappers);
+        let c_slot_definitions = CSlotDefinitions {
+            count: slot_definition_wrappers.len() as c_int,
+            definitions: slot_definition.as_ptr(),
+        };
 
-            let slot_definition_wrappers = convert_into(slot_definitions);
-            let slot_definition = convert_as(&slot_definition_wrappers);
-            let c_slot_definitions = CSlotDefinitions {
-                count: slot_definition_wrappers.len() as c_int,
-                definitions: slot_definition.as_ptr(),
-            };
+        let property_definition_wrappers = convert_into(property_definitions);
+        let property_definitions = convert_as(&property_definition_wrappers);
+        let c_property_definitions = CPropertyDefinitions {
+            count: property_definition_wrappers.len() as c_int,
+            definitions: property_definitions.as_ptr(),
+        };
 
-            let property_definition_wrappers = convert_into(property_definitions);
-            let property_definitions = convert_as(&property_definition_wrappers);
-            let c_property_definitions = CPropertyDefinitions {
-                count: property_definition_wrappers.len() as c_int,
-                definitions: property_definitions.as_ptr(),
-            };
-
-            let name = CString::new(name).unwrap();
-            let dos_meta = dos_qmetaobject_create(meta_obj.ptr, name.as_ptr(), &c_signal_definitions,
-                                                  &c_slot_definitions, &c_property_definitions);
-
-            QMetaObject {
-                ptr: dos_meta
-            }
-        }
+        let qmeta = QMetaObject::qobject_metaobject();
+        let name = CString::new(name).ok();
+        qmeta.and_then(|qmeta| {
+            name.and_then(|name| {
+                let ptr = unsafe {
+                    dos_qmetaobject_create(qmeta.ptr, name.as_ptr(), &c_signal_definitions,
+                                           &c_slot_definitions, &c_property_definitions).as_mut()
+                };
+                ptr.map(|ptr| {
+                    QMetaObject {
+                        ptr: ptr
+                    }
+                })
+            })
+        })
     }
 
-    pub fn as_ptr(&self) -> *mut c_void {
+    pub fn as_ptr(&self) -> &c_void {
         self.ptr
+    }
+
+    pub fn qobject_metaobject() -> Option<Self> {
+        let ptr = unsafe {dos_qobject_qmetaobject().as_mut()};
+        ptr.map(|ptr| {
+            QMetaObject {
+                ptr: ptr,
+            }
+        })
     }
 }
 
-impl Drop for QMetaObject {
+impl<'a> Drop for QMetaObject<'a> {
     fn drop(&mut self) {
         unsafe {
             dos_qmetaobject_delete(self.ptr);
@@ -243,12 +264,10 @@ extern "C" {
 mod tests {
     use super::{QMetaObject, SignalDefinition, SlotDefinition, PropertyDefinition};
     use qmetatype::QMetaType;
-    use std::ptr;
 
     #[test]
     fn test_qmetaobject_memory() {
-        let meta_object = QMetaObject::new_qobject("Meta", Vec::new(), Vec::new(), Vec::new());
-        assert_ne!(meta_object.as_ptr(), ptr::null_mut());
+        QMetaObject::new_qobject("Meta", Vec::new(), Vec::new(), Vec::new());
     }
 
     #[test]
@@ -291,7 +310,6 @@ mod tests {
                 notify_signal: "testProperty2Changed".to_string()
             }
         ];
-        let meta_object = QMetaObject::new_qobject("Meta", signal_definitions, slot_definitions, property_definitions);
-        assert_ne!(meta_object.as_ptr(), ptr::null_mut());
+        QMetaObject::new_qobject("Meta", signal_definitions, slot_definitions, property_definitions);
     }
 }

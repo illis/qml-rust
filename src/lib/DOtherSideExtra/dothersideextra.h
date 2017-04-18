@@ -32,18 +32,24 @@
 #ifndef DOTHERSIDEEXTRA_H
 #define DOTHERSIDEEXTRA_H
 
-#include "types.h"
+#include "detypes.h"
 #include <DOtherSide/DOtherSideTypes.h>
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-DEApplication * de_qguiapplication_create(int argc, const char * const *argv);
+void de_delete_cstring(char *vptr);
+
+DEApplication *de_qguiapplication_create(int argc, const char *const *argv);
 void de_qguiapplication_delete(DEApplication *vptr);
 
-DosQQuickView * de_qquickview_create();
+DosQQuickView *de_qquickview_create();
+void de_qquickview_set_source_url(DosQQuickView *vptr, const DosQUrl *url);
+
+DosQObject *de_qobject_create(void *dObjectPointer, const DosQMetaObject *metaObject, DObjectCallback dObjectCallback);
+
+int de_qqml_qmlregisterobject(const QmlRegisterType *qmlRegisterType);
 
 #ifdef __cplusplus
 }

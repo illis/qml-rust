@@ -1,22 +1,28 @@
 use std::ffi::CString;
 use libc::{c_char, c_void};
 
-pub struct QUrl {
-    ptr: *mut c_void,
+pub struct QUrl<'a> {
+    ptr: &'a mut c_void,
 }
 
-impl QUrl {
-    pub fn new(url: &str) -> QUrl {
-        QUrl {
-            ptr: construct_qurl(url)
-        }
+impl<'a> QUrl<'a> {
+    pub fn new(url: &str) -> Option<Self> {
+        let url = CString::new(url).unwrap();
+        let qurl = unsafe {dos_qurl_create(url.as_ptr(), 0).as_mut()};
+
+        qurl.map(|ptr| {
+            QUrl {
+                ptr: ptr
+            }
+        })
     }
-    pub fn as_ptr(&self) -> *mut c_void {
+
+    pub fn as_ptr(&self) -> &c_void {
         self.ptr
     }
 }
 
-impl Drop for QUrl {
+impl<'a> Drop for QUrl<'a> {
     fn drop(&mut self) {
         unsafe {
             dos_qurl_delete(self.ptr);
@@ -29,19 +35,12 @@ extern "C" {
     fn dos_qurl_delete(url: *mut c_void);
 }
 
-fn construct_qurl(url: &str) -> *mut c_void {
-    let url = CString::new(url).unwrap();
-    unsafe { dos_qurl_create(url.as_ptr(), 0) }
-}
-
 #[cfg(test)]
 mod tests {
     use super::QUrl;
-    use std::ptr;
 
     #[test]
     fn test_qurl_memory() {
-        let url = QUrl::new("http://some/url");
-        assert_ne!(url.as_ptr(), ptr::null_mut());
+        QUrl::new("http://some/url");
     }
 }
