@@ -105,6 +105,6 @@ mod tests {
 
     #[test]
     fn test_qobject_memory() {
-        // QObject::new("Meta", Vec::new(), Vec::new(), Vec::new(), 123);
+        QObject::new("Meta", Vec::new(), Vec::new(), Vec::new(), 123);
     }
 }
