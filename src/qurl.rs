@@ -10,7 +10,7 @@ impl QUrl {
         let url = CString::new(url).unwrap();
 
         QUrl {
-            ptr: unsafe {dos_qurl_create(url.as_ptr(), 0)}
+            ptr: unsafe { dos_qurl_create(url.as_ptr(), 0) }
         }
     }
 }

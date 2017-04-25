@@ -33,7 +33,6 @@
 #include "deqml.h"
 #include "deqobject.h"
 #include <DOtherSide/DosQMetaObject.h>
-#include <DOtherSide/OnSlotExecutedHandler.h>
 #include <algorithm>
 #include <cstring>
 #include <memory>
@@ -141,13 +140,18 @@ void de_qquickview_set_source_url(DosQQuickView *vptr, const DosQUrl *url)
     view->setSource(*_url);
 }
 
-DosQObject *de_qobject_create(void *dObjectPointer, const DosQMetaObject *metaObject, DObjectCallback dObjectCallback)
+DosQObject *de_qobject_create(const DosQMetaObject *metaObject, DObjectCallback dObjectCallback)
 {
     auto metaObjectHolder = static_cast<const DOS::DosIQMetaObjectHolder *>(metaObject);
-    auto dosQObject = new DEQObject(metaObjectHolder->data(), dObjectPointer,
-                                    DOS::OnSlotExecutedHandler(dObjectPointer, dObjectCallback));
+    auto dosQObject = new DEQObject(metaObjectHolder->data(), dObjectCallback);
     QQmlEngine::setObjectOwnership(dosQObject, QQmlEngine::CppOwnership);
     return static_cast<QObject *>(dosQObject);
+}
+
+void de_qobject_set_dobject(void *vptr, void *dObject)
+{
+    auto dosQObject = static_cast<DEQObject *>(vptr);
+    dosQObject->setDObject(dObject);
 }
 
 static DOS::QmlRegisterType fromRawQmlRegisterType(const QmlRegisterType *qmlRegisterType)

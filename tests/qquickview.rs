@@ -1,7 +1,8 @@
 extern crate qml;
+
 use qml::{QQuickView, QUrl};
 
-#[link(name="testresources", kind="static")]
+#[link(name = "testresources", kind = "static")]
 #[test]
 fn test_qquickview_memory() {
     let mut view = QQuickView::new();

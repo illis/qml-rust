@@ -62,7 +62,7 @@ public:
         *bindedQObject = new int{42};
 
         auto metaObject{std::make_shared<DOS::DosQObjectMetaObject>()};
-        *dosQObject = new DEQObject{metaObject, nullptr, {}};
+        *dosQObject = new DEQObject{metaObject, nullptr};
 
         properties().constructorCalled = true;
     }

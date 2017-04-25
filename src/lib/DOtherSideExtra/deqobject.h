@@ -41,11 +41,12 @@
 class DEQObject : public QObject, public DOS::DosIQObjectImpl
 {
 public:
-    DEQObject(DOS::DosIQMetaObjectPtr metaObject, void *dObject, DOS::OnSlotExecuted onSlotExecuted);
+    DEQObject(DOS::DosIQMetaObjectPtr metaObject, DObjectCallback callback);
     bool emitSignal(QObject *emitter, const QString &name, const std::vector<QVariant> &arguments) override;
     const QMetaObject *metaObject() const override;
     int qt_metacall(QMetaObject::Call, int, void **) override;
     void *dObject() const;
+    void setDObject(void *dObject);
 
 private:
     std::unique_ptr<DOS::DosIQObjectImpl> m_impl;

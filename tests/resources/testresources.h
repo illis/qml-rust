@@ -39,6 +39,11 @@ extern "C" {
 void init_testresources();
 bool invoke_slot(void *ptr);
 
+void set_value(void *ptr, int value);
+void *create_value_changed_spy(void *ptr);
+void delete_value_changed_spy(const void *ptr);
+int value_changed_spy_get_value(const void *ptr);
+
 #ifdef __cplusplus
 }
 #endif

@@ -30,6 +30,7 @@
  */
 
 #include "deqobject.h"
+#include "deslotexecutor.h"
 #include <DOtherSide/DosQMetaObject.h>
 #include <DOtherSide/DosQObjectImpl.h>
 
@@ -43,10 +44,9 @@ DOS::DosQObjectImpl::ParentMetaCall createParentMetaCall(QObject *parent)
 }
 }
 
-DEQObject::DEQObject(DOS::DosIQMetaObjectPtr metaObject, void *dObject, DOS::OnSlotExecuted onSlotExecuted)
+DEQObject::DEQObject(DOS::DosIQMetaObjectPtr metaObject, DObjectCallback callback)
     : m_impl{new DOS::DosQObjectImpl(this, ::createParentMetaCall(this), std::move(metaObject),
-                                     std::move(onSlotExecuted))}
-    , m_dObject{dObject}
+                                     DESlotExecutor<DEQObject>(*this, callback))}
 {
 }
 
@@ -71,4 +71,9 @@ int DEQObject::qt_metacall(QMetaObject::Call call, int index, void **args)
 void *DEQObject::dObject() const
 {
     return m_dObject;
+}
+
+void DEQObject::setDObject(void *dObject)
+{
+    m_dObject = dObject;
 }

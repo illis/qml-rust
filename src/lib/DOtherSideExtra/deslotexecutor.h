@@ -29,31 +29,30 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."
  */
 
-#ifndef DOTHERSIDEEXTRA_H
-#define DOTHERSIDEEXTRA_H
+#ifndef DESLOTEXECUTOR_H
+#define DESLOTEXECUTOR_H
 
-#include "detypes.h"
-#include <DOtherSide/DOtherSideTypes.h>
+#include <DOtherSide/OnSlotExecutedHandler.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+template <class QObject>
+class DESlotExecutor
+{
+public:
+    DESlotExecutor(const QObject &qObject, DObjectCallback callback)
+        : m_qObject{qObject}
+        , m_callback{callback}
+    {
+    }
+    QVariant operator()(const QString &name, const std::vector<QVariant> &arguments) const
+    {
+        void *dObject{m_qObject.dObject()};
+        DOS::OnSlotExecutedHandler handler{dObject, m_callback};
+        return handler(name, arguments);
+    }
 
-void de_delete_cstring(char *vptr);
+private:
+    const QObject &m_qObject;
+    DObjectCallback m_callback;
+};
 
-DEApplication *de_qguiapplication_create(int argc, const char *const *argv);
-void de_qguiapplication_delete(DEApplication *vptr);
-
-DosQQuickView *de_qquickview_create();
-void de_qquickview_set_source_url(DosQQuickView *vptr, const DosQUrl *url);
-
-DosQObject *de_qobject_create(const DosQMetaObject *metaObject, DObjectCallback dObjectCallback);
-void de_qobject_set_dobject(void *vptr, void *dObject);
-
-int de_qqml_qmlregisterobject(const QmlRegisterType *qmlRegisterType);
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif // DOTHERSIDE_H
+#endif // DESLOTEXECUTOR_H

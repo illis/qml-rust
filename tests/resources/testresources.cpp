@@ -59,3 +59,59 @@ bool invoke_slot(void *ptr)
     std::cout << "[C++] Received result: " << returned << std::endl;
     return returned == 42;
 }
+
+void set_value(void *ptr, int value)
+{
+    auto qobject = static_cast<QObject *>(ptr);
+    auto metaObject = qobject->metaObject();
+    int methodIndex = metaObject->indexOfMethod("setValue(int)");
+    if (methodIndex == -1) {
+        return;
+    }
+
+    auto metaMethod = metaObject->method(methodIndex);
+    metaMethod.invoke(qobject, Q_ARG(int, value));
+}
+
+class ValueChangedSpy : public QObject
+{
+    Q_OBJECT
+public:
+    ValueChangedSpy(QObject *parent = nullptr)
+        : QObject{parent}
+    {
+    }
+    int value() const
+    {
+        return m_value;
+    }
+public slots:
+    void slotValueChanged(int value)
+    {
+        m_value = value;
+    }
+
+private:
+    int m_value{0};
+};
+
+void *create_value_changed_spy(void *ptr)
+{
+    auto qobject = static_cast<QObject *>(ptr);
+    auto spy = new ValueChangedSpy{};
+    QObject::connect(qobject, SIGNAL(valueChanged(int)), spy, SLOT(slotValueChanged(int)));
+    return spy;
+}
+
+void delete_value_changed_spy(const void *ptr)
+{
+    delete static_cast<const ValueChangedSpy *>(ptr);
+}
+
+int value_changed_spy_get_value(const void *ptr)
+{
+    auto spy = static_cast<const ValueChangedSpy *>(ptr);
+    return spy->value();
+}
+
+#include "testresources.moc"

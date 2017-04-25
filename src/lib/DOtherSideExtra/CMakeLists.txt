@@ -22,6 +22,7 @@ set(${PROJECT_NAME}_SRCS
     deqmlregisterhelper.h
     deqobject.cpp
     deqobjectwrapper.h
+    deslotexecutor.h
     dothersideextra.cpp
 )
 

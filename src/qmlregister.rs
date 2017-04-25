@@ -1,47 +1,75 @@
+use std::ffi::CString;
 use libc::{c_char, c_int, c_void};
+use qobject::QObject;
+
+pub struct QmlRegisterType {
+    uri: &'static str,
+    major: i32,
+    minor: i32,
+    name: &'static str,
+}
+
+pub trait QmlRegisterableObject {
+    extern "C" fn create_qobject(id: i32, wrapper: *mut c_void,
+                                 dobject_ptr: *mut *const c_void,
+                                 qobject_ptr: *mut *const c_void);
+    extern "C" fn delete_dobject(id: i32, dobject_ptr: *mut c_void);
+    fn get_register_type() -> QmlRegisterType;
+}
+
+#[macro_export]
+macro_rules! qml_register_qobject {
+    ($rust_type:ident as $qml:expr, $uri:expr => $major:expr => $minor:expr) => {
+        impl QmlRegisterableObject for $rust_type {
+            extern "C" fn create_qobject(_: i32, _: *mut c_void,
+                                         dobject_ptr: *mut *const c_void,
+                                         qobject_ptr: *mut *const c_void) {
+                unsafe {
+                    let dobject = QObject::new(stringify!($qml), Vec::new(), Vec::new(), Vec::new(), $rust_type::new());
+                    dobject.map(|mut dobject| {
+                        *qobject_ptr = dobject.as_mut() as *mut c_void;
+                        *dobject_ptr = Box::into_raw(Box::new(dobject)) as *mut c_void;
+                    });
+                }
+            }
+
+            extern "C" fn delete_dobject(_: i32, dobject_ptr: *mut c_void) {
+                unsafe { Box::from_raw(dobject_ptr as *mut QObject<$rust_type>); }
+            }
+
+            fn get_register_type() -> QmlRegisterType {
+                QmlRegisterType {
+                    uri: $uri,
+                    major: $major,
+                    minor: $minor,
+                    name: stringify!($qml),
+                }
+            }
+        }
+    }
+}
 
 /*
-extern "C" fn delete_dobject(id: i32, ptr: *const libc::c_void) {}
-
-pub type RegisterQualifier = (i32, i32, &'static str, &'static str);
-#[doc(hidden)]
-pub trait QMLRegisterable: QObjectMacro {
-    fn qualify_to_register(&self) -> RegisterQualifier;
-    fn get_new(&self) -> *mut libc::c_void;
-    fn get_qobj_from_ptr(&self, ptr: *mut libc::c_void) -> *mut QObject;
-}
-
-extern "C" fn create_dobject(id: i32,
-                             wrapper: DosQObject,
-                             binded_ptr: *mut *const libc::c_void,
-                             dosQObject: *mut DosQObject) {
-    let map = unsafe { &*(REGISTERED_TYPES.0.get()) };
-    // Getting shallow object from the map
-    let shallow = map.get(&id).unwrap();
-    // Getting pointer to a created object
-    let binded = shallow.get_new();
-
-    // Returning pointers to a wrapper and to an DosQObject, then swapping DosQObject with a fresh one
-    // Comments are copied 'as is' from the DOtherSide docs to ensure correctness
+pub fn qml_register_qobject<T: QObjectContent>() {
+    let register_type = T::get_register_type();
+    let uri = CString::new(register_type.uri).unwrap();
+    let qml = CString::new(register_type.qml).unwrap();
+    let c_register_type = CQmlRegisterType {
+        major: register_type.major,
+        minor: register_type.minor,
+        uri: uri.as_ptr(),
+        qml: qml.as_ptr(),
+        //static_meta_object:
+    };
     unsafe {
-        let mut qobj = &mut *shallow.get_qobj_from_ptr(binded);
-        // # Retrieve the DosQObject created dos_qobject_create() inside the nimQObject
-        *dosQObject = get_qobj_ptr(qobj);
-        // # Store the pointer to the nimQObject
-        *binded_ptr = get_binded_ptr(qobj);
-        // # Swap the vptr inside the nimQObject with the wrapper
-        set_qobj_ptr(qobj, wrapper);
+        de_qqml_qmlregisterobject(T::get_register_type())
     }
-    forget(binded);
 }
+*/
 
-struct UnsafeWrapper(UnsafeCell<HashMap<i32, Box<QMLRegisterable>>>);
-unsafe impl Sync for UnsafeWrapper {}
-unsafe impl Send for UnsafeWrapper {}
 
-lazy_static!{
-    static ref REGISTERED_TYPES: UnsafeWrapper = UnsafeWrapper(UnsafeCell::new(HashMap::new()));
-}
+/*
+
 
 type Registerer = unsafe extern "C" fn(*const QmlRegisterType) -> i32;
 fn register_with<T: QMLRegisterable + 'static>(t: T, r: Registerer) {
@@ -75,7 +103,7 @@ pub fn register_qml_singleton_type<T: QMLRegisterable + 'static>(t: T) {
 */
 
 #[repr(C)]
-pub struct QmlRegisterType {
+pub struct CQmlRegisterType {
     major: c_int,
     minor: c_int,
     uri: *const c_char,
@@ -88,40 +116,49 @@ pub struct QmlRegisterType {
 pub type CreateDObject = extern "C" fn(c_int, *mut c_void, *mut *mut c_void, *mut *mut c_void);
 pub type DeleteDObject = extern "C" fn(c_int, *mut c_void);
 
-/*
-lazy_static!{
-    static ref REGISTERED_TYPES: UnsafeWrapper = UnsafeWrapper(UnsafeCell::new(HashMap::new()));
-}
-*/
-
-extern "C" fn create_dobject(id: i32,
-                             wrapper: *mut c_void,
-                             binded_qobject: *mut *const c_void,
-                             dos_qobject: *mut *const c_void) {
-    /*let map = unsafe { &*(REGISTERED_TYPES.0.get()) };
-    // Getting shallow object from the map
-    let shallow = map.get(&id).unwrap();
-    // Getting pointer to a created object
-    let binded = shallow.get_new();
-
-    // Returning pointers to a wrapper and to an DosQObject, then swapping DosQObject with a fresh one
-    // Comments are copied 'as is' from the DOtherSide docs to ensure correctness
-    unsafe {
-        let mut qobj = &mut *shallow.get_qobj_from_ptr(binded);
-        // # Retrieve the DosQObject created dos_qobject_create() inside the nimQObject
-        *dosQObject = get_qobj_ptr(qobj);
-        // # Store the pointer to the nimQObject
-        *binded_ptr = get_binded_ptr(qobj);
-        // # Swap the vptr inside the nimQObject with the wrapper
-        set_qobj_ptr(qobj, wrapper);
-    }
-    forget(binded);*/
-
-}
-
-extern "C" fn delete_dobject(id: i32, ptr: *const c_void) {}
-
 extern "C" {
-    fn de_qqml_qmlregisterobject(qml_register_type: *const QmlRegisterType) -> c_int;
+    fn de_qqml_qmlregisterobject(qml_register_type: *const CQmlRegisterType) -> c_int;
     // fn dos_qdeclarative_qmlregistersingletontype(qmlRegisterType: *const QmlRegisterType) -> c_int;
 }
+
+/*
+#[cfg(test)]
+mod tests {
+    use qvariant::QVariant;
+    use qvariantview::QVariantView;
+    use qobject::{QObject, QObjectContent, QObjectMeta};
+    use super::{QmlRegisterType, QmlRegisterableObject};
+    use libc::c_void;
+
+    struct Test {
+        value: i32
+    }
+
+    impl<'a> QObjectMeta for QObjectContent<'a, Test> {
+        fn new_meta() -> Option<QMetaObject<'a>> {
+            QMetaObject::new("QTest", Vec::new(), Vec::new(), Vec::new())
+        }
+        fn qslot_call(&mut self, _: &str, _: Vec<QVariantView>) -> Option<QVariant> {
+            None
+        }
+    }
+
+    impl Test {
+        fn new() -> Self {
+            Test {
+                value: 0
+            }
+        }
+    }
+
+    qml_register_qobject!(Test as QTest, "test.submodule" => 1 => 0);
+
+    #[test]
+    fn test_qml_register_qobject() {
+        assert_eq!(Test::get_register_type().uri, "test.submodule");
+        assert_eq!(Test::get_register_type().major, 1);
+        assert_eq!(Test::get_register_type().minor, 0);
+        assert_eq!(Test::get_register_type().name, "QTest");
+    }
+}
+*/

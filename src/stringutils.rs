@@ -1,5 +1,5 @@
-use libc::c_char;
 use std::ffi::CStr;
+use libc::c_char;
 
 pub struct CStringWrapper {
     ptr: *const c_char,
@@ -23,7 +23,7 @@ impl Drop for CStringWrapper {
 
 impl<'a> From<&'a CStringWrapper> for String {
     fn from(value: &'a CStringWrapper) -> Self {
-        let string = unsafe {CStr::from_ptr(value.ptr)};
+        let string = unsafe { CStr::from_ptr(value.ptr) };
         string.to_string_lossy().into_owned()
     }
 }

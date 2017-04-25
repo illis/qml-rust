@@ -1,4 +1,3 @@
-use std::ffi::CString;
 use libc::{c_char, c_int, c_float, c_double, c_void};
 use qvariant::QVariant;
 use stringutils::CStringWrapper;
@@ -10,9 +9,10 @@ pub struct QVariantView {
 impl<'a> QVariantView {
     pub fn from_ptr(ptr: *mut c_void) -> Self {
         QVariantView {
-            ptr: unsafe {ptr.as_mut().unwrap()}
+            ptr: unsafe { ptr.as_mut().unwrap() }
         }
     }
+
     pub fn set(&mut self, value: &'a QVariant) {
         unsafe {
             dos_qvariant_assign(self.ptr, ::qvariant::get_ptr(value))
@@ -23,71 +23,67 @@ impl<'a> QVariantView {
 // i32
 impl<'a> From<QVariantView> for i32 {
     fn from(value: QVariantView) -> Self {
-        unsafe {dos_qvariant_toInt(value.ptr) as i32}
+        unsafe { dos_qvariant_toInt(value.ptr) as i32 }
     }
 }
 
 impl<'a> From<&'a QVariantView> for i32 {
     fn from(value: &QVariantView) -> Self {
-        unsafe {dos_qvariant_toInt(value.ptr) as i32}
+        unsafe { dos_qvariant_toInt(value.ptr) as i32 }
     }
 }
 
 // f32
 impl<'a> From<QVariantView> for f32 {
     fn from(value: QVariantView) -> Self {
-        unsafe {dos_qvariant_toFloat(value.ptr) as f32}
+        unsafe { dos_qvariant_toFloat(value.ptr) as f32 }
     }
 }
 
 impl<'a> From<&'a QVariantView> for f32 {
     fn from(value: &QVariantView) -> Self {
-        unsafe {dos_qvariant_toFloat(value.ptr) as f32}
+        unsafe { dos_qvariant_toFloat(value.ptr) as f32 }
     }
 }
 
 // f64
 impl<'a> From<QVariantView> for f64 {
     fn from(value: QVariantView) -> Self {
-        unsafe {dos_qvariant_toDouble(value.ptr) as f64}
+        unsafe { dos_qvariant_toDouble(value.ptr) as f64 }
     }
 }
 
 impl<'a> From<&'a QVariantView> for f64 {
     fn from(value: &QVariantView) -> Self {
-        unsafe {dos_qvariant_toDouble(value.ptr) as f64}
+        unsafe { dos_qvariant_toDouble(value.ptr) as f64 }
     }
 }
 
 // bool
 impl<'a> From<QVariantView> for bool {
     fn from(value: QVariantView) -> Self {
-        unsafe {dos_qvariant_toBool(value.ptr)}
+        unsafe { dos_qvariant_toBool(value.ptr) }
     }
 }
 
 impl<'a> From<&'a QVariantView> for bool {
     fn from(value: &QVariantView) -> Self {
-        unsafe {dos_qvariant_toBool(value.ptr)}
+        unsafe { dos_qvariant_toBool(value.ptr) }
     }
 }
 
 // str
 impl<'a> From<QVariantView> for String {
     fn from(value: QVariantView) -> Self {
-        unsafe {
-            let string = CStringWrapper::new(unsafe {dos_qvariant_toString(value.ptr)});
-            String::from(&string)
-        }
+        let string = CStringWrapper::new(unsafe { dos_qvariant_toString(value.ptr) });
+        String::from(&string)
     }
 }
 
 impl<'a> From<&'a QVariantView> for String {
     fn from(value: &QVariantView) -> Self {
-        unsafe {
-            let string = CStringWrapper::new(unsafe {dos_qvariant_toString(value.ptr)});
-            String::from(&string)
-        }
+        let string = CStringWrapper::new(unsafe { dos_qvariant_toString(value.ptr) });
+        String::from(&string)
     }
 }
 

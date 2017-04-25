@@ -56,7 +56,6 @@ public:
     {
         m_data.deleteDObject(m_id, m_dObject);
         m_dObject = nullptr;
-        delete dynamic_cast<QObject *>(m_impl);
         m_impl = nullptr;
     }
     const QMetaObject *metaObject() const override

@@ -7,6 +7,15 @@ pub struct SignalDefinition {
     parameters_meta_types: Vec<QMetaType>,
 }
 
+impl SignalDefinition {
+    pub fn new(name: &str, parameters_meta_types: Vec<QMetaType>) -> Self {
+        SignalDefinition {
+            name: name.to_string(),
+            parameters_meta_types: parameters_meta_types,
+        }
+    }
+}
+
 pub struct SlotDefinition {
     name: String,
     return_meta_type: QMetaType,
@@ -74,7 +83,7 @@ impl QMetaObject {
 
     pub fn qobject_metaobject() -> Self {
         QMetaObject {
-            ptr: unsafe {dos_qobject_qmetaobject()},
+            ptr: unsafe { dos_qobject_qmetaobject() },
         }
     }
 }
