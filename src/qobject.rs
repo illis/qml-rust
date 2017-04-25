@@ -12,7 +12,7 @@ pub trait QObjectContent {
 
 pub struct QObject<'a, T: QObjectContent> {
     ptr: &'a mut c_void,
-    meta: QMetaObject<'a>,
+    meta: QMetaObject,
     content: Box<T>
 }
 
@@ -24,19 +24,18 @@ impl<'a, T: QObjectContent> QObject<'a, T> {
                content: T) -> Option<Self> {
         let content = Box::new(content);
         let content = Box::into_raw(content) as *mut T;
-        let meta = QMetaObject::new_qobject(name, signal_definitions, slot_definitions,
-                                            property_definitions);
-        meta.and_then(|meta| {
-            let ptr = unsafe {
-                de_qobject_create(content as *mut c_void, meta.as_ptr(), QObject::<'a, T>::qslot_callback).as_mut()
-            };
-            ptr.map(|ptr| {
-                QObject {
-                    ptr: ptr,
-                    meta: meta,
-                    content: unsafe {Box::from_raw(content)},
-                }
-            })
+        let mut meta = QMetaObject::new_qobject(name, signal_definitions, slot_definitions,
+                                                property_definitions);
+        let ptr = unsafe {
+            de_qobject_create(content as *mut c_void, ::qmetaobject::get_mut(&mut meta),
+                              QObject::<'a, T>::qslot_callback).as_mut()
+        };
+        ptr.map(|ptr| {
+            QObject {
+                ptr: ptr,
+                meta: meta,
+                content: unsafe {Box::from_raw(content)},
+            }
         })
     }
 
@@ -48,11 +47,7 @@ impl<'a, T: QObjectContent> QObject<'a, T> {
         &mut self.content
     }
 
-    pub fn as_ptr(&self) -> &c_void {
-        self.ptr
-    }
-
-    pub fn as_mut(&mut self) -> &mut c_void {
+    pub fn as_mut(&mut self) -> *mut c_void {
         self.ptr
     }
 

@@ -2,25 +2,19 @@ use std::ffi::CString;
 use libc::{c_char, c_int, c_float, c_double, c_void};
 use stringutils::CStringWrapper;
 
-pub struct QVariant<'a> {
-    ptr: &'a mut c_void,
+pub struct QVariant {
+    ptr: *mut c_void,
 }
 
-impl<'a> QVariant<'a> {
-    pub fn as_ptr(&self) -> &c_void {
-        self.ptr
-    }
-    pub fn as_mut(&mut self) -> &mut c_void {
-        self.ptr
-    }
+impl QVariant {
     pub fn set(&mut self, value: &QVariant) {
         unsafe {
-            dos_qvariant_assign(self.ptr, value.as_ptr())
+            dos_qvariant_assign(self.ptr, value.ptr)
         }
     }
 }
 
-impl<'a> Clone for QVariant<'a> {
+impl Clone for QVariant {
     fn clone(&self) -> Self {
         unsafe {
             QVariant {
@@ -30,7 +24,7 @@ impl<'a> Clone for QVariant<'a> {
     }
 }
 
-impl<'a> Drop for QVariant<'a> {
+impl Drop for QVariant {
     fn drop(&mut self) {
         unsafe {
             dos_qvariant_delete(self.ptr);
@@ -38,14 +32,18 @@ impl<'a> Drop for QVariant<'a> {
     }
 }
 
+pub fn get_ptr(instance: &QVariant) -> *const c_void {
+    instance.ptr
+}
+
 // i32
-impl<'a> From<&'a QVariant<'a>> for i32 {
+impl<'a> From<&'a QVariant> for i32 {
     fn from(value: &QVariant) -> Self {
         unsafe {dos_qvariant_toInt(value.ptr) as i32}
     }
 }
 
-impl<'a> From<i32> for QVariant<'a> {
+impl<'a> From<i32> for QVariant {
     fn from(value: i32) -> Self {
         QVariant {
             ptr: unsafe {dos_qvariant_create_int(value as c_int).as_mut().unwrap()},
@@ -54,13 +52,13 @@ impl<'a> From<i32> for QVariant<'a> {
 }
 
 // f32
-impl<'a> From<&'a QVariant<'a>> for f32 {
+impl<'a> From<&'a QVariant> for f32 {
     fn from(value: &QVariant) -> Self {
         unsafe {dos_qvariant_toFloat(value.ptr) as f32}
     }
 }
 
-impl<'a> From<f32> for QVariant<'a> {
+impl<'a> From<f32> for QVariant {
     fn from(value: f32) -> Self {
         QVariant {
             ptr: unsafe {dos_qvariant_create_float(value as c_float).as_mut().unwrap()},
@@ -69,13 +67,13 @@ impl<'a> From<f32> for QVariant<'a> {
 }
 
 // f64
-impl<'a> From<&'a QVariant<'a>> for f64 {
+impl<'a> From<&'a QVariant> for f64 {
     fn from(value: &QVariant) -> Self {
         unsafe {dos_qvariant_toDouble(value.ptr) as f64}
     }
 }
 
-impl<'a> From<f64> for QVariant<'a> {
+impl<'a> From<f64> for QVariant {
     fn from(value: f64) -> Self {
         QVariant {
             ptr: unsafe {dos_qvariant_create_double(value as c_double).as_mut().unwrap()},
@@ -84,13 +82,13 @@ impl<'a> From<f64> for QVariant<'a> {
 }
 
 // bool
-impl<'a> From<&'a QVariant<'a>> for bool {
+impl<'a> From<&'a QVariant> for bool {
     fn from(value: &QVariant) -> Self {
         unsafe {dos_qvariant_toBool(value.ptr)}
     }
 }
 
-impl<'a> From<bool> for QVariant<'a> {
+impl<'a> From<bool> for QVariant {
     fn from(value: bool) -> Self {
         QVariant {
             ptr: unsafe {dos_qvariant_create_bool(value).as_mut().unwrap()},
@@ -99,14 +97,14 @@ impl<'a> From<bool> for QVariant<'a> {
 }
 
 // str
-impl<'a> From<&'a QVariant<'a>> for String {
+impl<'a> From<&'a QVariant> for String {
     fn from(value: &QVariant) -> Self {
         let string = CStringWrapper::new(unsafe {dos_qvariant_toString(value.ptr)});
         String::from(&string)
     }
 }
 
-impl<'a, 'b> From<&'a str> for QVariant<'b> {
+impl<'a> From<&'a str> for QVariant {
     fn from(value: &'a str) -> Self {
         let string = CString::new(value).unwrap();
         QVariant {

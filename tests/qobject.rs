@@ -1,7 +1,6 @@
 extern crate qml;
 extern crate libc;
-use qml::{QMetaType, QObject, QObjectContent, QVariant, QVariantView};
-use qml::qmetaobject::SlotDefinition;
+use qml::{QMetaType, QObject, QObjectContent, QVariant, QVariantView, SlotDefinition};
 use libc::c_void;
 
 #[link(name="testresources", kind="static")]

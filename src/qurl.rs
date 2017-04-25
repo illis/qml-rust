@@ -1,33 +1,30 @@
 use std::ffi::CString;
 use libc::{c_char, c_void};
 
-pub struct QUrl<'a> {
-    ptr: &'a mut c_void,
+pub struct QUrl {
+    ptr: *mut c_void,
 }
 
-impl<'a> QUrl<'a> {
-    pub fn new(url: &str) -> Option<Self> {
+impl QUrl {
+    pub fn new(url: &str) -> Self {
         let url = CString::new(url).unwrap();
-        let qurl = unsafe {dos_qurl_create(url.as_ptr(), 0).as_mut()};
 
-        qurl.map(|ptr| {
-            QUrl {
-                ptr: ptr
-            }
-        })
-    }
-
-    pub fn as_ptr(&self) -> &c_void {
-        self.ptr
+        QUrl {
+            ptr: unsafe {dos_qurl_create(url.as_ptr(), 0)}
+        }
     }
 }
 
-impl<'a> Drop for QUrl<'a> {
+impl Drop for QUrl {
     fn drop(&mut self) {
         unsafe {
             dos_qurl_delete(self.ptr);
         }
     }
+}
+
+pub fn get_mut(instance: &mut QUrl) -> *mut c_void {
+    instance.ptr
 }
 
 extern "C" {

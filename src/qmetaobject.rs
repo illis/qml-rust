@@ -31,15 +31,15 @@ pub struct PropertyDefinition {
     notify_signal: String,
 }
 
-pub struct QMetaObject<'a> {
-    ptr: &'a mut c_void,
+pub struct QMetaObject {
+    ptr: *mut c_void,
 }
 
-impl<'a> QMetaObject<'a> {
+impl QMetaObject {
     pub fn new_qobject(name: &str,
                        signal_definitions: Vec<SignalDefinition>,
                        slot_definitions: Vec<SlotDefinition>,
-                       property_definitions: Vec<PropertyDefinition>) -> Option<Self> {
+                       property_definitions: Vec<PropertyDefinition>) -> Self {
         let signal_definition_wrappers = convert_into(signal_definitions);
         let signal_definitions = convert_as(&signal_definition_wrappers);
         let c_signal_definitions = CSignalDefinitions {
@@ -62,42 +62,33 @@ impl<'a> QMetaObject<'a> {
         };
 
         let qmeta = QMetaObject::qobject_metaobject();
-        let name = CString::new(name).ok();
-        qmeta.and_then(|qmeta| {
-            name.and_then(|name| {
-                let ptr = unsafe {
-                    dos_qmetaobject_create(qmeta.ptr, name.as_ptr(), &c_signal_definitions,
-                                           &c_slot_definitions, &c_property_definitions).as_mut()
-                };
-                ptr.map(|ptr| {
-                    QMetaObject {
-                        ptr: ptr
-                    }
-                })
-            })
-        })
+        let name = CString::new(name).unwrap();
+        let ptr = unsafe {
+            dos_qmetaobject_create(qmeta.ptr, name.as_ptr(), &c_signal_definitions,
+                                   &c_slot_definitions, &c_property_definitions)
+        };
+        QMetaObject {
+            ptr: ptr
+        }
     }
 
-    pub fn as_ptr(&self) -> &c_void {
-        self.ptr
-    }
-
-    pub fn qobject_metaobject() -> Option<Self> {
-        let ptr = unsafe {dos_qobject_qmetaobject().as_mut()};
-        ptr.map(|ptr| {
-            QMetaObject {
-                ptr: ptr,
-            }
-        })
+    pub fn qobject_metaobject() -> Self {
+        QMetaObject {
+            ptr: unsafe {dos_qobject_qmetaobject()},
+        }
     }
 }
 
-impl<'a> Drop for QMetaObject<'a> {
+impl Drop for QMetaObject {
     fn drop(&mut self) {
         unsafe {
             dos_qmetaobject_delete(self.ptr);
         }
     }
+}
+
+pub fn get_mut(instance: &mut QMetaObject) -> *mut c_void {
+    instance.ptr
 }
 
 fn convert_into<T, U: From<T>>(input: Vec<T>) -> Vec<U> {

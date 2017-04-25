@@ -12,8 +12,8 @@ pub fn get_local_file(path: &str) -> String {
 }
 
 fn main() {
-    let mut view = QQuickView::new().unwrap();
-    let url = QUrl::new(&get_local_file("examples/simple.qml")).unwrap();
+    let mut view = QQuickView::new();
+    let url = QUrl::new(&get_local_file("examples/simple.qml"));
     view.load_url(url);
     view.exec();
 }

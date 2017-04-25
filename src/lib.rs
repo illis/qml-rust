@@ -2,7 +2,7 @@ extern crate libc;
 #[macro_use]
 extern crate lazy_static;
 
-pub mod qmetaobject;
+mod qmetaobject;
 mod qmetatype;
 mod qmlregister;
 mod qobject;
@@ -14,6 +14,7 @@ mod qvariant;
 mod qvariantview;
 mod stringutils;
 
+pub use qmetaobject::{QMetaObject, SignalDefinition, SlotDefinition, PropertyDefinition};
 pub use qmetatype::{QMetaTypable, QMetaType};
 pub use qobject::{QObject, QObjectContent};
 pub use qquickview::QQuickView;
