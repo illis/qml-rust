@@ -40,6 +40,38 @@ pub struct PropertyDefinition {
     notify_signal: String,
 }
 
+impl PropertyDefinition {
+    pub fn new_const(name: &str, property_meta_type: QMetaType, read_slot: &str) -> Self {
+        PropertyDefinition {
+            name: name.to_string(),
+            property_meta_type: property_meta_type,
+            read_slot: read_slot.to_string(),
+            write_slot: "".to_string(),
+            notify_signal: "".to_string(),
+        }
+    }
+
+    pub fn new_read_only(name: &str, property_meta_type: QMetaType, read_slot: &str, notify_signal: &str) -> Self {
+        PropertyDefinition {
+            name: name.to_string(),
+            property_meta_type: property_meta_type,
+            read_slot: read_slot.to_string(),
+            write_slot: "".to_string(),
+            notify_signal: notify_signal.to_string(),
+        }
+    }
+
+    pub fn new_read_write(name: &str, property_meta_type: QMetaType, read_slot: &str, write_slot: &str, notify_signal: &str) -> Self {
+        PropertyDefinition {
+            name: name.to_string(),
+            property_meta_type: property_meta_type,
+            read_slot: read_slot.to_string(),
+            write_slot: write_slot.to_string(),
+            notify_signal: notify_signal.to_string(),
+        }
+    }
+}
+
 pub struct QMetaObject {
     ptr: *mut c_void,
 }

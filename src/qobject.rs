@@ -4,7 +4,7 @@ use std::rc::{Rc, Weak};
 use std::slice::from_raw_parts_mut;
 use libc::{c_char, c_int, c_void};
 use qmetaobject::QMetaObject;
-use qobjectcontent::QObjectContent;
+use qobjectcontent::{QObjectContent, QObjectContentConstructor};
 use qsignalemitter::QSignalEmitter;
 use qvariant::QVariant;
 use qvariantview::QVariantView;
@@ -15,7 +15,7 @@ pub struct QObject<T: QObjectContent> {
     content: Box<T>,
 }
 
-impl<T: QObjectContent> QObject<T> {
+impl<T: QObjectContent + QObjectContentConstructor> QObject<T> {
     pub fn new() -> Self {
         let mut meta = T::get_metatype();
         let ptr = unsafe {
@@ -28,7 +28,7 @@ impl<T: QObjectContent> QObject<T> {
         let returned = QObject {
             _meta: meta,
             ptr: ptr.clone(),
-            content: unsafe {Box::from_raw(content_ptr)},
+            content: unsafe { Box::from_raw(content_ptr) },
         };
         unsafe {
             de_qobject_set_dobject(ptr.borrow_mut().as_mut(), content_ptr as *mut c_void);
@@ -140,23 +140,27 @@ extern "C" {
 
 #[cfg(test)]
 mod tests {
-    use super::{QObject, QObjectContent, QSignalEmitter};
+    use super::{QObject, QSignalEmitter};
     use qmetaobject::QMetaObject;
+    use qobjectcontent::{QObjectContent, QObjectContentConstructor};
     use qvariant::QVariant;
     use qvariantview::QVariantView;
 
     struct Content {}
 
     impl QObjectContent for Content {
-        fn new(_: Box<QSignalEmitter>) -> Self {
-            Content {}
-        }
-
         fn get_metatype() -> QMetaObject {
             QMetaObject::new_qobject("Meta", Vec::new(), Vec::new(), Vec::new())
         }
+
         fn invoke_slot(&mut self, _: &str, _: Vec<QVariantView>) -> Option<QVariant> {
             None
+        }
+    }
+
+    impl QObjectContentConstructor for Content {
+        fn new(_: Box<QSignalEmitter>) -> Self {
+            Content {}
         }
     }
 

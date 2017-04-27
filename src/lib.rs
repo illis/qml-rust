@@ -17,7 +17,7 @@ mod stringutils;
 pub use qmetaobject::{QMetaObject, SignalDefinition, SlotDefinition, PropertyDefinition};
 pub use qmetatype::{QMetaTypable, QMetaType};
 pub use qobject::QObject;
-pub use qobjectcontent::QObjectContent;
+pub use qobjectcontent::{QObjectContent, QObjectContentConstructor};
 pub use qquickview::QQuickView;
 pub use qurl::QUrl;
 pub use qsignalemitter::QSignalEmitter;

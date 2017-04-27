@@ -2,7 +2,7 @@ extern crate qml;
 extern crate libc;
 
 use libc::{c_int, c_void};
-use qml::{QObject, QMetaObject, QObjectContent, QMetaType, QSignalEmitter, QVariant, QVariantView, SignalDefinition, SlotDefinition};
+use qml::{QObject, QMetaObject, QObjectContent, QObjectContentConstructor, QMetaType, QSignalEmitter, QVariant, QVariantView, SignalDefinition, SlotDefinition};
 
 #[link(name = "testresources", kind = "static")]
 #[test]
@@ -28,7 +28,7 @@ fn test_qobject_value_changed() {
 }
 
 struct TestObject {
-    signal_invoker: Box<QSignalEmitter>,
+    signal_emitter: Box<QSignalEmitter>,
     value: i32,
 }
 
@@ -38,7 +38,7 @@ trait QTestObjectSignals {
 
 impl QTestObjectSignals for TestObject {
     fn value_changed(&mut self) {
-        self.signal_invoker.emit_signal("valueChanged", vec![QVariant::from(self.value)]);
+        self.signal_emitter.emit_signal("valueChanged", vec![QVariant::from(self.value)]);
     }
 }
 
@@ -56,13 +56,6 @@ impl TestObject {
 }
 
 impl QObjectContent for TestObject {
-    fn new(signal_invoker: Box<QSignalEmitter>) -> Self {
-        TestObject {
-            signal_invoker: signal_invoker,
-            value: 123,
-        }
-    }
-
     fn get_metatype() -> QMetaObject {
         let signal_definitions = vec![SignalDefinition::new("valueChanged", vec![QMetaType::Int])];
         let slot_definitions = vec![SlotDefinition::new("setValue", QMetaType::Void, vec![QMetaType::Int])];
@@ -81,6 +74,15 @@ impl QObjectContent for TestObject {
         let arg0 = &args[0];
         self.set_value(arg0.into());
         None
+    }
+}
+
+impl QObjectContentConstructor for TestObject {
+    fn new(signal_emitter: Box<QSignalEmitter>) -> Self {
+        TestObject {
+            signal_emitter: signal_emitter,
+            value: 123,
+        }
     }
 }
 

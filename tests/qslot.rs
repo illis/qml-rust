@@ -2,7 +2,7 @@ extern crate qml;
 extern crate libc;
 
 use libc::c_void;
-use qml::{QMetaType, QMetaObject, QObject, QObjectContent, QSignalEmitter, QVariant, QVariantView, SlotDefinition};
+use qml::{QMetaType, QMetaObject, QObject, QObjectContent, QObjectContentConstructor, QSignalEmitter, QVariant, QVariantView, SlotDefinition};
 
 #[link(name = "testresources", kind = "static")]
 #[test]
@@ -26,16 +26,11 @@ impl Content {
 }
 
 impl QObjectContent for Content {
-    fn new(_: Box<QSignalEmitter>) -> Self {
-        Content {
-            invoked: false
-        }
-    }
-
     fn get_metatype() -> QMetaObject {
         let slot = SlotDefinition::new("test_slot", QMetaType::Int, vec![QMetaType::Int]);
         QMetaObject::new_qobject("TestQObject", Vec::new(), vec![slot], Vec::new())
     }
+
     fn invoke_slot(&mut self, name: &str, args: Vec<QVariantView>) -> Option<QVariant> {
         if name != "test_slot" {
             return None;
@@ -53,6 +48,13 @@ impl QObjectContent for Content {
     }
 }
 
+impl QObjectContentConstructor for Content {
+    fn new(_: Box<QSignalEmitter>) -> Self {
+        Content {
+            invoked: false
+        }
+    }
+}
 
 extern "C" {
     fn invoke_slot(vptr: *mut c_void) -> bool;

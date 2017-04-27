@@ -117,6 +117,15 @@ impl<'a> From<&'a str> for QVariant {
     }
 }
 
+impl From<String> for QVariant {
+    fn from(value: String) -> Self {
+        let string = CString::new(value).unwrap();
+        QVariant {
+            ptr: unsafe { dos_qvariant_create_string(string.as_ptr()).as_mut().unwrap() },
+        }
+    }
+}
+
 extern "C" {
     fn dos_qvariant_create_int(value: c_int) -> *mut c_void;
     fn dos_qvariant_create_bool(value: bool) -> *mut c_void;
