@@ -42,14 +42,6 @@ int deQmlRegisterQObject(DOS::QmlRegisterType &&args)
     return RegisterHelper::registerType(i++, std::move(args));
 }
 
-int deQmlRegisterUncreatableQObject(DOS::QmlRegisterType &&args)
-{
-    // 30 uncreatable QObjects are allowed
-    static int i = 0;
-    using RegisterHelper = DeQmlRegisterHelper<DEQObjectWrapperRegisterHelper, 30, RegisterUncreatableType>;
-    return RegisterHelper::registerType(i++, std::move(args));
-}
-
 int deQmlRegisterSingletonQObject(DOS::QmlRegisterType &&args)
 {
     // 5 singleton QObjects are allowed

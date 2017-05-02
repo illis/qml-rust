@@ -35,7 +35,6 @@
 #include <DOtherSide/DOtherSideTypesCpp.h>
 
 int deQmlRegisterQObject(DOS::QmlRegisterType &&args);
-int deQmlRegisterUncreatableQObject(DOS::QmlRegisterType &&args);
 int deQmlRegisterSingletonQObject(DOS::QmlRegisterType &&args);
 
 #endif // DEQML_H
