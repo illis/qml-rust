@@ -11,6 +11,7 @@ macro_rules! q_object {
     }
 }
 
+#[macro_export]
 macro_rules! q_object_generate_signal_trait {
     ($signals:ident, $($definitions:tt)*) => {
         trait $signals {
@@ -19,6 +20,7 @@ macro_rules! q_object_generate_signal_trait {
     }
 }
 
+#[macro_export]
 macro_rules! q_object_generate_signal_definitions {
     (signal fn $name:ident($($param:ident: $paramtype:ident),*); $($rest:tt)*) => {
         fn $name(&mut self, $($param: $paramtype),*);
@@ -43,6 +45,7 @@ macro_rules! q_object_generate_signal_definitions {
     () => {};
 }
 
+#[macro_export]
 macro_rules! q_object_generate_signal_impl {
     ($name:ident, $signals:ident, $($definitions:tt)*) => {
         impl $signals for $name {
@@ -51,6 +54,7 @@ macro_rules! q_object_generate_signal_impl {
     }
 }
 
+#[macro_export]
 macro_rules! q_object_generate_signal_implementations {
     (signal fn $name:ident($($param:ident: $paramtype:ident),*); $($rest:tt)*) => {
         #[allow(unused_mut)]
@@ -83,6 +87,7 @@ macro_rules! q_object_generate_signal_implementations {
     () => {};
 }
 
+#[macro_export]
 macro_rules! q_object_generate_content {
     ($name:ident, $($definitions:tt)*) => {
         impl QObjectContent for $name {
@@ -120,12 +125,13 @@ macro_rules! q_object_generate_content {
     }
 }
 
+#[macro_export]
 macro_rules! q_object_generate_signal_metas {
     ($signals:ident => {signal fn $name:ident($($param:ident: $paramtype:ident),*); $($rest:tt)*}) => {
         {
-            let mut parameters_meta_types = Vec::<QMetaType>::new();
-            $(parameters_meta_types.push($paramtype::metatype());)*
-            $signals.push(SignalDefinition::new(stringify!($name), parameters_meta_types));
+            let mut parameters_definitions = Vec::<ParameterDefinition>::new();
+            $(parameters_definitions.push(ParameterDefinition::new(stringify!($param), $paramtype::metatype()));)*
+            $signals.push(SignalDefinition::new(stringify!($name), parameters_definitions));
         }
 
         q_object_generate_signal_metas!($signals => {$($rest)*});
@@ -148,24 +154,25 @@ macro_rules! q_object_generate_signal_metas {
     ($signals:ident => {}) => {};
 }
 
+#[macro_export]
 macro_rules! q_object_generate_slot_metas {
     ($slots:ident => {signal fn $name:ident($($param:ident: $paramtype:ident),*); $($rest:tt)*}) => {
         q_object_generate_slot_metas!($slots => {$($rest)*});
     };
     ($slots:ident => {slot fn $name:ident($($param:ident: $paramtype:ident),*); $($rest:tt)*}) => {
         {
-            let mut parameters_meta_types = Vec::<QMetaType>::new();
-            $(parameters_meta_types.push($paramtype::metatype());)*
-            $slots.push(SlotDefinition::new(stringify!($name), QMetaType::Void, parameters_meta_types));
+            let mut parameters_definitions = Vec::<ParameterDefinition>::new();
+            $(parameters_definitions.push(ParameterDefinition::new(stringify!($param), $paramtype::metatype()));)*
+            $slots.push(SlotDefinition::new(stringify!($name), QMetaType::Void, parameters_definitions));
         }
 
         q_object_generate_slot_metas!($slots => {$($rest)*});
     };
     ($slots:ident => {slot fn $name:ident($($param:ident: $paramtype:ident),*) -> $returntype:ident; $($rest:tt)*}) => {
         {
-            let mut parameters_meta_types = Vec::<QMetaType>::new();
-            $(parameters_meta_types.push($paramtype::metatype());)*
-            $slots.push(SlotDefinition::new(stringify!($name), $returntype::metatype(), parameters_meta_types));
+            let mut parameters_definitions = Vec::<ParameterDefinition>::new();
+            $(parameters_definitions.push(ParameterDefinition::new(stringify!($param), $paramtype::metatype()));)*
+            $slots.push(SlotDefinition::new(stringify!($name), $returntype::metatype(), parameters_definitions));
         }
 
         q_object_generate_slot_metas!($slots => {$($rest)*});
@@ -182,6 +189,7 @@ macro_rules! q_object_generate_slot_metas {
     ($slots:ident => {}) => {};
 }
 
+#[macro_export]
 macro_rules! q_object_generate_properties_metas {
     ($properties:ident => {signal fn $name:ident($($param:ident: $paramtype:ident),*); $($rest:tt)*}) => {
         q_object_generate_properties_metas!($properties => {$($rest)*});
@@ -210,6 +218,7 @@ macro_rules! q_object_generate_properties_metas {
     ($properties:ident => {}) => {};
 }
 
+#[macro_export]
 macro_rules! q_object_generate_slot_implementations {
     ($_self:ident, $args:ident, $caller:ident => {signal fn $name:ident($($param:ident: $paramtype:ident),*); $($rest:tt)*}) => {
         q_object_generate_slot_implementations!($_self, $args, $caller => {$($rest)*});
@@ -253,7 +262,7 @@ macro_rules! q_object_generate_slot_implementations {
 
 #[cfg(test)]
 mod tests {
-    use qmetaobject::{QMetaObject, SignalDefinition, SlotDefinition, PropertyDefinition};
+    use qmetaobject::{QMetaObject, ParameterDefinition, SignalDefinition, SlotDefinition, PropertyDefinition};
     use qmetatype::{QMetaType, QMetaTypable};
     use qobject::QObject;
     use qobjectcontent::{QObjectContent, QObjectContentConstructor};

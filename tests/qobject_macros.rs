@@ -1,0 +1,47 @@
+#[macro_use]
+extern crate qml;
+extern crate libc;
+
+use qml::*;
+use libc::c_void;
+
+q_object! {
+    pub TestObject => TestObjectSignals {
+        signal fn value_changed(value: i32);
+        slot fn set_value(value: i32);
+        slot fn get_value() -> i32;
+        property value: i32, read: get_value;
+        property value2: i32, read: get_value, notify: value_changed;
+        property value3: i32, read: get_value, write: set_value, notify: value_changed;
+    }
+}
+
+struct TestObject {
+    signal_emitter: Box<QSignalEmitter>,
+}
+
+impl TestObject {
+    fn set_value(&mut self, _: i32) {}
+    fn get_value(&self) -> i32 {
+        123
+    }
+}
+
+impl QObjectContentConstructor for TestObject {
+    fn new(signal_emitter: Box<QSignalEmitter>) -> Self {
+        TestObject {
+            signal_emitter: signal_emitter,
+        }
+    }
+}
+
+#[link(name = "testresources", kind = "static")]
+#[test]
+fn test_qobject_macro_creates_correct_metatype() {
+    let mut qobject = QObject::<TestObject>::new();
+    assert!(unsafe { check_metatype(qobject.as_mut()) });
+}
+
+extern "C" {
+    fn check_metatype(vptr: *const c_void) -> bool;
+}

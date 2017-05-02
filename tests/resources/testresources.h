@@ -44,6 +44,8 @@ void *create_value_changed_spy(void *ptr);
 void delete_value_changed_spy(const void *ptr);
 int value_changed_spy_get_value(const void *ptr);
 
+bool check_metatype(const void *ptr);
+
 #ifdef __cplusplus
 }
 #endif

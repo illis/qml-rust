@@ -2,7 +2,7 @@ extern crate qml;
 extern crate libc;
 
 use libc::{c_int, c_void};
-use qml::{QObject, QMetaObject, QObjectContent, QObjectContentConstructor, QMetaType, QSignalEmitter, QVariant, QVariantView, SignalDefinition, SlotDefinition};
+use qml::{QObject, QMetaObject, QObjectContent, QObjectContentConstructor, QMetaType, QSignalEmitter, QVariant, QVariantView, ParameterDefinition, SignalDefinition, SlotDefinition};
 
 #[link(name = "testresources", kind = "static")]
 #[test]
@@ -57,8 +57,10 @@ impl TestObject {
 
 impl QObjectContent for TestObject {
     fn get_metatype() -> QMetaObject {
-        let signal_definitions = vec![SignalDefinition::new("valueChanged", vec![QMetaType::Int])];
-        let slot_definitions = vec![SlotDefinition::new("setValue", QMetaType::Void, vec![QMetaType::Int])];
+        let signal_parameters = vec![ParameterDefinition::new("param", QMetaType::Int)];
+        let signal_definitions = vec![SignalDefinition::new("valueChanged", signal_parameters)];
+        let slot_parameters = vec![ParameterDefinition::new("param", QMetaType::Int)];
+        let slot_definitions = vec![SlotDefinition::new("setValue", QMetaType::Void, slot_parameters)];
         let properties_definitions = vec![];
 
         QMetaObject::new_qobject("QTestObject", signal_definitions, slot_definitions, properties_definitions)

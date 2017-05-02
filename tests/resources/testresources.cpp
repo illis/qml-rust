@@ -114,4 +114,70 @@ int value_changed_spy_get_value(const void *ptr)
     return spy->value();
 }
 
+static bool checkProperty(const QMetaObject *metaObject, const char *name, bool writable, bool constant)
+{
+    int propertyIndex = metaObject->indexOfProperty(name);
+    if (propertyIndex == -1) {
+        std::cout << "[C++] Property " << name << " not found" << std::endl;
+        return false;
+    } else {
+        const QMetaProperty &property = metaObject->property(propertyIndex);
+        bool propertyReadable = property.isReadable();
+        bool propertyWritable = property.isWritable();
+        bool propertyConstant = property.isConstant();
+        std::cout << "[C++] Property " << name << " found: " << propertyIndex << std::endl
+                  << "[C++] With readable: " << propertyReadable << ", writable: " << propertyWritable
+                  << ", constant: " << propertyConstant << std::endl;
+        if (propertyReadable && propertyWritable == writable && propertyConstant == constant) {
+            return true;
+        } else {
+            std::cout << "[C++] Property " << name << " do not satisfy property definition" << std::endl;
+            return false;
+        }
+    }
+}
+
+bool check_metatype(const void *ptr)
+{
+    auto qobject = static_cast<const QObject *>(ptr);
+    auto metaObject = qobject->metaObject();
+    {
+        int slotIndex = metaObject->indexOfSlot("set_value(int)");
+        if (slotIndex == -1) {
+            std::cout << "[C++] Slot set_value not found" << std::endl;
+            return false;
+        } else {
+            std::cout << "[C++] Slot set_value found: " << slotIndex << std::endl;
+        }
+    }
+    {
+        int slotIndex = metaObject->indexOfMethod("get_value()");
+        if (slotIndex == -1) {
+            std::cout << "[C++] Method get_value not found" << std::endl;
+            return false;
+        } else {
+            std::cout << "[C++] Method get_value found: " << slotIndex << std::endl;
+        }
+    }
+    {
+        int signalIndex = metaObject->indexOfSignal("value_changed(int)");
+        if (signalIndex == -1) {
+            std::cout << "[C++] Signal value_changed not found" << std::endl;
+            return false;
+        } else {
+            std::cout << "[C++] Signal value_changed found: " << signalIndex << std::endl;
+        }
+    }
+    if (!checkProperty(metaObject, "value", false, true)) {
+        return false;
+    }
+    if (!checkProperty(metaObject, "value2", false, false)) {
+        return false;
+    }
+    if (!checkProperty(metaObject, "value3", true, false)) {
+        return false;
+    }
+    return true;
+}
+
 #include "testresources.moc"

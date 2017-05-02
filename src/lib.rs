@@ -14,7 +14,7 @@ mod qvariant;
 mod qvariantview;
 mod stringutils;
 
-pub use qmetaobject::{QMetaObject, SignalDefinition, SlotDefinition, PropertyDefinition};
+pub use qmetaobject::{QMetaObject, ParameterDefinition, SignalDefinition, SlotDefinition, PropertyDefinition};
 pub use qmetatype::{QMetaTypable, QMetaType};
 pub use qobject::QObject;
 pub use qobjectcontent::{QObjectContent, QObjectContentConstructor};
