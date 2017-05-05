@@ -16,7 +16,7 @@ impl CStringWrapper {
 impl Drop for CStringWrapper {
     fn drop(&mut self) {
         unsafe {
-            de_delete_cstring(self.ptr)
+            dos_chararray_delete(self.ptr)
         }
     }
 }
@@ -29,5 +29,5 @@ impl<'a> From<&'a CStringWrapper> for String {
 }
 
 extern "C" {
-    fn de_delete_cstring(vptr: *const c_char);
+    fn dos_chararray_delete(vptr: *const c_char);
 }

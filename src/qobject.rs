@@ -36,6 +36,26 @@ impl<T: QObjectContent + QObjectContentConstructor> QObject<T> {
         returned
     }
 
+    fn new_with_signal_emitter(signal_emitter: Box<QSignalEmitter>) -> Self {
+        let mut meta = T::get_metatype();
+        let ptr = unsafe {
+            de_qobject_create(::qmetaobject::get_mut(&mut meta), QObject::<T>::qslot_callback)
+        };
+
+        let ptr = Rc::new(RefCell::new(QObjectPtr::new(ptr)));
+        let content = Box::new(T::new(signal_emitter));
+        let content_ptr = Box::into_raw(content);
+        let returned = QObject {
+            _meta: meta,
+            ptr: ptr.clone(),
+            content: unsafe { Box::from_raw(content_ptr) },
+        };
+        unsafe {
+            de_qobject_set_dobject(ptr.borrow_mut().as_mut(), content_ptr as *mut c_void);
+        }
+        returned
+    }
+
     pub fn get_content(&self) -> &T {
         &*self.content
     }
@@ -68,6 +88,11 @@ impl<T: QObjectContent + QObjectContentConstructor> QObject<T> {
         }
     }
 }
+
+pub fn new_with_signal_emitter<T: QObjectContent + QObjectContentConstructor>(signal_emitter: Box<QSignalEmitter>) -> QObject<T> {
+    QObject::new_with_signal_emitter(signal_emitter)
+}
+
 
 pub struct SignalEmitter {
     ptr: QObjectWeakPtr,

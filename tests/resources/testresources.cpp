@@ -32,10 +32,51 @@
 #include "testresources.h"
 #include <QMetaMethod>
 #include <QResource>
+#include <QtQml/qqml.h>
 #include <iostream>
+
+class Debugger : public QObject
+{
+    Q_OBJECT
+public:
+    explicit Debugger(QObject *parent = nullptr)
+        : QObject{parent}
+    {
+    }
+public slots:
+    void debugObjectMethods(QObject *object)
+    {
+        auto metaObject = object->metaObject();
+
+        for (int i = 0; i < metaObject->methodCount(); ++i) {
+            auto method = metaObject->method(i);
+            std::cout << i << ": " << method.methodSignature().data() << " " << methodType(method.methodType())
+                      << std::endl;
+        }
+    }
+
+private:
+    static const char *methodType(QMetaMethod::MethodType type)
+    {
+        switch (type) {
+        case QMetaMethod::Method:
+            return "method";
+        case QMetaMethod::Signal:
+            return "signal";
+        case QMetaMethod::Slot:
+            return "slot";
+        case QMetaMethod::Constructor:
+            return "constructor";
+        default:
+            return "<unknown>";
+        }
+    }
+};
 
 void init_testresources()
 {
+    qmlRegisterSingletonType<Debugger>("debug", 1, 0, "Debugger",
+                                       [](QQmlEngine *, QJSEngine *) -> QObject * { return new Debugger{}; });
     Q_INIT_RESOURCE(resources);
 }
 

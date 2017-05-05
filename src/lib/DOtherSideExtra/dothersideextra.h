@@ -39,8 +39,6 @@
 extern "C" {
 #endif
 
-void de_delete_cstring(char *vptr);
-
 DEApplication *de_qguiapplication_create(int argc, const char *const *argv);
 void de_qguiapplication_delete(DEApplication *vptr);
 

@@ -1,9 +1,9 @@
+extern crate libc;
 #[macro_use]
 extern crate qml;
-extern crate libc;
 
-use qml::*;
 use libc::c_void;
+use qml::*;
 
 q_object! {
     pub TestObject => TestObjectSignals {

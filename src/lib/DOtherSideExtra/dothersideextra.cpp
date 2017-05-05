@@ -113,11 +113,6 @@ private:
     std::vector<char *> m_argv{};
 };
 
-void de_delete_cstring(char *vptr)
-{
-    delete[] vptr;
-}
-
 DEApplication *de_qguiapplication_create(int argc, const char *const *argv)
 {
     return new DEApplicationImpl{argc, argv};
