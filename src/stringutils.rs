@@ -15,9 +15,7 @@ impl CStringWrapper {
 
 impl Drop for CStringWrapper {
     fn drop(&mut self) {
-        unsafe {
-            dos_chararray_delete(self.ptr)
-        }
+        unsafe { dos_chararray_delete(self.ptr) }
     }
 }
 

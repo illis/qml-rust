@@ -1,9 +1,8 @@
 use std::ffi::CString;
 use std::marker::PhantomData;
 use libc::{c_char, c_int, c_void};
-use qobject::{QObject, new_with_signal_emitter};
-use qobjectcontent::{QObjectContent, QObjectContentConstructor};
-use qsignalemitter::QSignalEmitter;
+use qobject::{QObject, QObjectContent, QObjectContentConstructor, QSignalEmitter};
+use qvariant;
 use qvariant::QVariant;
 
 pub struct QQmlObject<T: QObjectContent + QObjectContentConstructor> {
@@ -12,7 +11,7 @@ pub struct QQmlObject<T: QObjectContent + QObjectContentConstructor> {
 
 impl<T: QObjectContent + QObjectContentConstructor> QQmlObject<T> {
     pub fn new(wrapper: *mut c_void) -> QObject<T> {
-        new_with_signal_emitter(Box::new(SignalEmitter::new(wrapper)))
+        super::qobject::new_with_signal_emitter(Box::new(SignalEmitter::new(wrapper)))
     }
 }
 
@@ -32,7 +31,7 @@ impl QSignalEmitter for SignalEmitter {
     fn emit_signal(&mut self, name: &str, mut args: Vec<QVariant>) {
         let string = CString::new(name).unwrap();
         let mut args: Vec<*mut c_void> = args.iter_mut()
-            .map(|item| ::qvariant::get_mut(item))
+            .map(|item| qvariant::qvariant::get_mut(item))
             .collect();
 
         unsafe {

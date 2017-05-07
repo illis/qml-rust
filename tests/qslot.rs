@@ -2,13 +2,16 @@ extern crate qml;
 extern crate libc;
 
 use libc::c_void;
-use qml::{QMetaType, QMetaObject, QObject, QObjectContent, QObjectContentConstructor, QSignalEmitter, QVariant, QVariantView, ParameterDefinition, SlotDefinition};
+use qml::{QMetaType, QMetaObject, QObject, QObjectRefMut, QObjectContent, QObjectContentConstructor, QSignalEmitter, QVariant, QVariantRefMut, ParameterDefinition, SlotDefinition};
 
 #[link(name = "testresources", kind = "static")]
 #[test]
 fn test_qobject_invoke_slot() {
     let mut qobject = QObject::<Content>::new();
-    assert!(unsafe { invoke_slot(qobject.as_mut()) });
+    {
+        let mut qobjectref = QObjectRefMut::from(&mut qobject);
+        assert!(unsafe { invoke_slot(qobjectref.as_mut()) });
+    }
     assert!(qobject.get_content().is_invoked());
 }
 
@@ -26,13 +29,13 @@ impl Content {
 }
 
 impl QObjectContent for Content {
-    fn get_metatype() -> QMetaObject {
+    fn get_metaobject() -> QMetaObject {
         let paramters = vec![ParameterDefinition::new("param", QMetaType::Int)];
         let slot = SlotDefinition::new("test_slot", QMetaType::Int, paramters);
         QMetaObject::new_qobject("TestQObject", Vec::new(), vec![slot], Vec::new())
     }
 
-    fn invoke_slot(&mut self, name: &str, args: Vec<QVariantView>) -> Option<QVariant> {
+    fn invoke_slot(&mut self, name: &str, args: Vec<QVariantRefMut>) -> Option<QVariant> {
         if name != "test_slot" {
             return None;
         }

@@ -39,7 +39,8 @@ impl QObjectContentConstructor for TestObject {
 #[test]
 fn test_qobject_macro_creates_correct_metatype() {
     let mut qobject = QObject::<TestObject>::new();
-    assert!(unsafe { check_metatype(qobject.as_mut()) });
+    let mut qobjectref = QObjectRefMut::from(&mut qobject);
+    assert!(unsafe { check_metatype(qobjectref.as_mut()) });
 }
 
 extern "C" {

@@ -138,9 +138,7 @@ impl QMetaObject {
 
 impl Drop for QMetaObject {
     fn drop(&mut self) {
-        unsafe {
-            dos_qmetaobject_delete(self.ptr);
-        }
+        unsafe { dos_qmetaobject_delete(self.ptr); }
     }
 }
 

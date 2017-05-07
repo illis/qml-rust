@@ -8,9 +8,7 @@ pub struct QVariant {
 
 impl QVariant {
     pub fn set(&mut self, value: &QVariant) {
-        unsafe {
-            dos_qvariant_assign(self.ptr, value.ptr)
-        }
+        unsafe { dos_qvariant_assign(self.ptr, value.ptr) }
     }
 }
 
@@ -26,9 +24,7 @@ impl Clone for QVariant {
 
 impl Drop for QVariant {
     fn drop(&mut self) {
-        unsafe {
-            dos_qvariant_delete(self.ptr);
-        }
+        unsafe { dos_qvariant_delete(self.ptr); }
     }
 }
 
@@ -127,23 +123,24 @@ impl From<String> for QVariant {
 }
 
 extern "C" {
+    fn dos_qvariant_assign(vptr: *mut c_void, other: *const c_void);
+    fn dos_qvariant_delete(vptr: *mut c_void);
+    fn dos_qvariant_create_qvariant(value: *const c_void) -> *mut c_void;
+
     fn dos_qvariant_create_int(value: c_int) -> *mut c_void;
+    fn dos_qvariant_create_float(value: c_float) -> *mut c_void;
+    fn dos_qvariant_create_double(value: c_double) -> *mut c_void;
     fn dos_qvariant_create_bool(value: bool) -> *mut c_void;
     fn dos_qvariant_create_string(value: *const c_char) -> *mut c_void;
     // fn dos_qvariant_create_qobject(value: *mut c_void) -> *mut c_void;
-    fn dos_qvariant_create_qvariant(value: *const c_void) -> *mut c_void;
-    fn dos_qvariant_create_float(value: c_float) -> *mut c_void;
-    fn dos_qvariant_create_double(value: c_double) -> *mut c_void;
     // fn dos_qvariant_create_array(size: c_int, array: *const c_void) -> *mut c_void;
 
-    fn dos_qvariant_assign(vptr: *mut c_void, other: *const c_void);
-    fn dos_qvariant_delete(vptr: *mut c_void);
-
     fn dos_qvariant_toInt(value: *const c_void) -> c_int;
-    fn dos_qvariant_toBool(value: *const c_void) -> bool;
-    fn dos_qvariant_toString(value: *const c_void) -> *mut c_char;
     fn dos_qvariant_toFloat(value: *const c_void) -> c_float;
     fn dos_qvariant_toDouble(value: *const c_void) -> c_double;
+    fn dos_qvariant_toBool(value: *const c_void) -> bool;
+    fn dos_qvariant_toString(value: *const c_void) -> *mut c_char;
+    // fn dos_qvariant_toQObject(value: *const c_void) -> *mut c_void;
 }
 
 #[cfg(test)]

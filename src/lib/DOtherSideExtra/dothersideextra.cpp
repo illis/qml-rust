@@ -149,6 +149,18 @@ void de_qobject_set_dobject(void *vptr, void *dObject)
     dosQObject->setDObject(dObject);
 }
 
+void *de_qobject_check_and_get_dobject(void *vptr, void *meta)
+{
+    auto dosQObject = static_cast<DEQObject *>(vptr);
+    auto currentMetaObject = dosQObject->metaObject();
+    auto metaObject = static_cast<QMetaObject *>(meta);
+    if (std::string(metaObject->className()) == std::string(currentMetaObject->className())) {
+        return dosQObject->dObject();
+    } else {
+        return nullptr;
+    }
+}
+
 static DOS::QmlRegisterType fromRawQmlRegisterType(const QmlRegisterType *qmlRegisterType)
 {
     auto holder = static_cast<DOS::DosIQMetaObjectHolder *>(qmlRegisterType->staticMetaObject);

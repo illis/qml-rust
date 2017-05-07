@@ -3,21 +3,18 @@ use std::ffi::CString;
 use std::rc::{Rc, Weak};
 use std::slice::from_raw_parts_mut;
 use libc::{c_char, c_int, c_void};
-use qmetaobject::QMetaObject;
-use qobjectcontent::{QObjectContent, QObjectContentConstructor};
-use qsignalemitter::QSignalEmitter;
-use qvariant::QVariant;
-use qvariantview::QVariantView;
+use qobject::{QObjectContent, QObjectContentConstructor, QSignalEmitter};
+use qvariant;
+use qvariant::{QVariant, QVariantRefMut};
 
 pub struct QObject<T: QObjectContent> {
-    _meta: QMetaObject,
     ptr: QObjectSharedPtr,
     content: Box<T>,
 }
 
 impl<T: QObjectContent + QObjectContentConstructor> QObject<T> {
     pub fn new() -> Self {
-        let mut meta = T::get_metatype();
+        let mut meta = T::get_metaobject();
         let ptr = unsafe {
             de_qobject_create(::qmetaobject::get_mut(&mut meta), QObject::<T>::qslot_callback)
         };
@@ -26,18 +23,15 @@ impl<T: QObjectContent + QObjectContentConstructor> QObject<T> {
         let content = Box::new(T::new(Box::new(SignalEmitter::new(Rc::downgrade(&ptr)))));
         let content_ptr = Box::into_raw(content);
         let returned = QObject {
-            _meta: meta,
             ptr: ptr.clone(),
             content: unsafe { Box::from_raw(content_ptr) },
         };
-        unsafe {
-            de_qobject_set_dobject(ptr.borrow_mut().as_mut(), content_ptr as *mut c_void);
-        }
+        unsafe { de_qobject_set_dobject(ptr.borrow_mut().as_mut(), content_ptr as *mut c_void); }
         returned
     }
 
     fn new_with_signal_emitter(signal_emitter: Box<QSignalEmitter>) -> Self {
-        let mut meta = T::get_metatype();
+        let mut meta = T::get_metaobject();
         let ptr = unsafe {
             de_qobject_create(::qmetaobject::get_mut(&mut meta), QObject::<T>::qslot_callback)
         };
@@ -46,13 +40,10 @@ impl<T: QObjectContent + QObjectContentConstructor> QObject<T> {
         let content = Box::new(T::new(signal_emitter));
         let content_ptr = Box::into_raw(content);
         let returned = QObject {
-            _meta: meta,
             ptr: ptr.clone(),
             content: unsafe { Box::from_raw(content_ptr) },
         };
-        unsafe {
-            de_qobject_set_dobject(ptr.borrow_mut().as_mut(), content_ptr as *mut c_void);
-        }
+        unsafe { de_qobject_set_dobject(ptr.borrow_mut().as_mut(), content_ptr as *mut c_void); }
         returned
     }
 
@@ -64,35 +55,32 @@ impl<T: QObjectContent + QObjectContentConstructor> QObject<T> {
         &mut *self.content
     }
 
-    pub fn as_mut<'a>(&'a mut self) -> &'a mut c_void {
-        let ptr = self.ptr.borrow_mut().as_mut();
-        unsafe {
-            ptr.as_mut().unwrap()
-        }
-    }
-
     extern "C" fn qslot_callback(object: *mut c_void, slot_name: *mut c_void,
                                  argc: c_int, argv: *mut *mut c_void) {
         let object_ptr = object as *mut T;
         let object = unsafe { object_ptr.as_mut() }.unwrap();
         let slice = unsafe { from_raw_parts_mut(argv, argc as usize) };
-        let vec: Vec<QVariantView> = slice.iter()
+        let vec: Vec<QVariantRefMut> = slice.iter()
             .skip(1)
-            .map(|&variant| QVariantView::from_ptr(variant))
+            .map(|&variant| qvariant::qvariantrefmut::from_ptr(variant))
             .collect();
-        let slot_name: String = QVariantView::from_ptr(slot_name).into();
+        let slot_name: String = qvariant::qvariantrefmut::from_ptr(slot_name).into();
 
         if let Some(returned) = object.invoke_slot(&slot_name, vec) {
-            let mut output = QVariantView::from_ptr(slice[0]);
+            let mut output = qvariant::qvariantrefmut::from_ptr(slice[0]);
             output.set(&returned);
         }
     }
 }
 
+pub fn get_mut<'a, T: QObjectContent + QObjectContentConstructor>(instance: &'a mut QObject<T>) -> &'a mut c_void {
+    let ptr = instance.ptr.borrow_mut().as_mut();
+    unsafe { ptr.as_mut().unwrap() }
+}
+
 pub fn new_with_signal_emitter<T: QObjectContent + QObjectContentConstructor>(signal_emitter: Box<QSignalEmitter>) -> QObject<T> {
     QObject::new_with_signal_emitter(signal_emitter)
 }
-
 
 pub struct SignalEmitter {
     ptr: QObjectWeakPtr,
@@ -110,7 +98,7 @@ impl QSignalEmitter for SignalEmitter {
     fn emit_signal(&mut self, name: &str, mut args: Vec<QVariant>) {
         let string = CString::new(name).unwrap();
         let mut args: Vec<*mut c_void> = args.iter_mut()
-            .map(|item| ::qvariant::get_mut(item))
+            .map(|item| qvariant::qvariant::get_mut(item))
             .collect();
 
         self.ptr.upgrade().and_then::<(), _>(|ptr| {
@@ -146,9 +134,7 @@ impl QObjectPtr {
 
 impl Drop for QObjectPtr {
     fn drop(&mut self) {
-        unsafe {
-            dos_qobject_delete(self.ptr)
-        }
+        unsafe { dos_qobject_delete(self.ptr) }
     }
 }
 
@@ -167,18 +153,17 @@ extern "C" {
 mod tests {
     use super::{QObject, QSignalEmitter};
     use qmetaobject::QMetaObject;
-    use qobjectcontent::{QObjectContent, QObjectContentConstructor};
-    use qvariant::QVariant;
-    use qvariantview::QVariantView;
+    use qobject::{QObjectContent, QObjectContentConstructor};
+    use qvariant::{QVariant, QVariantRefMut};
 
     struct Content {}
 
     impl QObjectContent for Content {
-        fn get_metatype() -> QMetaObject {
+        fn get_metaobject() -> QMetaObject {
             QMetaObject::new_qobject("Meta", Vec::new(), Vec::new(), Vec::new())
         }
 
-        fn invoke_slot(&mut self, _: &str, _: Vec<QVariantView>) -> Option<QVariant> {
+        fn invoke_slot(&mut self, _: &str, _: Vec<QVariantRefMut>) -> Option<QVariant> {
             None
         }
     }

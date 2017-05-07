@@ -41,4 +41,6 @@ pub enum QMetaType {
     QString = 10,
     Float = 38,
     QVariantList = 9,
+    QVariantMap = 8,
+    QObject = 39,
 }

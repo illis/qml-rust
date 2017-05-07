@@ -1,6 +1,7 @@
 use std::env;
 use std::ffi::CString;
 use libc::{c_char, c_int, c_void};
+use qurl;
 use qurl::{QUrl};
 
 pub struct QQuickView {
@@ -32,10 +33,8 @@ impl<'a> QQuickView {
     }
 
     pub fn load_url(&mut self, mut url: QUrl) {
-        let ptr = ::qurl::get_mut(&mut url);
-        unsafe {
-            de_qquickview_set_source_url(self.view, ptr)
-        }
+        let ptr = qurl::get_mut(&mut url);
+        unsafe { de_qquickview_set_source_url(self.view, ptr) }
     }
 
     pub fn exec(&mut self) {
@@ -45,9 +44,7 @@ impl<'a> QQuickView {
         }
     }
     pub fn quit(&mut self) {
-        unsafe {
-            dos_qguiapplication_quit();
-        }
+        unsafe { dos_qguiapplication_quit(); }
     }
 }
 

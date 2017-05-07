@@ -7,7 +7,10 @@ macro_rules! qml_register_qobject {
                                          qobject_ptr: *mut *mut c_void) {
                 unsafe {
                     let mut dobject = QQmlObject::<$name>::new(wrapper);
-                    *qobject_ptr = dobject.as_mut() as *mut c_void;
+                    {
+                        let mut dqobjectref = QObjectRefMut::from(&mut dobject);
+                        *qobject_ptr = dqobjectref.as_mut() as *mut c_void;
+                    }
                     *dobject_ptr = Box::into_raw(Box::new(dobject)) as *mut c_void;
                 }
             }

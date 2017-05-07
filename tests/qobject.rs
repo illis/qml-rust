@@ -2,29 +2,31 @@ extern crate qml;
 extern crate libc;
 
 use libc::{c_int, c_void};
-use qml::{QObject, QMetaObject, QObjectContent, QObjectContentConstructor, QMetaType, QSignalEmitter, QVariant, QVariantView, ParameterDefinition, SignalDefinition, SlotDefinition};
+use qml::{QObject, QObjectRefMut, QMetaObject, QObjectContent, QObjectContentConstructor, QMetaType, QSignalEmitter, QVariant, QVariantRefMut, ParameterDefinition, SignalDefinition, SlotDefinition};
 
 #[link(name = "testresources", kind = "static")]
 #[test]
 fn test_qobject_set_value() {
     let mut qobject = QObject::<TestObject>::new();
-    unsafe {
-        set_value(qobject.as_mut(), 42)
-    };
-
+    {
+        let mut qobjectref = QObjectRefMut::from(&mut qobject);
+        unsafe { set_value(qobjectref.as_mut(), 42) };
+    }
     assert_eq!(qobject.get_content().get_value(), 42);
 }
 
 #[test]
 fn test_qobject_value_changed() {
     let mut qobject = QObject::<TestObject>::new();
-    let spy = unsafe { create_value_changed_spy(qobject.as_mut()) };
+    let ptr = {
+        let mut qobjectref = QObjectRefMut::from(&mut qobject);
+        qobjectref.as_mut() as *mut c_void
+    };
+    let spy = unsafe { create_value_changed_spy(ptr) };
 
     qobject.get_content_mut().set_value(42);
     assert_eq!(unsafe { value_changed_spy_get_value(spy) }, 42);
-    unsafe {
-        delete_value_changed_spy(spy);
-    }
+    unsafe { delete_value_changed_spy(spy); }
 }
 
 struct TestObject {
@@ -56,7 +58,7 @@ impl TestObject {
 }
 
 impl QObjectContent for TestObject {
-    fn get_metatype() -> QMetaObject {
+    fn get_metaobject() -> QMetaObject {
         let signal_parameters = vec![ParameterDefinition::new("param", QMetaType::Int)];
         let signal_definitions = vec![SignalDefinition::new("valueChanged", signal_parameters)];
         let slot_parameters = vec![ParameterDefinition::new("param", QMetaType::Int)];
@@ -66,7 +68,7 @@ impl QObjectContent for TestObject {
         QMetaObject::new_qobject("QTestObject", signal_definitions, slot_definitions, properties_definitions)
     }
 
-    fn invoke_slot(&mut self, name: &str, args: Vec<QVariantView>) -> Option<QVariant> {
+    fn invoke_slot(&mut self, name: &str, args: Vec<QVariantRefMut>) -> Option<QVariant> {
         if name != "setValue" {
             return None;
         }

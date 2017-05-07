@@ -1,7 +1,7 @@
 use std::ffi::CString;
 use libc::{c_char, c_int, c_void};
 use qmetaobject::get_mut;
-use qobjectcontent::QObjectContent;
+use qobject::QObjectContent;
 
 pub struct QmlRegisterType {
     uri: &'static str,
@@ -33,7 +33,7 @@ pub fn qml_register_qobject<T: QObjectContent + QmlRegisterableObject>() {
     let register_type = T::get_register_type();
     let uri = CString::new(register_type.uri).unwrap();
     let qml = CString::new(register_type.name).unwrap();
-    let mut qmeta = T::get_metatype();
+    let mut qmeta = T::get_metaobject();
 
     let c_register_type = CQmlRegisterType {
         major: register_type.major,
@@ -44,9 +44,7 @@ pub fn qml_register_qobject<T: QObjectContent + QmlRegisterableObject>() {
         create_dobject: T::create_dobject,
         delete_dobject: T::delete_dobject,
     };
-    unsafe {
-        de_qqml_qmlregisterobject(&c_register_type);
-    }
+    unsafe { de_qqml_qmlregisterobject(&c_register_type); }
 }
 
 #[repr(C)]

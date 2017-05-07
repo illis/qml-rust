@@ -94,7 +94,7 @@ macro_rules! q_object_generate_content {
     ($name:ident, $($definitions:tt)*) => {
         impl QObjectContent for $name {
             #[allow(unused_mut)]
-            fn get_metatype() -> QMetaObject {
+            fn get_metaobject() -> QMetaObject {
                 let mut signals = Vec::<SignalDefinition>::new();
                 q_object_generate_signal_metas!(signals => {$($definitions)*});
 
@@ -110,8 +110,8 @@ macro_rules! q_object_generate_content {
             #[allow(dead_code)]
             #[allow(unused_mut)]
             #[allow(unused_variables)]
-            fn invoke_slot(&mut self, name: &str, args: Vec<QVariantView>) -> Option<QVariant> {
-                fn next_or_panic(value: Option<QVariantView>) -> QVariantView {
+            fn invoke_slot(&mut self, name: &str, args: Vec<QVariantRefMut>) -> Option<QVariant> {
+                fn next_or_panic(value: Option<QVariantRefMut>) -> QVariantRefMut {
                     if let Some(value) = value {
                         value
                     } else {
@@ -266,11 +266,8 @@ macro_rules! q_object_generate_slot_implementations {
 mod tests {
     use qmetaobject::{QMetaObject, ParameterDefinition, SignalDefinition, SlotDefinition, PropertyDefinition};
     use qmetatype::{QMetaType, QMetaTypable};
-    use qobject::QObject;
-    use qobjectcontent::{QObjectContent, QObjectContentConstructor};
-    use qsignalemitter::QSignalEmitter;
-    use qvariant::QVariant;
-    use qvariantview::QVariantView;
+    use qobject::{QObject, QObjectContent, QObjectContentConstructor, QSignalEmitter};
+    use qvariant::{QVariant, QVariantRefMut};
 
     q_object! {
         pub TestObject => TestObjectSignals {

@@ -47,6 +47,7 @@ void de_qquickview_set_source_url(DosQQuickView *vptr, const DosQUrl *url);
 
 DosQObject *de_qobject_create(const DosQMetaObject *metaObject, DObjectCallback dObjectCallback);
 void de_qobject_set_dobject(void *vptr, void *dObject);
+void *de_qobject_check_and_get_dobject(void *vptr, void *meta);
 
 int de_qqml_qmlregisterobject(const QmlRegisterType *qmlRegisterType);
 

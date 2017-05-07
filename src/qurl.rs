@@ -17,9 +17,7 @@ impl QUrl {
 
 impl Drop for QUrl {
     fn drop(&mut self) {
-        unsafe {
-            dos_qurl_delete(self.ptr);
-        }
+        unsafe { dos_qurl_delete(self.ptr); }
     }
 }
 
