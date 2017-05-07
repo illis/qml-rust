@@ -28,8 +28,10 @@ impl<'a, T: QObjectContent + QObjectContentConstructor> From<&'a mut QObject<T>>
     }
 }
 
-pub fn get_mut<'a, 'b: 'a>(instance: &'b mut QObjectRefMut<'a>) -> &'a mut c_void {
-    instance.ptr
+pub fn new<'a>(ptr: &'a mut c_void) -> QObjectRefMut<'a> {
+    QObjectRefMut {
+        ptr: ptr,
+    }
 }
 
 extern "C" {

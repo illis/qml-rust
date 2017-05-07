@@ -45,6 +45,7 @@ void delete_value_changed_spy(const void *ptr);
 int value_changed_spy_get_value(const void *ptr);
 
 bool check_metatype(const void *ptr);
+bool check_metatype_qvariant(const void *ptr);
 void debug_qobject(const void *ptr);
 
 #ifdef __cplusplus

@@ -31,7 +31,7 @@ impl<'a> From<QVariantRefMut<'a>> for i32 {
     }
 }
 
-impl<'a> From<&'a QVariantRefMut<'a>> for i32 {
+impl<'a, 'b: 'a> From<&'b QVariantRefMut<'a>> for i32 {
     fn from(value: &QVariantRefMut) -> Self {
         unsafe { dos_qvariant_toInt(value.ptr) as i32 }
     }
@@ -44,7 +44,7 @@ impl<'a> From<QVariantRefMut<'a>> for f32 {
     }
 }
 
-impl<'a> From<&'a QVariantRefMut<'a>> for f32 {
+impl<'a, 'b: 'a> From<&'b QVariantRefMut<'a>> for f32 {
     fn from(value: &QVariantRefMut) -> Self {
         unsafe { dos_qvariant_toFloat(value.ptr) as f32 }
     }
@@ -57,7 +57,7 @@ impl<'a> From<QVariantRefMut<'a>> for f64 {
     }
 }
 
-impl<'a> From<&'a QVariantRefMut<'a>> for f64 {
+impl<'a, 'b: 'a> From<&'b QVariantRefMut<'a>> for f64 {
     fn from(value: &QVariantRefMut) -> Self {
         unsafe { dos_qvariant_toDouble(value.ptr) as f64 }
     }
@@ -70,7 +70,7 @@ impl<'a> From<QVariantRefMut<'a>> for bool {
     }
 }
 
-impl<'a> From<&'a QVariantRefMut<'a>> for bool {
+impl<'a, 'b: 'a> From<&'b QVariantRefMut<'a>> for bool {
     fn from(value: &QVariantRefMut) -> Self {
         unsafe { dos_qvariant_toBool(value.ptr) }
     }
@@ -84,7 +84,7 @@ impl<'a> From<QVariantRefMut<'a>> for String {
     }
 }
 
-impl<'a> From<&'a QVariantRefMut<'a>> for String {
+impl<'a, 'b: 'a> From<&'b QVariantRefMut<'a>> for String {
     fn from(value: &QVariantRefMut) -> Self {
         let string = CStringWrapper::new(unsafe { dos_qvariant_toString(value.ptr) });
         String::from(&string)

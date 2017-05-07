@@ -1,35 +1,31 @@
+use qobject::QObjectRefMut;
+
 pub trait QMetaTypable {
     fn metatype() -> QMetaType;
 }
 
 impl QMetaTypable for bool {
-    fn metatype() -> QMetaType {
-        QMetaType::Bool
-    }
+    fn metatype() -> QMetaType { QMetaType::Bool }
 }
 
 impl QMetaTypable for i32 {
-    fn metatype() -> QMetaType {
-        QMetaType::Int
-    }
+    fn metatype() -> QMetaType { QMetaType::Int }
 }
 
 impl QMetaTypable for f64 {
-    fn metatype() -> QMetaType {
-        QMetaType::Double
-    }
+    fn metatype() -> QMetaType { QMetaType::Double }
 }
 
 impl QMetaTypable for String {
-    fn metatype() -> QMetaType {
-        QMetaType::QString
-    }
+    fn metatype() -> QMetaType { QMetaType::QString }
 }
 
 impl QMetaTypable for f32 {
-    fn metatype() -> QMetaType {
-        QMetaType::Float
-    }
+    fn metatype() -> QMetaType { QMetaType::Float }
+}
+
+impl<'a> QMetaTypable for QObjectRefMut<'a> {
+    fn metatype() -> QMetaType { QMetaType::QObject }
 }
 
 pub enum QMetaType {

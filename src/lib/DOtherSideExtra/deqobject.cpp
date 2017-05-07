@@ -34,6 +34,8 @@
 #include <DOtherSide/DosQMetaObject.h>
 #include <DOtherSide/DosQObjectImpl.h>
 
+#include <iostream>
+
 namespace {
 
 DOS::DosQObjectImpl::ParentMetaCall createParentMetaCall(QObject *parent)

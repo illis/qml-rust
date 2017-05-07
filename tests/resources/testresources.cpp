@@ -178,9 +178,8 @@ static bool checkProperty(const QMetaObject *metaObject, const char *name, bool 
     }
 }
 
-bool check_metatype(const void *ptr)
+static bool do_check_metatype(const QObject *qobject)
 {
-    auto qobject = static_cast<const QObject *>(ptr);
     auto metaObject = qobject->metaObject();
     {
         int slotIndex = metaObject->indexOfSlot("set_value(int)");
@@ -219,6 +218,33 @@ bool check_metatype(const void *ptr)
         return false;
     }
     return true;
+}
+
+bool check_metatype(const void *ptr)
+{
+    auto qobject = static_cast<const QObject *>(ptr);
+    return do_check_metatype(qobject);
+}
+
+bool check_metatype_qvariant(const void *ptr)
+{
+    auto variant = static_cast<const QVariant *>(ptr);
+    std::cout << "[C++] stored type: " << variant->userType() << std::endl;
+    std::cout << "[C++] stored type name: " << QMetaType::typeName(variant->userType()) << std::endl;
+    if (!variant->canConvert(QMetaType::QObjectStar)) {
+        return false;
+    }
+
+    QVariant newVariant{*variant};
+    if (!newVariant.convert(QMetaType::QObjectStar)) {
+        return false;
+    }
+
+    QObject *qobject = qvariant_cast<QObject *>(newVariant);
+    if (qobject == nullptr) {
+        return false;
+    }
+    return do_check_metatype(qobject);
 }
 
 #include "testresources.moc"

@@ -6,7 +6,7 @@ use qml::*;
 
 q_object! {
     pub TestObject => TestObjectSignals {
-        signal fn value_changed(value: i32);
+        signal fn value_changed();
         slot fn set_value(value: i32);
         slot fn get_value() -> i32;
         property value: i32, read: get_value;
@@ -17,12 +17,19 @@ q_object! {
 
 struct TestObject {
     signal_emitter: Box<QSignalEmitter>,
+    value: i32,
 }
 
 impl TestObject {
-    fn set_value(&mut self, _: i32) {}
+    fn set_value(&mut self, value: i32) {
+        if self.value != value {
+            self.value = value;
+            self.value_changed();
+        }
+    }
+
     fn get_value(&self) -> i32 {
-        123
+        self.value
     }
 }
 
@@ -30,40 +37,25 @@ impl QObjectContentConstructor for TestObject {
     fn new(signal_emitter: Box<QSignalEmitter>) -> Self {
         TestObject {
             signal_emitter: signal_emitter,
-        }
-    }
-}
-
-q_object! {
-    pub TestObject2 => TestObject2Signals {}
-}
-
-struct TestObject2 {
-    signal_emitter: Box<QSignalEmitter>,
-}
-
-impl QObjectContentConstructor for TestObject2 {
-    fn new(signal_emitter: Box<QSignalEmitter>) -> Self {
-        TestObject2 {
-            signal_emitter: signal_emitter,
+            value: 0,
         }
     }
 }
 
 #[test]
-fn test_qobjectrefmut_can_convert_to_content() {
+fn test_qvariant_qobjectrefmut_memory() {
     let mut qobject = QObject::<TestObject>::new();
-    let mut qobjectref = QObjectRefMut::from(&mut qobject);
-
-    let content = qobjectref.as_content::<TestObject>();
-    assert!(content.is_some());
+    QVariant::from(QObjectRefMut::from(&mut qobject));
 }
 
 #[test]
-fn test_qobjectrefmut_cannot_convert_to_different_content() {
+fn test_qvariant_qobjectrefmut_conversion() {
     let mut qobject = QObject::<TestObject>::new();
-    let mut qobjectref = QObjectRefMut::from(&mut qobject);
+    qobject.get_content_mut().set_value(123);
 
-    let content = qobjectref.as_content::<TestObject2>();
-    assert!(content.is_none());
+    let variant = QVariant::from(QObjectRefMut::from(&mut qobject));
+    let mut qobjectref = QObjectRefMut::from(&variant);
+
+    let qobject2 = qobjectref.as_content::<TestObject>().unwrap();
+    assert_eq!(qobject2.get_value(), 123);
 }

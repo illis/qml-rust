@@ -153,7 +153,8 @@ void *de_qobject_check_and_get_dobject(void *vptr, void *meta)
 {
     auto dosQObject = static_cast<DEQObject *>(vptr);
     auto currentMetaObject = dosQObject->metaObject();
-    auto metaObject = static_cast<QMetaObject *>(meta);
+    auto holder = static_cast<DOS::DosIQMetaObjectHolder *>(meta);
+    auto metaObject = holder->data()->metaObject();
     if (std::string(metaObject->className()) == std::string(currentMetaObject->className())) {
         return dosQObject->dObject();
     } else {
