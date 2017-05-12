@@ -2,12 +2,12 @@ extern crate qml;
 extern crate libc;
 
 use libc::c_void;
-use qml::{QMetaType, QMetaObject, QObject, QObjectRefMut, QObjectContent, QObjectContentConstructor, QSignalEmitter, QVariant, QVariantRefMut, ParameterDefinition, SlotDefinition};
+use qml::*;
 
 #[link(name = "testresources", kind = "static")]
 #[test]
 fn test_qobject_invoke_slot() {
-    let mut qobject = QObject::<Content>::new();
+    let mut qobject = QObject::<ObjectContent>::new();
     {
         let mut qobjectref = QObjectRefMut::from(&mut qobject);
         assert!(unsafe { invoke_slot(qobjectref.as_mut()) });
@@ -15,20 +15,53 @@ fn test_qobject_invoke_slot() {
     assert!(qobject.get_content().is_invoked());
 }
 
-struct Content {
-    invoked: bool
+#[test]
+fn test_qlistmdel_invoke_slot() {
+    let mut qlistmodel = QListModel::<ListModelContent>::new(vec!["first", "second"]);
+    {
+        let mut qlistmodelref = QObjectRefMut::from(&mut qlistmodel);
+        assert!(unsafe { invoke_slot(qlistmodelref.as_mut()) });
+    }
+    assert!(qlistmodel.get_content().is_invoked());
 }
 
-impl Content {
-    fn set_invoked(&mut self) {
-        self.invoked = true;
-    }
+struct ObjectContent {
+    invoked: bool,
+}
+
+struct ListModelContent {
+    invoked: bool,
+}
+
+trait InvokableContent {
+    fn set_invoked(&mut self);
+}
+
+impl ObjectContent {
     fn is_invoked(&self) -> bool {
         self.invoked
     }
 }
 
-impl QObjectContent for Content {
+impl ListModelContent {
+    fn is_invoked(&self) -> bool {
+        self.invoked
+    }
+}
+
+impl InvokableContent for ObjectContent {
+    fn set_invoked(&mut self) {
+        self.invoked = true;
+    }
+}
+
+impl InvokableContent for ListModelContent {
+    fn set_invoked(&mut self) {
+        self.invoked = true;
+    }
+}
+
+impl QObjectContent for ObjectContent {
     fn get_metaobject() -> QMetaObject {
         let paramters = vec![ParameterDefinition::new("param", QMetaType::Int)];
         let slot = SlotDefinition::new("test_slot", QMetaType::Int, paramters);
@@ -36,28 +69,52 @@ impl QObjectContent for Content {
     }
 
     fn invoke_slot(&mut self, name: &str, args: Vec<QVariantRefMut>) -> Option<QVariant> {
-        if name != "test_slot" {
-            return None;
-        }
-        if args.len() != 1 {
-            return None;
-        }
-        let arg0 = &args[0];
-        let value: i32 = arg0.into();
-        if value != 42 {
-            return None
-        }
-        self.set_invoked();
-        Some(QVariant::from(42))
+        do_invoke_slot(self, &name, args)
     }
 }
 
-impl QObjectContentConstructor for Content {
+impl QObjectContent for ListModelContent {
+    fn get_metaobject() -> QMetaObject {
+        let paramters = vec![ParameterDefinition::new("param", QMetaType::Int)];
+        let slot = SlotDefinition::new("test_slot", QMetaType::Int, paramters);
+        QMetaObject::new_qlistmodel("TestQObject", Vec::new(), vec![slot], Vec::new())
+    }
+
+    fn invoke_slot(&mut self, name: &str, args: Vec<QVariantRefMut>) -> Option<QVariant> {
+        do_invoke_slot(self, &name, args)
+    }
+}
+
+impl QObjectContentConstructor for ObjectContent {
     fn new(_: Box<QSignalEmitter>) -> Self {
-        Content {
-            invoked: false
+        ObjectContent {
+            invoked: false,
         }
     }
+}
+
+impl QListModelContentConstructor for ListModelContent {
+    fn new(_: Box<QSignalEmitter>, _: Box<QListModelInterface>) -> Self {
+        ListModelContent {
+            invoked: false,
+        }
+    }
+}
+
+fn do_invoke_slot<'a, T: InvokableContent>(instance: &mut T, name: &str, args: Vec<QVariantRefMut>) -> Option<QVariant<'a>> {
+    if name != "test_slot" {
+        return None;
+    }
+    if args.len() != 1 {
+        return None;
+    }
+    let arg0 = &args[0];
+    let value: i32 = arg0.into();
+    if value != 42 {
+        return None
+    }
+    instance.set_invoked();
+    Some(QVariant::from(42))
 }
 
 extern "C" {

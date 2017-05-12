@@ -35,7 +35,7 @@
 #include <DOtherSide/DosQMetaObject.h>
 
 template <class TypedRegisterHelper, int RegisteryIndex, int RegistrationTypeId>
-class DeQmlRegisterHelper
+class DEQmlRegisterHelper
 {
 public:
     static int registerType(int i, DOS::QmlRegisterType args)
@@ -46,14 +46,14 @@ public:
             return TypedRegisterHelper::template registerType<RegisteryIndex, RegistrationTypeId>(std::move(args));
         } else {
             using NextDeQmlRegisterHelper =
-                DeQmlRegisterHelper<TypedRegisterHelper, RegisteryIndex - 1, RegistrationTypeId>;
+                DEQmlRegisterHelper<TypedRegisterHelper, RegisteryIndex - 1, RegistrationTypeId>;
             return NextDeQmlRegisterHelper::registerType(i, std::move(args));
         }
     }
 };
 
 template <class TypedRegisterHelper, int RegistrationTypeId>
-class DeQmlRegisterHelper<TypedRegisterHelper, 0, RegistrationTypeId>
+class DEQmlRegisterHelper<TypedRegisterHelper, 0, RegistrationTypeId>
 {
 public:
     static int registerType(int i, DOS::QmlRegisterType args)

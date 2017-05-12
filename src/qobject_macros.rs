@@ -7,7 +7,7 @@ macro_rules! q_object {
     ) => {
         q_object_generate_signal_trait!($signals, $($definitions)*);
         q_object_generate_signal_impl!($name, $signals, $($definitions)*);
-        q_object_generate_content!($name, $($definitions)*);
+        q_object_generate_content!($name, new_qobject, $($definitions)*);
     }
 }
 
@@ -91,7 +91,7 @@ macro_rules! q_object_generate_signal_implementations {
 
 #[macro_export]
 macro_rules! q_object_generate_content {
-    ($name:ident, $($definitions:tt)*) => {
+    ($name:ident, $meta:ident, $($definitions:tt)*) => {
         impl QObjectContent for $name {
             #[allow(unused_mut)]
             fn get_metaobject() -> QMetaObject {
@@ -104,7 +104,7 @@ macro_rules! q_object_generate_content {
                 let mut properties = Vec::<PropertyDefinition>::new();
                 q_object_generate_properties_metas!(properties => {$($definitions)*});
 
-                QMetaObject::new_qobject(stringify!($name), signals, slots, properties)
+                QMetaObject::$meta(stringify!($name), signals, slots, properties)
             }
 
             #[allow(dead_code)]
@@ -264,8 +264,8 @@ macro_rules! q_object_generate_slot_implementations {
 
 #[cfg(test)]
 mod tests {
-    use qmetaobject::{QMetaObject, ParameterDefinition, SignalDefinition, SlotDefinition, PropertyDefinition};
-    use qmetatype::{QMetaType, QMetaTypable};
+    use qmetaobject::{ParameterDefinition, PropertyDefinition, QMetaObject, SignalDefinition, SlotDefinition};
+    use qmetatype::{QMetaTypable, QMetaType};
     use qobject::{QObject, QObjectContent, QObjectContentConstructor, QSignalEmitter};
     use qvariant::{QVariant, QVariantRefMut};
 

@@ -1,5 +1,6 @@
 project(dothersideextra)
 
+set(CMAKE_AUTOMOC TRUE)
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/src/lib/DOtherSideExtra/cmake)
 find_package(Qt5Core)
 find_package(Qt5Gui)
@@ -23,6 +24,9 @@ set(${PROJECT_NAME}_SRCS
     deqobject.cpp
     deqobjectwrapper.h
     deslotexecutor.h
+    deqbaselistmodel.cpp
+    deqlistmodel.cpp
+    deqlistmodelmetaobject.cpp
     dothersideextra.cpp
 )
 

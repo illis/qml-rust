@@ -1,5 +1,5 @@
 use libc::c_void;
-use qobject::{QObject, QObjectContent, QObjectContentConstructor};
+use qobject::{QObject, QObjectContent};
 use qmetaobject;
 
 pub struct QObjectRefMut<'a> {
@@ -11,16 +11,18 @@ impl<'a> QObjectRefMut<'a> {
         self.ptr
     }
 
-    pub fn as_content<T: QObjectContent>(&mut self) -> Option<&'a mut T> {
-        let mut meta = T::get_metaobject();
+    pub fn as_content<T>(&mut self) -> Option<&'a mut T>
+        where T: QObjectContent {
+        let meta = T::get_metaobject();
         unsafe {
-            let ptr = de_qobject_check_and_get_dobject(self.ptr, qmetaobject::get_mut(&mut meta));
+            let ptr = de_qobject_check_and_get_dobject(self.ptr, qmetaobject::get_ptr(&meta));
             (ptr as *mut T).as_mut()
         }
     }
 }
 
-impl<'a, T: QObjectContent + QObjectContentConstructor> From<&'a mut QObject<T>> for QObjectRefMut<'a> {
+impl<'a, T> From<&'a mut QObject<T>> for QObjectRefMut<'a>
+    where T: QObjectContent {
     fn from(value: &'a mut QObject<T>) -> Self {
         QObjectRefMut {
             ptr: super::qobject::get_mut(value),

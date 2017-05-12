@@ -95,6 +95,35 @@ impl QMetaObject {
                        signal_definitions: Vec<SignalDefinition>,
                        slot_definitions: Vec<SlotDefinition>,
                        property_definitions: Vec<PropertyDefinition>) -> Self {
+        QMetaObject::new(name, QMetaObject::qobject_metaobject(),
+                         signal_definitions, slot_definitions, property_definitions)
+    }
+
+    pub fn new_qlistmodel(name: &str,
+                          signal_definitions: Vec<SignalDefinition>,
+                          slot_definitions: Vec<SlotDefinition>,
+                          property_definitions: Vec<PropertyDefinition>) -> Self {
+        QMetaObject::new(name, QMetaObject::qlistmodel_metaobject(),
+                         signal_definitions, slot_definitions, property_definitions)
+    }
+
+    pub fn qobject_metaobject() -> Self {
+        QMetaObject {
+            ptr: unsafe { dos_qobject_qmetaobject() },
+        }
+    }
+
+    pub fn qlistmodel_metaobject() -> Self {
+        QMetaObject {
+            ptr: unsafe { de_qlistmodel_qmetaobject() },
+        }
+    }
+
+    fn new(name: &str,
+           qmeta: QMetaObject,
+           signal_definitions: Vec<SignalDefinition>,
+           slot_definitions: Vec<SlotDefinition>,
+           property_definitions: Vec<PropertyDefinition>) -> Self {
         let signal_definition_wrappers = convert_into(signal_definitions);
         let signal_definition_intermediate = convert_as(&signal_definition_wrappers);
         let signal_definitions = convert_as(&signal_definition_intermediate);
@@ -118,7 +147,6 @@ impl QMetaObject {
             definitions: property_definitions.as_ptr(),
         };
 
-        let qmeta = QMetaObject::qobject_metaobject();
         let name = CString::new(name).unwrap();
         let ptr = unsafe {
             dos_qmetaobject_create(qmeta.ptr, name.as_ptr(), &c_signal_definitions,
@@ -128,18 +156,16 @@ impl QMetaObject {
             ptr: ptr
         }
     }
-
-    pub fn qobject_metaobject() -> Self {
-        QMetaObject {
-            ptr: unsafe { dos_qobject_qmetaobject() },
-        }
-    }
 }
 
 impl Drop for QMetaObject {
     fn drop(&mut self) {
         unsafe { dos_qmetaobject_delete(self.ptr); }
     }
+}
+
+pub fn get_ptr(instance: &QMetaObject) -> *const c_void {
+    instance.ptr
 }
 
 pub fn get_mut(instance: &mut QMetaObject) -> *mut c_void {
@@ -351,6 +377,7 @@ struct CPropertyDefinitions {
 
 extern "C" {
     fn dos_qobject_qmetaobject() -> *mut c_void;
+    fn de_qlistmodel_qmetaobject() -> *mut c_void;
     fn dos_qmetaobject_create(super_class_meta_object: *mut c_void,
                               class_name: *const c_char,
                               signal_definitions: *const CSignalDefinitions,
@@ -362,16 +389,21 @@ extern "C" {
 
 #[cfg(test)]
 mod tests {
-    use super::{QMetaObject, ParameterDefinition, SignalDefinition, SlotDefinition, PropertyDefinition};
+    use super::{ParameterDefinition, PropertyDefinition, QMetaObject, SignalDefinition, SlotDefinition};
     use qmetatype::QMetaType;
 
     #[test]
-    fn test_qmetaobject_memory() {
+    fn test_qobject_qmetaobject_memory() {
         QMetaObject::new_qobject("Meta", Vec::new(), Vec::new(), Vec::new());
     }
 
     #[test]
-    fn test_qmetaobject_memory_with_data() {
+    fn test_qlistmodel_qmetaobject_memory() {
+        QMetaObject::new_qlistmodel("Meta", Vec::new(), Vec::new(), Vec::new());
+    }
+
+    #[test]
+    fn test_qobject_qmetaobject_memory_with_data() {
         let signal_definitions = vec![
             SignalDefinition {
                 name: "testSignal1".to_string(),
@@ -419,5 +451,56 @@ mod tests {
             }
         ];
         QMetaObject::new_qobject("Meta", signal_definitions, slot_definitions, property_definitions);
+    }
+
+    #[test]
+    fn test_qlistmodel_qmetaobject_memory_with_data() {
+        let signal_definitions = vec![
+            SignalDefinition {
+                name: "testSignal1".to_string(),
+                parameter_definitions: vec![
+                    ParameterDefinition::new("first", QMetaType::Bool),
+                    ParameterDefinition::new("second", QMetaType::Int),
+                    ParameterDefinition::new("third", QMetaType::QString),
+                ],
+            },
+            SignalDefinition {
+                name: "testSignal2".to_string(),
+                parameter_definitions: vec![],
+            }
+        ];
+        let slot_definitions = vec![
+            SlotDefinition {
+                name: "testSlot1".to_string(),
+                return_metatype: QMetaType::Void,
+                parameter_definitions: vec![
+                    ParameterDefinition::new("first", QMetaType::Bool),
+                    ParameterDefinition::new("second", QMetaType::Int),
+                    ParameterDefinition::new("third", QMetaType::QString),
+                ],
+            },
+            SlotDefinition {
+                name: "testSlot2".to_string(),
+                return_metatype: QMetaType::Int,
+                parameter_definitions: vec![],
+            }
+        ];
+        let property_definitions = vec![
+            PropertyDefinition {
+                name: "testProperty1".to_string(),
+                property_metatype: QMetaType::QString,
+                read_slot: "readTestProperty1".to_string(),
+                write_slot: "writeTestProperty1".to_string(),
+                notify_signal: "testProperty1Changed".to_string()
+            },
+            PropertyDefinition {
+                name: "testProperty2".to_string(),
+                property_metatype: QMetaType::Int,
+                read_slot: "readTestProperty2".to_string(),
+                write_slot: "writeTestProperty2".to_string(),
+                notify_signal: "testProperty2Changed".to_string()
+            }
+        ];
+        QMetaObject::new_qlistmodel("Meta", signal_definitions, slot_definitions, property_definitions);
     }
 }

@@ -29,23 +29,27 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."
  */
 
-#include "deqml.h"
-#include "deqmlregister.h"
-#include "deqmlregisterhelper.h"
-#include "deqobjectwrapper.h"
+#ifndef DEQLISTMODEL_H
+#define DEQLISTMODEL_H
 
-int deQmlRegisterQObject(DOS::QmlRegisterType &&args)
-{
-    // 30 QObjects are allowed
-    static int i = 0;
-    using RegisterHelper = DEQmlRegisterHelper<DEQObjectWrapperRegisterHelper, 30, RegisterType>;
-    return RegisterHelper::registerType(i++, std::move(args));
-}
+#include "deqbaselistmodel.h"
+#include <DOtherSide/DOtherSideTypesCpp.h>
+#include <DOtherSide/DosIQObjectImpl.h>
+#include <functional>
 
-int deQmlRegisterSingletonQObject(DOS::QmlRegisterType &&args)
+class DEQListModel : public DEQBaseListModel, public DOS::DosIQObjectImpl
 {
-    // 5 singleton QObjects are allowed
-    static int i = 0;
-    using RegisterHelper = DEQmlRegisterHelper<DEQObjectWrapperRegisterHelper, 5, RegisterUncreatableType>;
-    return RegisterHelper::registerType(i++, std::move(args));
-}
+public:
+    DEQListModel(DOS::DosIQMetaObjectPtr metaObject, std::map<int, QByteArray> &&roleNames, DObjectCallback callback);
+    bool emitSignal(QObject *emitter, const QString &name, const std::vector<QVariant> &arguments) override;
+    const QMetaObject *metaObject() const override;
+    int qt_metacall(QMetaObject::Call call, int index, void **args) override;
+    void *dObject() const;
+    void setDObject(void *dObject);
+
+private:
+    std::unique_ptr<DOS::DosIQObjectImpl> m_impl;
+    void *m_dObject{nullptr};
+};
+
+#endif // DEQLISTMODEL_H

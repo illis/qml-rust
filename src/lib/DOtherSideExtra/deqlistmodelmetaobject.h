@@ -29,23 +29,15 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."
  */
 
-#include "deqml.h"
-#include "deqmlregister.h"
-#include "deqmlregisterhelper.h"
-#include "deqobjectwrapper.h"
+#ifndef DEQLISTMODELMETAOBJECT_H
+#define DEQLISTMODELMETAOBJECT_H
 
-int deQmlRegisterQObject(DOS::QmlRegisterType &&args)
-{
-    // 30 QObjects are allowed
-    static int i = 0;
-    using RegisterHelper = DEQmlRegisterHelper<DEQObjectWrapperRegisterHelper, 30, RegisterType>;
-    return RegisterHelper::registerType(i++, std::move(args));
-}
+#include <DOtherSide/DosQMetaObject.h>
 
-int deQmlRegisterSingletonQObject(DOS::QmlRegisterType &&args)
+class DEQListModelMetaObject : public DOS::BaseDosQMetaObject
 {
-    // 5 singleton QObjects are allowed
-    static int i = 0;
-    using RegisterHelper = DEQmlRegisterHelper<DEQObjectWrapperRegisterHelper, 5, RegisterUncreatableType>;
-    return RegisterHelper::registerType(i++, std::move(args));
-}
+public:
+    explicit DEQListModelMetaObject();
+};
+
+#endif // DEQLISTMODELMETAOBJECT_H

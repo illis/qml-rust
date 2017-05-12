@@ -30,6 +30,8 @@
  */
 
 #include "dothersideextra.h"
+#include "deqlistmodel.h"
+#include "deqlistmodelmetaobject.h"
 #include "deqml.h"
 #include "deqobject.h"
 #include <DOtherSide/DosQMetaObject.h>
@@ -143,23 +145,49 @@ DosQObject *de_qobject_create(const DosQMetaObject *metaObject, DObjectCallback 
     return static_cast<QObject *>(dosQObject);
 }
 
-void de_qobject_set_dobject(void *vptr, void *dObject)
+void de_qobject_set_dobject(DosQObject *vptr, void *dObject)
 {
     auto dosQObject = static_cast<DEQObject *>(vptr);
     dosQObject->setDObject(dObject);
 }
 
-void *de_qobject_check_and_get_dobject(void *vptr, void *meta)
+void *de_qobject_check_and_get_dobject(DosQObject *vptr, const DosQMetaObject *meta)
 {
     auto dosQObject = static_cast<DEQObject *>(vptr);
     auto currentMetaObject = dosQObject->metaObject();
-    auto holder = static_cast<DOS::DosIQMetaObjectHolder *>(meta);
+    auto holder = static_cast<const DOS::DosIQMetaObjectHolder *>(meta);
     auto metaObject = holder->data()->metaObject();
     if (std::string(metaObject->className()) == std::string(currentMetaObject->className())) {
         return dosQObject->dObject();
     } else {
         return nullptr;
     }
+}
+
+DosQMetaObject *de_qlistmodel_qmetaobject()
+{
+    return new DOS::DosIQMetaObjectHolder(std::make_shared<DEQListModelMetaObject>());
+}
+
+void *de_qlistmodel_create(const DosQMetaObject *metaObject, const char *const *roleArray, int roleArrayLength,
+                           DObjectCallback dObjectCallback)
+{
+    std::map<int, QByteArray> roleNames{};
+    for (int i = 0; i < roleArrayLength; ++i) {
+        const char *roleName{roleArray[i]};
+        roleNames[Qt::UserRole + i] = QByteArray{roleName};
+    }
+
+    auto metaObjectHolder = static_cast<const DOS::DosIQMetaObjectHolder *>(metaObject);
+    auto model = new DEQListModel(metaObjectHolder->data(), std::move(roleNames), dObjectCallback);
+    QQmlEngine::setObjectOwnership(model, QQmlEngine::CppOwnership);
+    return static_cast<QObject *>(model);
+}
+
+void de_qlistmodel_set_dobject(DosQAbstractListModel *vptr, void *dObject)
+{
+    auto dosListModel = static_cast<DEQListModel *>(vptr);
+    dosListModel->setDObject(dObject);
 }
 
 static DOS::QmlRegisterType fromRawQmlRegisterType(const QmlRegisterType *qmlRegisterType)

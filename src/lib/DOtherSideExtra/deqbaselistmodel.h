@@ -29,23 +29,38 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."
  */
 
-#include "deqml.h"
-#include "deqmlregister.h"
-#include "deqmlregisterhelper.h"
-#include "deqobjectwrapper.h"
+#ifndef DEQBASELISTMODEL_H
+#define DEQBASELISTMODEL_H
 
-int deQmlRegisterQObject(DOS::QmlRegisterType &&args)
-{
-    // 30 QObjects are allowed
-    static int i = 0;
-    using RegisterHelper = DEQmlRegisterHelper<DEQObjectWrapperRegisterHelper, 30, RegisterType>;
-    return RegisterHelper::registerType(i++, std::move(args));
-}
+#include <QAbstractListModel>
+#include <deque>
+#include <map>
+#include <memory>
+#include <vector>
 
-int deQmlRegisterSingletonQObject(DOS::QmlRegisterType &&args)
+class DEQBaseListModel : public QAbstractListModel
 {
-    // 5 singleton QObjects are allowed
-    static int i = 0;
-    using RegisterHelper = DEQmlRegisterHelper<DEQObjectWrapperRegisterHelper, 5, RegisterUncreatableType>;
-    return RegisterHelper::registerType(i++, std::move(args));
-}
+    Q_OBJECT
+    Q_PROPERTY(int count READ count NOTIFY countChanged)
+public:
+    using Data = std::map<int, QVariant>;
+    explicit DEQBaseListModel(std::map<int, QByteArray> &&roleNames, QObject *parent = nullptr);
+    int count() const;
+    QHash<int, QByteArray> roleNames() const override;
+    int rowCount(const QModelIndex &index = QModelIndex{}) const override;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+    Data get(int row) const;
+    bool set(int row, Data &&value);
+    bool insert(int row, std::vector<Data> &&values);
+    bool remove(int row, int count);
+signals:
+    void countChanged();
+
+private:
+    Data filterCompatible(Data &&data) const;
+    std::vector<Data> filterCompatible(std::vector<Data> &&data) const;
+    QHash<int, QByteArray> m_roleNames{};
+    std::deque<Data> m_data{};
+};
+
+#endif // DEQBASELISTMODEL_H

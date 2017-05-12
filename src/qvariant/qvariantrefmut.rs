@@ -1,4 +1,4 @@
-use libc::{c_char, c_int, c_float, c_double, c_void};
+use libc::{c_char, c_double, c_float, c_int, c_void};
 use qvariant;
 use qvariant::QVariant;
 use stringutils::CStringWrapper;

@@ -29,23 +29,53 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."
  */
 
-#include "deqml.h"
-#include "deqmlregister.h"
-#include "deqmlregisterhelper.h"
-#include "deqobjectwrapper.h"
+#include "deqlistmodel.h"
+#include "deslotexecutor.h"
+#include <DOtherSide/DosQMetaObject.h>
+#include <DOtherSide/DosQObjectImpl.h>
 
-int deQmlRegisterQObject(DOS::QmlRegisterType &&args)
+namespace {
+
+DOS::DosQObjectImpl::ParentMetaCall createParentMetaCall(DEQBaseListModel *parent)
 {
-    // 30 QObjects are allowed
-    static int i = 0;
-    using RegisterHelper = DEQmlRegisterHelper<DEQObjectWrapperRegisterHelper, 30, RegisterType>;
-    return RegisterHelper::registerType(i++, std::move(args));
+    return [parent](QMetaObject::Call callType, int index, void **args) {
+        return parent->DEQBaseListModel::qt_metacall(callType, index, args);
+    };
+}
 }
 
-int deQmlRegisterSingletonQObject(DOS::QmlRegisterType &&args)
+DEQListModel::DEQListModel(DOS::DosIQMetaObjectPtr metaObject, std::map<int, QByteArray> &&roleNames,
+                           DObjectCallback callback)
+    : DEQBaseListModel(std::move(roleNames))
+    , m_impl{new DOS::DosQObjectImpl(this, ::createParentMetaCall(this), std::move(metaObject),
+                                     DESlotExecutor<DEQListModel>(*this, callback))}
 {
-    // 5 singleton QObjects are allowed
-    static int i = 0;
-    using RegisterHelper = DEQmlRegisterHelper<DEQObjectWrapperRegisterHelper, 5, RegisterUncreatableType>;
-    return RegisterHelper::registerType(i++, std::move(args));
+}
+
+bool DEQListModel::emitSignal(QObject *emitter, const QString &name, const std::vector<QVariant> &arguments)
+{
+    Q_ASSERT(m_impl);
+    return m_impl->emitSignal(emitter, name, arguments);
+}
+
+const QMetaObject *DEQListModel::metaObject() const
+{
+    Q_ASSERT(m_impl);
+    return m_impl->metaObject();
+}
+
+int DEQListModel::qt_metacall(QMetaObject::Call call, int index, void **args)
+{
+    Q_ASSERT(m_impl);
+    return m_impl->qt_metacall(call, index, args);
+}
+
+void *DEQListModel::dObject() const
+{
+    return m_dObject;
+}
+
+void DEQListModel::setDObject(void *dObject)
+{
+    m_dObject = dObject;
 }

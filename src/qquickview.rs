@@ -2,7 +2,7 @@ use std::env;
 use std::ffi::CString;
 use libc::{c_char, c_int, c_void};
 use qurl;
-use qurl::{QUrl};
+use qurl::QUrl;
 
 pub struct QQuickView {
     app: *mut c_void,

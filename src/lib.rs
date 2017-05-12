@@ -1,5 +1,7 @@
 extern crate libc;
 
+mod internal;
+mod qlistmodel;
 mod qmetaobject;
 mod qmetatype;
 mod qmlregister;
@@ -13,10 +15,11 @@ mod qurl;
 mod qvariant;
 mod stringutils;
 
-pub use qmetaobject::{QMetaObject, ParameterDefinition, SignalDefinition, SlotDefinition, PropertyDefinition};
+pub use qlistmodel::{QListModel, QListModelContentConstructor, QListModelInterface};
+pub use qmetaobject::{ParameterDefinition, PropertyDefinition, QMetaObject, SignalDefinition, SlotDefinition};
 pub use qmetatype::{QMetaTypable, QMetaType};
-pub use qmlregister::{QmlRegisterType, QmlRegisterableObject, qml_register_qobject};
-pub use qobject::{QObject, QObjectRefMut, QQmlObject, QObjectContent, QObjectContentConstructor, QSignalEmitter};
+pub use qmlregister::{QmlRegisterableObject, QmlRegisterType, qml_register_qobject};
+pub use qobject::{QQmlObject, QObject, QObjectContent, QObjectContentConstructor, QObjectRefMut, QSignalEmitter};
 pub use qquickview::QQuickView;
 pub use qurl::QUrl;
 pub use qvariant::{QVariant, QVariantRefMut};

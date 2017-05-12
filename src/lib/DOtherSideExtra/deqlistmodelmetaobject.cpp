@@ -29,23 +29,19 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."
  */
 
-#include "deqml.h"
-#include "deqmlregister.h"
-#include "deqmlregisterhelper.h"
-#include "deqobjectwrapper.h"
+#include "deqlistmodelmetaobject.h"
+#include "deqlistmodel.h"
+#include "private/qmetaobjectbuilder_p.h"
 
-int deQmlRegisterQObject(DOS::QmlRegisterType &&args)
+static QMetaObject *createDynamicMetaObject()
 {
-    // 30 QObjects are allowed
-    static int i = 0;
-    using RegisterHelper = DEQmlRegisterHelper<DEQObjectWrapperRegisterHelper, 30, RegisterType>;
-    return RegisterHelper::registerType(i++, std::move(args));
+    QMetaObjectBuilder builder;
+    builder.setClassName("De");
+    builder.setSuperClass(&DEQListModel::staticMetaObject);
+    return builder.toMetaObject();
 }
 
-int deQmlRegisterSingletonQObject(DOS::QmlRegisterType &&args)
+DEQListModelMetaObject::DEQListModelMetaObject()
+    : BaseDosQMetaObject{createDynamicMetaObject()}
 {
-    // 5 singleton QObjects are allowed
-    static int i = 0;
-    using RegisterHelper = DEQmlRegisterHelper<DEQObjectWrapperRegisterHelper, 5, RegisterUncreatableType>;
-    return RegisterHelper::registerType(i++, std::move(args));
 }

@@ -29,7 +29,8 @@ pub trait QmlRegisterableObject {
     fn get_register_type() -> QmlRegisterType;
 }
 
-pub fn qml_register_qobject<T: QObjectContent + QmlRegisterableObject>() {
+pub fn qml_register_qobject<T>()
+    where T: QObjectContent + QmlRegisterableObject {
     let register_type = T::get_register_type();
     let uri = CString::new(register_type.uri).unwrap();
     let qml = CString::new(register_type.name).unwrap();
