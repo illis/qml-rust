@@ -34,6 +34,7 @@
 #include "deqlistmodelmetaobject.h"
 #include "deqml.h"
 #include "deqobject.h"
+#include "idedobjectcontainer.h"
 #include <DOtherSide/DosQMetaObject.h>
 #include <algorithm>
 #include <cstring>
@@ -153,12 +154,17 @@ void de_qobject_set_dobject(DosQObject *vptr, void *dObject)
 
 void *de_qobject_check_and_get_dobject(DosQObject *vptr, const DosQMetaObject *meta)
 {
-    auto dosQObject = static_cast<DEQObject *>(vptr);
-    auto currentMetaObject = dosQObject->metaObject();
+    auto qobject = static_cast<QObject *>(vptr);
+    auto objectContainer = dynamic_cast<IDeDObjectContainer *>(qobject);
+    if (objectContainer == nullptr) {
+        return nullptr;
+    }
+
+    auto currentMetaObject = qobject->metaObject();
     auto holder = static_cast<const DOS::DosIQMetaObjectHolder *>(meta);
     auto metaObject = holder->data()->metaObject();
     if (std::string(metaObject->className()) == std::string(currentMetaObject->className())) {
-        return dosQObject->dObject();
+        return objectContainer->dObject();
     } else {
         return nullptr;
     }

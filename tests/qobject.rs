@@ -17,7 +17,7 @@ fn test_qobject_set_value() {
 
 #[test]
 fn test_qlistmodel_set_value() {
-    let mut qlistmodel = QListModel::<TestListModel>::new(vec!["first", "second"]);
+    let mut qlistmodel = QListModel::<TestListModel>::new();
     {
         let mut qobjectref = QObjectRefMut::from(&mut qlistmodel);
         unsafe { set_value(qobjectref.as_mut(), 42) };
@@ -41,7 +41,7 @@ fn test_qobject_value_changed() {
 
 #[test]
 fn test_qlistmodel_value_changed() {
-    let mut qlistmodel = QListModel::<TestListModel>::new(vec!["first", "second"]);
+    let mut qlistmodel = QListModel::<TestListModel>::new();
     let ptr = {
         let mut qobjectref = QObjectRefMut::from(&mut qlistmodel);
         qobjectref.as_mut() as *mut c_void
@@ -142,6 +142,12 @@ impl QObjectContent for TestListModel {
 
     fn invoke_slot(&mut self, name: &str, args: Vec<QVariantRefMut>) -> Option<QVariant> {
         do_invoke_slot(self, &name, args)
+    }
+}
+
+impl QListModelContent for TestListModel {
+    fn role_names() -> Vec<&'static str> {
+        vec![]
     }
 }
 

@@ -29,28 +29,14 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."
  */
 
-#ifndef DEQOBJECT_H
-#define DEQOBJECT_H
+#ifndef IDEDOBJECTCONTAINER_H
+#define IDEDOBJECTCONTAINER_H
 
-#include "idedobjectcontainer.h"
-#include <DOtherSide/DOtherSideTypesCpp.h>
-#include <DOtherSide/DosIQObjectImpl.h>
-#include <QObject>
-#include <functional>
-
-class DEQObject : public QObject, public IDeDObjectContainer, public DOS::DosIQObjectImpl
+class IDeDObjectContainer
 {
 public:
-    DEQObject(DOS::DosIQMetaObjectPtr metaObject, DObjectCallback callback);
-    bool emitSignal(QObject *emitter, const QString &name, const std::vector<QVariant> &arguments) override;
-    const QMetaObject *metaObject() const override;
-    int qt_metacall(QMetaObject::Call, int, void **) override;
-    void *dObject() const override;
-    void setDObject(void *dObject);
-
-private:
-    std::unique_ptr<DOS::DosIQObjectImpl> m_impl;
-    void *m_dObject{nullptr};
+    virtual ~IDeDObjectContainer() {}
+    virtual void *dObject() const = 0;
 };
 
-#endif // DEQOBJECT_H
+#endif // IDEDOBJECTCONTAINER_H

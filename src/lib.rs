@@ -2,6 +2,8 @@ extern crate libc;
 
 mod internal;
 mod qlistmodel;
+#[macro_use]
+mod qlistmodel_macros;
 mod qmetaobject;
 mod qmetatype;
 mod qmlregister;
@@ -15,7 +17,7 @@ mod qurl;
 mod qvariant;
 mod stringutils;
 
-pub use qlistmodel::{QListModel, QListModelContentConstructor, QListModelInterface};
+pub use qlistmodel::{QListModel, QListModelContent, QListModelContentConstructor, QListModelInterface};
 pub use qmetaobject::{ParameterDefinition, PropertyDefinition, QMetaObject, SignalDefinition, SlotDefinition};
 pub use qmetatype::{QMetaTypable, QMetaType};
 pub use qmlregister::{QmlRegisterableObject, QmlRegisterType, qml_register_qobject};

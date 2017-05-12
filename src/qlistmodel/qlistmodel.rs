@@ -4,25 +4,25 @@ use std::rc::Rc;
 use libc::{c_char, c_int, c_void};
 use internal::{QObjectPtr, QObjectSharedPtr, QObjectSignalEmitter, invoke_slot};
 use qobject::{QObjectContent, QSignalEmitter};
-use qlistmodel::{QListModelContentConstructor, QListModelInterface};
+use qlistmodel::{QListModelContent, QListModelContentConstructor, QListModelInterface};
 
 pub struct QListModel<T>
-    where T: QObjectContent {
+    where T: QObjectContent + QListModelContent {
     ptr: QObjectSharedPtr,
     content: Box<T>,
 }
 
 impl<T> QListModel<T>
-    where T: QObjectContent + QListModelContentConstructor {
-    pub fn new(role_names: Vec<&str>) -> Self {
-        let ptr = QListModel::<T>::new_ptr(role_names);
+    where T: QObjectContent + QListModelContent + QListModelContentConstructor {
+    pub fn new() -> Self {
+        let ptr = QListModel::<T>::new_ptr(T::role_names());
         let interface = Box::new(ListModelInterface::new());
         let content = Box::new(T::new(Box::new(QObjectSignalEmitter::new(Rc::downgrade(&ptr))), interface));
         QListModel::new_listmodel(ptr, content)
     }
 
-    fn new_with_signal_emitter(role_names: Vec<&str>, signal_emitter: Box<QSignalEmitter>) -> Self {
-        let ptr = QListModel::<T>::new_ptr(role_names);
+    fn new_with_signal_emitter(signal_emitter: Box<QSignalEmitter>) -> Self {
+        let ptr = QListModel::<T>::new_ptr(T::role_names());
         let interface = Box::new(ListModelInterface::new());
         let content = Box::new(T::new(signal_emitter, interface));
         QListModel::new_listmodel(ptr, content)
@@ -81,14 +81,14 @@ impl ListModelInterface {
 impl QListModelInterface for ListModelInterface {}
 
 pub fn get_mut<'a, T>(instance: &'a mut QListModel<T>) -> &'a mut c_void
-    where T: QObjectContent {
+    where T: QObjectContent + QListModelContent {
     let ptr = instance.ptr.borrow_mut().as_mut();
     unsafe { ptr.as_mut().unwrap() }
 }
 
-pub fn new_with_signal_emitter<T>(role_names: Vec<&str>, signal_emitter: Box<QSignalEmitter>) -> QListModel<T>
-    where T: QObjectContent + QListModelContentConstructor {
-    QListModel::new_with_signal_emitter(role_names, signal_emitter)
+pub fn new_with_signal_emitter<T>(signal_emitter: Box<QSignalEmitter>) -> QListModel<T>
+    where T: QObjectContent + QListModelContent + QListModelContentConstructor {
+    QListModel::new_with_signal_emitter(signal_emitter)
 }
 
 type DObjectCallback = extern "C" fn(*mut c_void, *mut c_void, c_int, *mut *mut c_void);
@@ -104,7 +104,7 @@ mod tests {
     use super::{QListModel};
     use qmetaobject::QMetaObject;
     use qobject::{QObjectContent, QSignalEmitter};
-    use qlistmodel::{QListModelContentConstructor, QListModelInterface};
+    use qlistmodel::{QListModelContent, QListModelContentConstructor, QListModelInterface};
     use qvariant::{QVariant, QVariantRefMut};
 
     struct Content {}
@@ -119,6 +119,12 @@ mod tests {
         }
     }
 
+    impl QListModelContent for Content {
+        fn role_names() -> Vec<&'static str> {
+            vec!["test1", "test2"]
+        }
+    }
+
     impl QListModelContentConstructor for Content {
         fn new(_: Box<QSignalEmitter>, _: Box<QListModelInterface>) -> Self {
             Content {}
@@ -127,6 +133,6 @@ mod tests {
 
     #[test]
     fn test_qlistmodel_memory() {
-        QListModel::<Content>::new(vec!["test1", "test2"]);
+        QListModel::<Content>::new();
     }
 }

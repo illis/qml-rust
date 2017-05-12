@@ -17,7 +17,7 @@ fn test_qobject_invoke_slot() {
 
 #[test]
 fn test_qlistmdel_invoke_slot() {
-    let mut qlistmodel = QListModel::<ListModelContent>::new(vec!["first", "second"]);
+    let mut qlistmodel = QListModel::<ListModelContent>::new();
     {
         let mut qlistmodelref = QObjectRefMut::from(&mut qlistmodel);
         assert!(unsafe { invoke_slot(qlistmodelref.as_mut()) });
@@ -82,6 +82,12 @@ impl QObjectContent for ListModelContent {
 
     fn invoke_slot(&mut self, name: &str, args: Vec<QVariantRefMut>) -> Option<QVariant> {
         do_invoke_slot(self, &name, args)
+    }
+}
+
+impl QListModelContent for ListModelContent {
+    fn role_names() -> Vec<&'static str> {
+        vec![]
     }
 }
 
