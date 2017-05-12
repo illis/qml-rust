@@ -48,7 +48,7 @@ public:
     {
         void *impl = nullptr;
         m_data.createDObject(m_id, static_cast<QObject *>(this), &m_dObject, &impl);
-        m_impl = dynamic_cast<DEQObject *>(static_cast<QObject *>(impl));
+        m_impl = dynamic_cast<DOS::DosIQObjectImpl *>(static_cast<QObject *>(impl));
         Q_ASSERT(m_dObject);
         Q_ASSERT(m_impl);
     }
@@ -90,7 +90,7 @@ public:
 
 private:
     void *m_dObject;
-    DEQObject *m_impl;
+    DOS::DosIQObjectImpl *m_impl;
     static int m_id;
     static DOS::QmlRegisterType m_data;
 };

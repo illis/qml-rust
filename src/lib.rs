@@ -17,10 +17,10 @@ mod qurl;
 mod qvariant;
 mod stringutils;
 
-pub use qlistmodel::{QListModel, QListModelContent, QListModelContentConstructor, QListModelInterface};
+pub use qlistmodel::{QListModel, QListModelContent, QListModelContentConstructor, QListModelInterface, QQmlListModel};
 pub use qmetaobject::{ParameterDefinition, PropertyDefinition, QMetaObject, SignalDefinition, SlotDefinition};
 pub use qmetatype::{QMetaTypable, QMetaType};
-pub use qmlregister::{QmlRegisterableObject, QmlRegisterType, qml_register_qobject};
+pub use qmlregister::{QmlRegisterableObject, QmlRegisterType, qml_register_type};
 pub use qobject::{QQmlObject, QObject, QObjectContent, QObjectContentConstructor, QObjectRefMut, QSignalEmitter};
 pub use qquickview::QQuickView;
 pub use qurl::QUrl;

@@ -1,6 +1,7 @@
 <RCC>
     <qresource prefix="/">
         <file>qml/tst_simple.qml</file>
-        <file>qml/tst_qmlregister.qml</file>
+        <file>qml/tst_qmlregister_qobject.qml</file>
+        <file>qml/tst_qmlregister_qlistmodel.qml</file>
     </qresource>
 </RCC>

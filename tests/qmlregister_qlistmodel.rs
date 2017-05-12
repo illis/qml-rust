@@ -5,8 +5,8 @@ extern crate qml;
 use libc::c_void;
 use qml::*;
 
-q_object! {
-    pub TestObject => TestObjectSignals {
+q_listmodel! {
+    pub TestListModel(first, second) => TestListModelSignals {
         signal fn valueChanged(value: i32);
         slot fn set_value(value: i32);
         slot fn get_value() -> i32;
@@ -16,12 +16,12 @@ q_object! {
     }
 }
 
-struct TestObject {
+struct TestListModel {
     signal_emitter: Box<QSignalEmitter>,
     value: i32,
 }
 
-impl TestObject {
+impl TestListModel {
     fn set_value(&mut self, value: i32) {
         self.value = value;
         self.valueChanged(value);
@@ -32,25 +32,25 @@ impl TestObject {
     }
 }
 
-impl QObjectContentConstructor for TestObject {
-    fn new(signal_emitter: Box<QSignalEmitter>) -> Self {
-        TestObject {
+impl QListModelContentConstructor for TestListModel {
+    fn new(signal_emitter: Box<QSignalEmitter>, _: Box<QListModelInterface>) -> Self {
+        TestListModel {
             signal_emitter: signal_emitter,
             value: 0,
         }
     }
 }
 
-qml_register_qobject!(TestObject as QTestObject, "test.submodule", 1, 0);
+qml_register_qlistmodel!(TestListModel as QTestListModel, "test.submodule", 1, 0);
 
 #[link(name = "testresources", kind = "static")]
 #[test]
-fn test_qmlregister_simple_type() {
-    qml_register_qobject::<TestObject>();
+fn test_qmlregister_qlistmodel() {
+    qml_register_type::<TestListModel>();
     unsafe { init_testresources(); }
 
     let mut view = QQuickView::new();
-    let url = QUrl::new("qrc:///qml/tst_qmlregister.qml");
+    let url = QUrl::new("qrc:///qml/tst_qmlregister_qlistmodel.qml");
 
 
     view.load_url(url);
