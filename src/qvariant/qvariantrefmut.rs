@@ -20,6 +20,10 @@ impl<'a> QVariantRefMut<'a> {
     }
 }
 
+pub fn get_ptr<'a>(instance: &'a QVariantRefMut) -> &'a c_void {
+    instance.ptr
+}
+
 pub fn from_ptr<'a>(ptr: *mut c_void) -> QVariantRefMut<'a> {
     QVariantRefMut::from_ptr(ptr)
 }

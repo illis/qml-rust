@@ -216,3 +216,43 @@ int de_qqml_qmlregisterobject(const QmlRegisterType *qmlRegisterType)
 {
     return deQmlRegisterQObject(fromRawQmlRegisterType(qmlRegisterType));
 }
+
+DosQVariant *de_qvariant_create_qvariantmap(const DEQVariantMap *value)
+{
+    QVariantMap returned{};
+    for (int i = 0; i < value->count; ++i) {
+        auto entry = value->values[i];
+        returned.insert(QString::fromLocal8Bit(entry.key), *(static_cast<const QVariant *>(entry.value)));
+    }
+    return new QVariant{std::move(returned)};
+}
+
+DEQVariantMap *de_qvariant_to_qvariantmap(const DosQVariant *vptr)
+{
+    auto variant = static_cast<const QVariant *>(vptr);
+    auto map = variant->toMap();
+
+    DEQVariantMap *returned = new DEQVariantMap{static_cast<int>(map.size()), new DEQVariantMapEntry[map.size()]};
+
+    std::size_t index = 0;
+    for (auto it = map.constBegin(); it != map.constEnd(); ++it) {
+        auto key{it.key()};
+        char *keyPtr = new char[key.size() + 1]{0};
+        std::strncpy(keyPtr, key.toLocal8Bit().data(), static_cast<std::size_t>(key.size() + 1));
+        returned->values[index].key = keyPtr;
+        returned->values[index].value = new QVariant{it.value()};
+        ++index;
+    }
+
+    return returned;
+}
+
+void de_qvariantmap_delete(const DEQVariantMap *vptr)
+{
+    for (int i = 0; i < vptr->count; ++i) {
+        delete[] vptr->values[i].key;
+        delete static_cast<const QVariant *>(vptr->values[i].value);
+    }
+    delete[] vptr->values;
+    delete vptr;
+}

@@ -33,7 +33,6 @@
 #define DOTHERSIDEEXTRA_H
 
 #include "detypes.h"
-#include <DOtherSide/DOtherSideTypes.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -49,12 +48,16 @@ DosQObject *de_qobject_create(const DosQMetaObject *metaObject, DObjectCallback 
 void de_qobject_set_dobject(DosQObject *vptr, void *dObject);
 void *de_qobject_check_and_get_dobject(DosQObject *vptr, const DosQMetaObject *meta);
 
-::DosQMetaObject *de_qlistmodel_qmetaobject();
+DosQMetaObject *de_qlistmodel_qmetaobject();
 void *de_qlistmodel_create(const DosQMetaObject *metaObject, const char *const *roleArray, int roleArrayLength,
                            DObjectCallback dObjectCallback);
 void de_qlistmodel_set_dobject(DosQAbstractListModel *vptr, void *dObject);
 
 int de_qqml_qmlregisterobject(const QmlRegisterType *qmlRegisterType);
+
+DosQVariant *de_qvariant_create_qvariantmap(const DEQVariantMap *value);
+DEQVariantMap *de_qvariant_to_qvariantmap(const DosQVariant *vptr);
+void de_qvariantmap_delete(const DEQVariantMap *vptr);
 
 #ifdef __cplusplus
 }

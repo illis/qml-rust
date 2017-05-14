@@ -189,7 +189,6 @@ struct ParameterDefinitionWrapper {
     metatype: c_int,
 }
 
-#[derive(Debug)]
 #[repr(C)]
 struct CParameterDefinition {
     name: *const c_char,
@@ -224,7 +223,6 @@ struct IntermediateCSignalDefinition<'a> {
     parameter_definitions: Vec<CParameterDefinition>,
 }
 
-#[derive(Debug)]
 #[repr(C)]
 struct CSignalDefinition {
     name: *const c_char,
@@ -260,7 +258,6 @@ impl<'a> From<&'a IntermediateCSignalDefinition<'a>> for CSignalDefinition {
     }
 }
 
-#[derive(Debug)]
 #[repr(C)]
 struct CSignalDefinitions {
     count: c_int,
@@ -279,7 +276,6 @@ struct IntermediateCSlotDefinition<'a> {
     parameter_definitions: Vec<CParameterDefinition>,
 }
 
-#[derive(Debug)]
 #[repr(C)]
 struct CSlotDefinition {
     name: *const c_char,
@@ -319,7 +315,6 @@ impl<'a> From<&'a IntermediateCSlotDefinition<'a>> for CSlotDefinition {
     }
 }
 
-#[derive(Debug)]
 #[repr(C)]
 struct CSlotDefinitions {
     count: c_int,
@@ -334,7 +329,6 @@ struct PropertyDefinitionWrapper {
     notify_slot: CString,
 }
 
-#[derive(Debug)]
 #[repr(C)]
 struct CPropertyDefinition {
     name: *const c_char,
@@ -368,7 +362,6 @@ impl<'a> From<&'a PropertyDefinitionWrapper> for CPropertyDefinition {
     }
 }
 
-#[derive(Debug)]
 #[repr(C)]
 struct CPropertyDefinitions {
     count: i32,

@@ -30,6 +30,12 @@ impl<'a> Drop for QVariant<'a> {
     }
 }
 
+pub fn new<'a>(ptr: &'a mut c_void) -> QVariant<'a> {
+    QVariant {
+        ptr: ptr,
+    }
+}
+
 pub fn get_ptr<'a>(instance: &'a QVariant) -> &'a c_void {
     instance.ptr
 }

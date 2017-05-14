@@ -32,11 +32,33 @@
 #ifndef DETYPES_H
 #define DETYPES_H
 
+#include <DOtherSide/DOtherSideTypes.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 typedef void DEApplication;
+
+struct DEQVariantMapEntry
+{
+    const char *key;
+    const DosQVariant *value;
+};
+
+#ifndef __cplusplus
+typedef struct DEQVariantMapEntry DEQVariantMapEntry;
+#endif
+
+struct DEQVariantMap
+{
+    int count;
+    DEQVariantMapEntry *values;
+};
+
+#ifndef __cplusplus
+typedef struct DEQVariantMap DEQVariantMap;
+#endif
 
 #ifdef __cplusplus
 }
