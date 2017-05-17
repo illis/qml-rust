@@ -24,7 +24,7 @@ macro_rules! q_object_generate_signal_trait {
 macro_rules! q_object_generate_signal_definitions {
     (signal fn $name:ident($($param:ident: $paramtype:ident),*); $($rest:tt)*) => {
         #[allow(non_snake_case)]
-        fn $name(&mut self, $($param: $paramtype),*);
+        fn $name(&self, $($param: $paramtype),*);
 
         q_object_generate_signal_definitions!($($rest)*);
     };
@@ -61,7 +61,7 @@ macro_rules! q_object_generate_signal_implementations {
         #[allow(unused_mut)]
         #[allow(dead_code)]
         #[allow(non_snake_case)]
-        fn $name(&mut self, $($param: $paramtype),*) {
+        fn $name(&self, $($param: $paramtype),*) {
             let mut vec: Vec<QVariant> = Vec::new();
             $(
                 vec.push(QVariant::from($param));

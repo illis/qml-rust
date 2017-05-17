@@ -20,7 +20,7 @@ impl QObjectSignalEmitter {
 }
 
 impl QSignalEmitter for QObjectSignalEmitter {
-    fn emit_signal(&mut self, name: &str, mut args: Vec<QVariant>) {
+    fn emit_signal(&self, name: &str, mut args: Vec<QVariant>) {
         let string = CString::new(name).unwrap();
         let mut args: Vec<*mut c_void> = args.iter_mut()
             .map(|item| qvariant::qvariant::get_mut(item) as *mut c_void)
