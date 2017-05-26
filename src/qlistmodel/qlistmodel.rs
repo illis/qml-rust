@@ -1,5 +1,6 @@
-use std::cell::RefCell;
+use std::cell::{Ref, RefCell, RefMut};
 use std::ffi::CString;
+use std::ops::Deref;
 use std::rc::Rc;
 use libc::{c_char, c_int, c_void};
 use internal::{QObjectPtr, QObjectSharedPtr, QObjectSignalEmitter, invoke_slot};
@@ -9,7 +10,7 @@ use qlistmodel::{QListModelContent, QListModelContentConstructor, QListModelInte
 pub struct QListModel<T>
     where T: QObjectContent + QListModelContent {
     ptr: QObjectSharedPtr,
-    content: Box<T>,
+    content: Box<RefCell<T>>,
 }
 
 impl<T> QListModel<T>
@@ -17,14 +18,14 @@ impl<T> QListModel<T>
     pub fn new() -> Self {
         let ptr = QListModel::<T>::new_ptr(T::role_names());
         let interface = Box::new(ListModelInterface::new());
-        let content = Box::new(T::new(Box::new(QObjectSignalEmitter::new(Rc::downgrade(&ptr))), interface));
+        let content = Box::new(RefCell::new(T::new(Box::new(QObjectSignalEmitter::new(Rc::downgrade(&ptr))), interface)));
         QListModel::new_listmodel(ptr, content)
     }
 
     fn new_with_signal_emitter(signal_emitter: Box<QSignalEmitter>) -> Self {
         let ptr = QListModel::<T>::new_ptr(T::role_names());
         let interface = Box::new(ListModelInterface::new());
-        let content = Box::new(T::new(signal_emitter, interface));
+        let content = Box::new(RefCell::new(T::new(signal_emitter, interface)));
         QListModel::new_listmodel(ptr, content)
     }
 
@@ -45,7 +46,7 @@ impl<T> QListModel<T>
         Rc::new(RefCell::new(QObjectPtr::new(ptr)))
     }
 
-    fn new_listmodel(ptr: QObjectSharedPtr, content: Box<T>) -> Self {
+    fn new_listmodel(ptr: QObjectSharedPtr, content: Box<RefCell<T>>) -> Self {
         let content_ptr = Box::into_raw(content);
         unsafe { de_qlistmodel_set_dobject(ptr.borrow_mut().as_mut(), content_ptr as *mut c_void); }
 
@@ -56,17 +57,17 @@ impl<T> QListModel<T>
         returned
     }
 
-    pub fn get_content(&self) -> &T {
-        &*self.content
+    pub fn get_content(&self) -> Ref<T> {
+        self.content.deref().borrow()
     }
 
-    pub fn get_content_mut(&mut self) -> &mut T {
-        &mut *self.content
+    pub fn get_content_mut(&mut self) -> RefMut<T> {
+        self.content.deref().borrow_mut()
     }
 
     extern "C" fn qslot_callback(object: *mut c_void, slot_name: *mut c_void,
                                  argc: c_int, argv: *mut *mut c_void) {
-        invoke_slot::<T>(object, slot_name, argc, argv)
+        invoke_slot::<T>(object, slot_name, argc, argv);
     }
 }
 

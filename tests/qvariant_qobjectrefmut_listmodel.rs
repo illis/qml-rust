@@ -43,19 +43,20 @@ impl QListModelContentConstructor for TestObject {
 }
 
 #[test]
-fn test_qvariant_qobjectrefmut_memory() {
+fn test_qvariant_qobjectrefmut_listmodel_memory() {
     let mut qobject = QListModel::<TestObject>::new();
     QVariant::from(QObjectRefMut::from(&mut qobject));
 }
 
 #[test]
-fn test_qvariant_qobjectrefmut_conversion() {
+fn test_qvariant_qobjectrefmut_listmodel_conversion() {
     let mut qobject = QListModel::<TestObject>::new();
     qobject.get_content_mut().set_value(123);
 
     let variant = QVariant::from(QObjectRefMut::from(&mut qobject));
     let mut qobjectref = QObjectRefMut::from(&variant);
 
-    let qobject2 = qobjectref.as_content::<TestObject>().unwrap();
+    let qobject2_refcell = qobjectref.as_content::<TestObject>().unwrap();
+    let qobject2 = qobject2_refcell.borrow();
     assert_eq!(qobject2.get_value(), 123);
 }

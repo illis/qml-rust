@@ -48,6 +48,9 @@ bool check_metatype(const void *ptr);
 bool check_metatype_qvariant(const void *ptr);
 void debug_qobject(const void *ptr);
 
+void connect_qobject_ownership(void *ptr);
+void invoke_qobject_ownership_slot(void *ptr);
+
 #ifdef __cplusplus
 }
 #endif

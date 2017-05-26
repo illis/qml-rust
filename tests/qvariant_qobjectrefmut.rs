@@ -56,6 +56,7 @@ fn test_qvariant_qobjectrefmut_conversion() {
     let variant = QVariant::from(QObjectRefMut::from(&mut qobject));
     let mut qobjectref = QObjectRefMut::from(&variant);
 
-    let qobject2 = qobjectref.as_content::<TestObject>().unwrap();
+    let qobject2_refcell = qobjectref.as_content::<TestObject>().unwrap();
+    let qobject2 = qobject2_refcell.borrow();
     assert_eq!(qobject2.get_value(), 123);
 }

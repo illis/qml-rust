@@ -1,3 +1,4 @@
+use std::cell::RefCell;
 use libc::c_void;
 use qobject::{QObject, QObjectContent};
 use qmetaobject;
@@ -11,12 +12,12 @@ impl<'a> QObjectRefMut<'a> {
         self.ptr
     }
 
-    pub fn as_content<T>(&mut self) -> Option<&'a mut T>
+    pub fn as_content<T>(&mut self) -> Option<&'a RefCell<T>>
         where T: QObjectContent {
         let meta = T::get_metaobject();
         unsafe {
             let ptr = de_qobject_check_and_get_dobject(self.ptr, qmetaobject::get_ptr(&meta));
-            (ptr as *mut T).as_mut()
+            (ptr as *const RefCell<T>).as_ref()
         }
     }
 }

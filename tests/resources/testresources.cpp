@@ -247,4 +247,26 @@ bool check_metatype_qvariant(const void *ptr)
     return do_check_metatype(qobject);
 }
 
+void connect_qobject_ownership(void *ptr)
+{
+    auto qobject = static_cast<QObject *>(ptr);
+    QObject::connect(qobject, SIGNAL(event()), qobject, SLOT(callback()));
+}
+
+void invoke_qobject_ownership_slot(void *ptr)
+{
+    auto qobject = static_cast<QObject *>(ptr);
+    auto metaObject = qobject->metaObject();
+    {
+        int slotIndex = metaObject->indexOfSlot("send()");
+        if (slotIndex == -1) {
+            std::cout << "[C++] Slot send not found" << std::endl;
+            return;
+        } else {
+            auto slot = metaObject->method(slotIndex);
+            slot.invoke(qobject);
+        }
+    }
+}
+
 #include "testresources.moc"

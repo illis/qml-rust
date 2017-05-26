@@ -1,4 +1,5 @@
-use std::cell::RefCell;
+use std::cell::{Ref, RefCell, RefMut};
+use std::ops::Deref;
 use std::rc::Rc;
 use libc::{c_int, c_void};
 use internal::{QObjectPtr, QObjectSharedPtr, QObjectSignalEmitter, invoke_slot};
@@ -7,20 +8,20 @@ use qobject::{QObjectContent, QObjectContentConstructor, QSignalEmitter};
 pub struct QObject<T>
     where T: QObjectContent {
     ptr: QObjectSharedPtr,
-    content: Box<T>,
+    content: Box<RefCell<T>>,
 }
 
 impl<T> QObject<T>
     where T: QObjectContent + QObjectContentConstructor {
     pub fn new() -> Self {
         let ptr = QObject::<T>::new_ptr();
-        let content = Box::new(T::new(Box::new(QObjectSignalEmitter::new(Rc::downgrade(&ptr)))));
+        let content = Box::new(RefCell::new(T::new(Box::new(QObjectSignalEmitter::new(Rc::downgrade(&ptr))))));
         QObject::new_qobject(ptr, content)
     }
 
     fn new_with_signal_emitter(signal_emitter: Box<QSignalEmitter>) -> Self {
         let ptr = QObject::<T>::new_ptr();
-        let content = Box::new(T::new(signal_emitter));
+        let content = Box::new(RefCell::new(T::new(signal_emitter)));
         QObject::new_qobject(ptr, content)
     }
 
@@ -33,7 +34,7 @@ impl<T> QObject<T>
         Rc::new(RefCell::new(QObjectPtr::new(ptr)))
     }
 
-    fn new_qobject(ptr: QObjectSharedPtr, content: Box<T>) -> Self {
+    fn new_qobject(ptr: QObjectSharedPtr, content: Box<RefCell<T>>) -> Self {
         let content_ptr = Box::into_raw(content);
         unsafe { de_qobject_set_dobject(ptr.borrow_mut().as_mut(), content_ptr as *mut c_void); }
 
@@ -44,17 +45,17 @@ impl<T> QObject<T>
         returned
     }
 
-    pub fn get_content(&self) -> &T {
-        &*self.content
+    pub fn get_content(&self) -> Ref<T> {
+        self.content.deref().borrow()
     }
 
-    pub fn get_content_mut(&mut self) -> &mut T {
-        &mut *self.content
+    pub fn get_content_mut(&mut self) -> RefMut<T> {
+        self.content.deref().borrow_mut()
     }
 
     extern "C" fn qslot_callback(object: *mut c_void, slot_name: *mut c_void,
                                  argc: c_int, argv: *mut *mut c_void) {
-        invoke_slot::<T>(object, slot_name, argc, argv)
+        invoke_slot::<T>(object, slot_name, argc, argv);
     }
 }
 
