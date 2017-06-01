@@ -5,7 +5,7 @@ extern crate qml;
 use qml::*;
 
 q_object! {
-    pub TestObject => TestObjectSignals {
+    pub TestObject(signal_emitter: TestObjectSignals) {
         signal fn value_changed(value: i32);
         slot fn set_value(value: i32);
         slot fn get_value() -> i32;
@@ -35,7 +35,7 @@ impl QObjectContentConstructor for TestObject {
 }
 
 q_object! {
-    pub TestObject2 => TestObject2Signals {}
+    pub TestObject2(signal_emitter: TestObject2Signals) {}
 }
 
 struct TestObject2 {

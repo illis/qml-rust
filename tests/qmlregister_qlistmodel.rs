@@ -6,7 +6,7 @@ use libc::c_void;
 use qml::*;
 
 q_listmodel! {
-    pub TestListModel(first, second) => TestListModelSignals {
+    pub TestListModel(signal_emitter: TestListModelSignals, role_names: first, second) {
         signal fn valueChanged(value: i32);
         slot fn set_value(value: i32);
         slot fn get_value() -> i32;

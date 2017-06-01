@@ -1,7 +1,7 @@
 #[macro_export]
 macro_rules! q_listmodel {
     (
-        pub $name:ident($($role_name:ident),*) => $signals:ident {
+        pub $name:ident(signal_emitter: $signals:ident, role_names: $($role_name:ident),*) {
             $($definitions:tt)*
         }
     ) => {
