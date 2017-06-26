@@ -2,7 +2,7 @@ use std::ffi::CString;
 use libc::{c_char, c_double, c_float, c_int, c_void};
 use qobject;
 use qobject::QObjectRefMut;
-use stringutils::CStringWrapper;
+use internal::CStringWrapper;
 
 pub struct QVariant<'a> {
     ptr: &'a mut c_void,

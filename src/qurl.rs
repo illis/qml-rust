@@ -13,16 +13,16 @@ impl QUrl {
             ptr: unsafe { dos_qurl_create(url.as_ptr(), 0) }
         }
     }
+
+    pub(crate) fn get_mut(&mut self) -> *mut c_void {
+        self.ptr
+    }
 }
 
 impl Drop for QUrl {
     fn drop(&mut self) {
         unsafe { dos_qurl_delete(self.ptr); }
     }
-}
-
-pub(crate) fn get_mut(instance: &mut QUrl) -> *mut c_void {
-    instance.ptr
 }
 
 extern "C" {

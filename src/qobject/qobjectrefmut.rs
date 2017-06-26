@@ -31,9 +31,9 @@ impl<'a, T> From<&'a mut QObject<T>> for QObjectRefMut<'a>
     }
 }
 
-pub fn new<'a>(ptr: &'a mut c_void) -> QObjectRefMut<'a> {
+pub(crate) fn new<'a>(ptr: &'a mut c_void) -> QObjectRefMut<'a> {
     QObjectRefMut {
-        ptr: ptr,
+        ptr,
     }
 }
 

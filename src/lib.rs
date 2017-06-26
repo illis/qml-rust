@@ -15,7 +15,6 @@ mod qobject_macros;
 mod qquickview;
 mod qurl;
 mod qvariant;
-mod stringutils;
 
 pub use qlistmodel::{QListModel, QListModelContentConstructor, QListModelInterface, QListModelItem, QQmlListModel};
 pub use qmetaobject::{ParameterDefinition, PropertyDefinition, QMetaObject, SignalDefinition, SlotDefinition};

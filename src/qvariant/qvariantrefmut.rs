@@ -1,7 +1,7 @@
 use libc::{c_char, c_double, c_float, c_int, c_void};
 use qvariant;
 use qvariant::QVariant;
-use stringutils::CStringWrapper;
+use internal::CStringWrapper;
 
 pub struct QVariantRefMut<'a> {
     ptr: &'a mut c_void,

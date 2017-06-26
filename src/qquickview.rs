@@ -1,7 +1,6 @@
 use std::env;
 use std::ffi::CString;
 use libc::{c_char, c_int, c_void};
-use qurl;
 use qurl::QUrl;
 
 pub struct QQuickView {
@@ -26,14 +25,14 @@ impl<'a> QQuickView {
             dos_qquickview_set_resize_mode(view, 1);
 
             QQuickView {
-                app: app,
-                view: view,
+                app,
+                view,
             }
         }
     }
 
     pub fn load_url(&mut self, mut url: QUrl) {
-        let ptr = qurl::get_mut(&mut url);
+        let ptr = url.get_mut();
         unsafe { de_qquickview_set_source_url(self.view, ptr) }
     }
 
