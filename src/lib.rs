@@ -17,7 +17,7 @@ mod qurl;
 mod qvariant;
 mod stringutils;
 
-pub use qlistmodel::{QListModel, QListModelContent, QListModelContentConstructor, QListModelInterface, QQmlListModel};
+pub use qlistmodel::{QListModel, QListModelContentConstructor, QListModelInterface, QListModelItem, QQmlListModel};
 pub use qmetaobject::{ParameterDefinition, PropertyDefinition, QMetaObject, SignalDefinition, SlotDefinition};
 pub use qmetatype::{QMetaTypable, QMetaType};
 pub use qmlregister::{QmlRegisterableObject, QmlRegisterType, qml_register_type};

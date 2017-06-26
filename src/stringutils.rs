@@ -1,7 +1,7 @@
 use std::ffi::CStr;
 use libc::c_char;
 
-pub struct CStringWrapper {
+pub(crate) struct CStringWrapper {
     ptr: *const c_char,
 }
 

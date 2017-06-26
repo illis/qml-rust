@@ -6,7 +6,7 @@ use libc::c_void;
 use qml::*;
 
 q_object! {
-    pub TestObject(signal_emitter:TestObjectSignals) {
+    pub struct TestObject(signal_emitter:TestObjectSignals) {
         signal fn valueChanged(value: i32);
         slot fn set_value(value: i32);
         slot fn get_value() -> i32;

@@ -290,6 +290,13 @@ private slots:
         QCOMPARE(spy1.size(), 0);
         QCOMPARE(spy2.size(), 0);
     }
+
+    void test()
+    {
+        std::vector<std::string> values{"Hello", "world"};
+        std::string &first = values[0];
+        values.push_back("foo");
+    }
 };
 
 QTEST_MAIN(TestQListModel)

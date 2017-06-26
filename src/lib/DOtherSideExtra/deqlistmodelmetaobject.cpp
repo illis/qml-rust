@@ -36,7 +36,7 @@
 static QMetaObject *createDynamicMetaObject()
 {
     QMetaObjectBuilder builder;
-    builder.setClassName("De");
+    builder.setClassName("DEQListModel");
     builder.setSuperClass(&DEQListModel::staticMetaObject);
     return builder.toMetaObject();
 }

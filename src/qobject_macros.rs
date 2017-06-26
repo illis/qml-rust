@@ -1,7 +1,7 @@
 #[macro_export]
 macro_rules! q_object {
     (
-        pub $name:ident(signal_emitter: $signals:ident) {
+        pub struct $name:ident(signal_emitter: $signals:ident) {
             $($definitions:tt)*
         }
     ) => {
@@ -270,7 +270,7 @@ mod tests {
     use qvariant::{QVariant, QVariantRefMut};
 
     q_object! {
-        pub TestObject(signal_emitter: TestObjectSignals) {
+        pub struct TestObject(signal_emitter: TestObjectSignals) {
             signal fn value_changed(value: i32);
             slot fn set_value(value: i32);
             slot fn get_value() -> i32;
@@ -305,7 +305,7 @@ mod tests {
     }
 
     q_object! {
-        pub TestObject2(signal_emitter: TestObject2Signals) {}
+        pub struct TestObject2(signal_emitter: TestObject2Signals) {}
     }
 
     struct TestObject2 {}

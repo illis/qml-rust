@@ -164,11 +164,11 @@ impl Drop for QMetaObject {
     }
 }
 
-pub fn get_ptr(instance: &QMetaObject) -> *const c_void {
+pub(crate) fn get_ptr(instance: &QMetaObject) -> *const c_void {
     instance.ptr
 }
 
-pub fn get_mut(instance: &mut QMetaObject) -> *mut c_void {
+pub(crate) fn get_mut(instance: &mut QMetaObject) -> *mut c_void {
     instance.ptr
 }
 

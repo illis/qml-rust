@@ -6,7 +6,7 @@ use libc::c_void;
 use qml::*;
 
 q_object! {
-    pub TestObject(signal_emitter: TestObjectSignals) {
+    pub struct TestObject(signal_emitter: TestObjectSignals) {
         signal fn event();
         slot fn callback();
         slot fn send();

@@ -4,7 +4,7 @@ use qobject::QSignalEmitter;
 use qvariant;
 use qvariant::QVariant;
 
-pub struct QQmlObjectSignalEmitter {
+pub(crate) struct QQmlObjectSignalEmitter {
     ptr: *mut c_void,
 }
 

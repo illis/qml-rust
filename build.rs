@@ -87,8 +87,8 @@ fn main() {
     }
 
     println!("cargo:rustc-link-search=native={}", cmake_cfg.build().join("lib").display());
-    find_and_link_qt5();
-    find_and_link_dos(&mut cmake_cfg);
-    find_and_link_de(&mut cmake_cfg);
     find_resources(&mut cmake_cfg);
+    find_and_link_de(&mut cmake_cfg);
+    find_and_link_dos(&mut cmake_cfg);
+    find_and_link_qt5();
 }

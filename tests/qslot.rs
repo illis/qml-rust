@@ -1,6 +1,7 @@
 extern crate qml;
 extern crate libc;
 
+use std::collections::hash_map::HashMap;
 use libc::c_void;
 use qml::*;
 
@@ -17,7 +18,7 @@ fn test_qobject_invoke_slot() {
 
 #[test]
 fn test_qlistmdel_invoke_slot() {
-    let mut qlistmodel = QListModel::<ListModelContent>::new();
+    let mut qlistmodel = QListModel::<ListModelContent, ListModelItem>::new();
     {
         let mut qlistmodelref = QObjectRefMut::from(&mut qlistmodel);
         assert!(unsafe { invoke_slot(qlistmodelref.as_mut()) });
@@ -48,6 +49,8 @@ impl ListModelContent {
         self.invoked
     }
 }
+
+struct ListModelItem {}
 
 impl InvokableContent for ObjectContent {
     fn set_invoked(&mut self) {
@@ -85,12 +88,6 @@ impl QObjectContent for ListModelContent {
     }
 }
 
-impl QListModelContent for ListModelContent {
-    fn role_names() -> Vec<&'static str> {
-        vec![]
-    }
-}
-
 impl QObjectContentConstructor for ObjectContent {
     fn new(_: Box<QSignalEmitter>) -> Self {
         ObjectContent {
@@ -104,6 +101,20 @@ impl QListModelContentConstructor for ListModelContent {
         ListModelContent {
             invoked: false,
         }
+    }
+}
+
+impl QListModelItem for ListModelItem {
+    fn role_names() -> Vec<&'static str> {
+        vec![]
+    }
+
+    fn to_variant_map<'a>(&self) -> HashMap<&'static str, QVariant<'a>> {
+        HashMap::new()
+    }
+
+    fn from_variant_map<'a>(_: HashMap<&'static str, QVariant<'a>>) -> Self {
+        ListModelItem {}
     }
 }
 

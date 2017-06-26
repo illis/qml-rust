@@ -1,29 +1,31 @@
 use std::cell::{Ref, RefCell, RefMut};
 use std::ffi::CString;
+use std::marker::PhantomData;
 use std::ops::Deref;
 use std::rc::Rc;
 use libc::{c_char, c_int, c_void};
 use internal::{QObjectPtr, QObjectSharedPtr, QObjectSignalEmitter, invoke_slot};
 use qobject::{QObjectContent, QSignalEmitter};
-use qlistmodel::{QListModelContent, QListModelContentConstructor, QListModelInterface};
+use qlistmodel::{QListModelContentConstructor, QListModelInterface, QListModelItem};
 
-pub struct QListModel<T>
-    where T: QObjectContent + QListModelContent {
+pub struct QListModel<T, I>
+    where T: QObjectContent, I: QListModelItem {
     ptr: QObjectSharedPtr,
     content: Box<RefCell<T>>,
+    _phantom: PhantomData<I>,
 }
 
-impl<T> QListModel<T>
-    where T: QObjectContent + QListModelContent + QListModelContentConstructor {
+impl<T, I> QListModel<T, I>
+    where T: QObjectContent + QListModelContentConstructor, I: QListModelItem {
     pub fn new() -> Self {
-        let ptr = QListModel::<T>::new_ptr(T::role_names());
+        let ptr = QListModel::<T, I>::new_ptr(I::role_names());
         let interface = Box::new(ListModelInterface::new());
         let content = Box::new(RefCell::new(T::new(Box::new(QObjectSignalEmitter::new(Rc::downgrade(&ptr))), interface)));
         QListModel::new_listmodel(ptr, content)
     }
 
     fn new_with_signal_emitter(signal_emitter: Box<QSignalEmitter>) -> Self {
-        let ptr = QListModel::<T>::new_ptr(T::role_names());
+        let ptr = QListModel::<T, I>::new_ptr(I::role_names());
         let interface = Box::new(ListModelInterface::new());
         let content = Box::new(RefCell::new(T::new(signal_emitter, interface)));
         QListModel::new_listmodel(ptr, content)
@@ -40,7 +42,7 @@ impl<T> QListModel<T>
 
         let ptr = unsafe {
             de_qlistmodel_create(::qmetaobject::get_mut(&mut meta), role_name_cstring.as_ptr(),
-                                 role_name_cstring.len() as c_int, QListModel::<T>::qslot_callback)
+                                 role_name_cstring.len() as c_int, QListModel::<T, I>::qslot_callback)
         };
 
         Rc::new(RefCell::new(QObjectPtr::new(ptr)))
@@ -53,6 +55,7 @@ impl<T> QListModel<T>
         let returned = QListModel {
             ptr: ptr.clone(),
             content: unsafe { Box::from_raw(content_ptr) },
+            _phantom: PhantomData,
         };
         returned
     }
@@ -81,14 +84,14 @@ impl ListModelInterface {
 
 impl QListModelInterface for ListModelInterface {}
 
-pub fn get_mut<'a, T>(instance: &'a mut QListModel<T>) -> &'a mut c_void
-    where T: QObjectContent + QListModelContent {
+pub(crate) fn get_mut<'a, T, I>(instance: &'a mut QListModel<T, I>) -> &'a mut c_void
+    where T: QObjectContent, I: QListModelItem {
     let ptr = instance.ptr.borrow_mut().as_mut();
     unsafe { ptr.as_mut().unwrap() }
 }
 
-pub fn new_with_signal_emitter<T>(signal_emitter: Box<QSignalEmitter>) -> QListModel<T>
-    where T: QObjectContent + QListModelContent + QListModelContentConstructor {
+pub(crate) fn new_with_signal_emitter<T, I>(signal_emitter: Box<QSignalEmitter>) -> QListModel<T, I>
+    where T: QObjectContent + QListModelContentConstructor, I: QListModelItem {
     QListModel::new_with_signal_emitter(signal_emitter)
 }
 
@@ -103,12 +106,15 @@ extern "C" {
 #[cfg(test)]
 mod tests {
     use super::{QListModel};
+    use std::collections::HashMap;
     use qmetaobject::QMetaObject;
     use qobject::{QObjectContent, QSignalEmitter};
-    use qlistmodel::{QListModelContent, QListModelContentConstructor, QListModelInterface};
+    use qlistmodel::{QListModelContentConstructor, QListModelInterface, QListModelItem};
     use qvariant::{QVariant, QVariantRefMut};
 
     struct Content {}
+
+    struct Item {}
 
     impl QObjectContent for Content {
         fn get_metaobject() -> QMetaObject {
@@ -120,20 +126,28 @@ mod tests {
         }
     }
 
-    impl QListModelContent for Content {
-        fn role_names() -> Vec<&'static str> {
-            vec!["test1", "test2"]
-        }
-    }
-
     impl QListModelContentConstructor for Content {
         fn new(_: Box<QSignalEmitter>, _: Box<QListModelInterface>) -> Self {
             Content {}
         }
     }
 
+    impl QListModelItem for Item {
+        fn role_names() -> Vec<&'static str> {
+            vec!["test1", "test2"]
+        }
+
+        fn to_variant_map<'a>(&self) -> HashMap<&'static str, QVariant<'a>> {
+            HashMap::new()
+        }
+
+        fn from_variant_map<'a>(_: HashMap<&'static str, QVariant<'a>>) -> Self {
+            Item {}
+        }
+    }
+
     #[test]
     fn test_qlistmodel_memory() {
-        QListModel::<Content>::new();
+        QListModel::<Content, Item>::new();
     }
 }

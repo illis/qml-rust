@@ -1,6 +1,7 @@
 extern crate qml;
 extern crate libc;
 
+use std::collections::HashMap;
 use libc::{c_int, c_void};
 use qml::*;
 
@@ -17,7 +18,7 @@ fn test_qobject_set_value() {
 
 #[test]
 fn test_qlistmodel_set_value() {
-    let mut qlistmodel = QListModel::<TestListModel>::new();
+    let mut qlistmodel = QListModel::<TestListModel, TestListModelItem>::new();
     {
         let mut qobjectref = QObjectRefMut::from(&mut qlistmodel);
         unsafe { set_value(qobjectref.as_mut(), 42) };
@@ -41,7 +42,7 @@ fn test_qobject_value_changed() {
 
 #[test]
 fn test_qlistmodel_value_changed() {
-    let mut qlistmodel = QListModel::<TestListModel>::new();
+    let mut qlistmodel = QListModel::<TestListModel, TestListModelItem>::new();
     let ptr = {
         let mut qobjectref = QObjectRefMut::from(&mut qlistmodel);
         qobjectref.as_mut() as *mut c_void
@@ -62,6 +63,8 @@ struct TestListModel {
     signal_emitter: Box<QSignalEmitter>,
     value: i32,
 }
+
+struct TestListModelItem {}
 
 trait QTestObjectSignals {
     fn value_changed(&mut self);
@@ -145,12 +148,6 @@ impl QObjectContent for TestListModel {
     }
 }
 
-impl QListModelContent for TestListModel {
-    fn role_names() -> Vec<&'static str> {
-        vec![]
-    }
-}
-
 impl QObjectContentConstructor for TestObject {
     fn new(signal_emitter: Box<QSignalEmitter>) -> Self {
         TestObject {
@@ -166,6 +163,20 @@ impl QListModelContentConstructor for TestListModel {
             signal_emitter: signal_emitter,
             value: 123,
         }
+    }
+}
+
+impl QListModelItem for TestListModelItem {
+    fn role_names() -> Vec<&'static str> {
+        vec![]
+    }
+
+    fn to_variant_map<'a>(&self) -> HashMap<&'static str, QVariant<'a>> {
+        HashMap::new()
+    }
+
+    fn from_variant_map<'a>(_: HashMap<&'static str, QVariant<'a>>) -> Self {
+        TestListModelItem {}
     }
 }
 

@@ -21,7 +21,7 @@ impl Drop for QUrl {
     }
 }
 
-pub fn get_mut(instance: &mut QUrl) -> *mut c_void {
+pub(crate) fn get_mut(instance: &mut QUrl) -> *mut c_void {
     instance.ptr
 }
 

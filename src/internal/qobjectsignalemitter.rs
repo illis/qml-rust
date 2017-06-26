@@ -7,7 +7,7 @@ use qobject::QSignalEmitter;
 use qvariant;
 use qvariant::QVariant;
 
-pub struct QObjectSignalEmitter {
+pub(crate) struct QObjectSignalEmitter {
     ptr: QObjectWeakPtr,
 }
 

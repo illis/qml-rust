@@ -2,11 +2,12 @@ extern crate libc;
 #[macro_use]
 extern crate qml;
 
+use std::collections::HashMap;
 use libc::c_void;
 use qml::*;
 
 q_listmodel! {
-    pub TestListModel(signal_emitter: TestListModelSignals, role_names: first, second) {
+    pub struct TestListModel(signal_emitter: TestListModelSignals) {
         signal fn valueChanged(value: i32);
         slot fn set_value(value: i32);
         slot fn get_value() -> i32;
@@ -20,6 +21,8 @@ struct TestListModel {
     signal_emitter: Box<QSignalEmitter>,
     value: i32,
 }
+
+struct TestListModelItem {}
 
 impl TestListModel {
     fn set_value(&mut self, value: i32) {
@@ -41,7 +44,21 @@ impl QListModelContentConstructor for TestListModel {
     }
 }
 
-qml_register_qlistmodel!(TestListModel as QTestListModel, "test.submodule", 1, 0);
+impl QListModelItem for TestListModelItem {
+    fn role_names() -> Vec<&'static str> {
+        vec![]
+    }
+
+    fn to_variant_map<'a>(&self) -> HashMap<&'static str, QVariant<'a>> {
+        HashMap::new()
+    }
+
+    fn from_variant_map<'a>(_: HashMap<&'static str, QVariant<'a>>) -> Self {
+        TestListModelItem {}
+    }
+}
+
+qml_register_qlistmodel!(TestListModel<TestListModelItem> as QTestListModel, "test.submodule", 1, 0);
 
 #[link(name = "testresources", kind = "static")]
 #[test]
@@ -51,7 +68,6 @@ fn test_qmlregister_qlistmodel() {
 
     let mut view = QQuickView::new();
     let url = QUrl::new("qrc:///qml/tst_qmlregister_qlistmodel.qml");
-
 
     view.load_url(url);
     view.exec();

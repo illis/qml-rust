@@ -2,11 +2,11 @@ use std::cell::RefCell;
 use std::rc::Rc;
 use libc::c_void;
 
-pub struct QObjectPtr {
+pub(crate) struct QObjectPtr {
     ptr: *mut c_void,
 }
 
-pub type QObjectSharedPtr = Rc<RefCell<QObjectPtr>>;
+pub(crate) type QObjectSharedPtr = Rc<RefCell<QObjectPtr>>;
 
 impl QObjectPtr {
     pub fn new(ptr: *mut c_void) -> Self {

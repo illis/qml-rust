@@ -5,8 +5,8 @@ use qobject::QObjectContent;
 use qvariant;
 use qvariant::QVariantRefMut;
 
-pub fn invoke_slot<T>(object: *mut c_void, slot_name: *mut c_void,
-                      argc: c_int, argv: *mut *mut c_void)
+pub(crate) fn invoke_slot<T>(object: *mut c_void, slot_name: *mut c_void,
+                                argc: c_int, argv: *mut *mut c_void)
     where T: QObjectContent {
     let object_ptr = object as *mut RefCell<T>;
     let object = unsafe { object_ptr.as_mut() }.unwrap();
@@ -17,15 +17,6 @@ pub fn invoke_slot<T>(object: *mut c_void, slot_name: *mut c_void,
         .collect();
     let slot_name: String = qvariant::qvariantrefmut::from_ptr(slot_name).into();
 
-    /*
-    object.try_borrow_mut().map(|mut content| {
-        println!("Borrow happened");
-        if let Some(returned) = content.invoke_slot(&slot_name, vec) {
-            let mut output = qvariant::qvariantrefmut::from_ptr(slice[0]);
-            output.set(&returned);
-        };
-    }).unwrap_or(())
-    */
     let mut content = object.borrow_mut();
     if let Some(returned) = content.invoke_slot(&slot_name, vec) {
         let mut output = qvariant::qvariantrefmut::from_ptr(slice[0]);

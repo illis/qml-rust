@@ -1,13 +1,14 @@
-use libc::{c_char, c_int, c_void};
-use std::collections::BTreeMap;
+use libc::{c_int, c_void};
+use std::collections::HashMap;
 use std::ffi::{CStr, CString};
 use std::slice::from_raw_parts_mut;
 use qvariant::qvariant;
 use qvariant::QVariant;
 use qvariant::qvariantrefmut;
 use qvariant::QVariantRefMut;
+use internal::{CQVariantMap, CQVariantMapEntry, QVariantMapEntry};
 
-pub type QVariantMap<'a> = BTreeMap<String, QVariant<'a>>;
+pub type QVariantMap<'a> = HashMap<String, QVariant<'a>>;
 
 impl<'a, 'b> From<QVariantMap<'a>> for QVariant<'b> {
     fn from(value: QVariantMap<'a>) -> Self {
@@ -64,23 +65,6 @@ fn from_ptr<'a, 'b>(ptr: &'a c_void) -> QVariantMap<'b> {
         let value = qvariant::new(unsafe { dos_qvariant_create_qvariant(value.value).as_mut().unwrap() });
         (key, value)
     }).collect::<QVariantMap>()
-}
-
-struct QVariantMapEntry {
-    key: CString,
-    value: *const c_void,
-}
-
-#[repr(C)]
-struct CQVariantMapEntry {
-    key: *const c_char,
-    value: *const c_void,
-}
-
-#[repr(C)]
-struct CQVariantMap {
-    count: c_int,
-    values: *mut CQVariantMapEntry,
 }
 
 struct QVariantMapWrapper<'a> {

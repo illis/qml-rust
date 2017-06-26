@@ -59,13 +59,13 @@ impl<T> QObject<T>
     }
 }
 
-pub fn get_mut<'a, T>(instance: &'a mut QObject<T>) -> &'a mut c_void
+pub(crate) fn get_mut<'a, T>(instance: &'a mut QObject<T>) -> &'a mut c_void
     where T: QObjectContent {
     let ptr = instance.ptr.borrow_mut().as_mut();
     unsafe { ptr.as_mut().unwrap() }
 }
 
-pub fn new_with_signal_emitter<T>(signal_emitter: Box<QSignalEmitter>) -> QObject<T>
+pub(crate) fn new_with_signal_emitter<T>(signal_emitter: Box<QSignalEmitter>) -> QObject<T>
     where T: QObjectContent + QObjectContentConstructor {
     QObject::new_with_signal_emitter(signal_emitter)
 }

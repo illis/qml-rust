@@ -36,11 +36,11 @@ pub fn new<'a>(ptr: &'a mut c_void) -> QVariant<'a> {
     }
 }
 
-pub fn get_ptr<'a>(instance: &'a QVariant) -> &'a c_void {
+pub(crate) fn get_ptr<'a>(instance: &'a QVariant) -> &'a c_void {
     instance.ptr
 }
 
-pub fn get_mut<'a>(instance: &'a mut QVariant) -> &'a mut c_void {
+pub(crate) fn get_mut<'a>(instance: &'a mut QVariant) -> &'a mut c_void {
     instance.ptr
 }
 

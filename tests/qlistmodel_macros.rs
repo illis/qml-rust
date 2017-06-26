@@ -2,17 +2,25 @@ extern crate libc;
 #[macro_use]
 extern crate qml;
 
+use std::collections::HashMap;
 use libc::c_void;
 use qml::*;
 
 q_listmodel! {
-    pub TestListModel(signal_emitter: TestListModelSignals, role_names:) {
+    pub struct TestListModel(signal_emitter: TestListModelSignals) {
         signal fn value_changed(value: i32);
         slot fn set_value(value: i32);
         slot fn get_value() -> i32;
         property value: i32, read: get_value;
         property value2: i32, read: get_value, notify: value_changed;
         property value3: i32, read: get_value, write: set_value, notify: value_changed;
+    }
+}
+
+q_listmodelitem! {
+    pub struct TestListModelItem {
+        number: i32,
+        string: String,
     }
 }
 
@@ -38,7 +46,7 @@ impl QListModelContentConstructor for TestListModel {
 #[link(name = "testresources", kind = "static")]
 #[test]
 fn test_qobject_macro_creates_correct_metatype() {
-    let mut qobject = QListModel::<TestListModel>::new();
+    let mut qobject = QListModel::<TestListModel, TestListModelItem>::new();
     let mut qobjectref = QObjectRefMut::from(&mut qobject);
     assert!(unsafe { check_metatype(qobjectref.as_mut()) });
 }
