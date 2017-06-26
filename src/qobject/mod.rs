@@ -1,7 +1,7 @@
 mod qqmlobject;
 mod qobject;
 mod qobjectcontent;
-pub mod qobjectrefmut;
+mod qobjectrefmut;
 mod signalemitter;
 
 pub use self::qqmlobject::QQmlObject;

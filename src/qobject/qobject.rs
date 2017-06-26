@@ -12,6 +12,24 @@ pub struct QObject<T>
 }
 
 impl<T> QObject<T>
+    where T: QObjectContent {
+
+    pub fn get_content(&self) -> Ref<T> {
+        self.content.deref().borrow()
+    }
+
+    pub fn get_content_mut(&mut self) -> RefMut<T> {
+        self.content.deref().borrow_mut()
+    }
+
+    pub(crate) fn get_mut(&mut self) -> &mut c_void
+        where T: QObjectContent {
+        let ptr = self.ptr.borrow_mut().as_mut();
+        unsafe { ptr.as_mut().unwrap() }
+    }
+}
+
+impl<T> QObject<T>
     where T: QObjectContent + QObjectContentConstructor {
     pub fn new() -> Self {
         let ptr = QObject::<T>::new_ptr();
@@ -19,7 +37,7 @@ impl<T> QObject<T>
         QObject::new_qobject(ptr, content)
     }
 
-    fn new_with_signal_emitter(signal_emitter: Box<QSignalEmitter>) -> Self {
+    pub(crate) fn new_with_signal_emitter(signal_emitter: Box<QSignalEmitter>) -> Self {
         let ptr = QObject::<T>::new_ptr();
         let content = Box::new(RefCell::new(T::new(signal_emitter)));
         QObject::new_qobject(ptr, content)
@@ -45,29 +63,10 @@ impl<T> QObject<T>
         returned
     }
 
-    pub fn get_content(&self) -> Ref<T> {
-        self.content.deref().borrow()
-    }
-
-    pub fn get_content_mut(&mut self) -> RefMut<T> {
-        self.content.deref().borrow_mut()
-    }
-
     extern "C" fn qslot_callback(object: *mut c_void, slot_name: *mut c_void,
                                  argc: c_int, argv: *mut *mut c_void) {
         invoke_slot::<T>(object, slot_name, argc, argv);
     }
-}
-
-pub(crate) fn get_mut<'a, T>(instance: &'a mut QObject<T>) -> &'a mut c_void
-    where T: QObjectContent {
-    let ptr = instance.ptr.borrow_mut().as_mut();
-    unsafe { ptr.as_mut().unwrap() }
-}
-
-pub(crate) fn new_with_signal_emitter<T>(signal_emitter: Box<QSignalEmitter>) -> QObject<T>
-    where T: QObjectContent + QObjectContentConstructor {
-    QObject::new_with_signal_emitter(signal_emitter)
 }
 
 type DObjectCallback = extern "C" fn(*mut c_void, *mut c_void, c_int, *mut *mut c_void);

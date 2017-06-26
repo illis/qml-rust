@@ -9,13 +9,13 @@ pub(crate) struct QObjectPtr {
 pub(crate) type QObjectSharedPtr = Rc<RefCell<QObjectPtr>>;
 
 impl QObjectPtr {
-    pub fn new(ptr: *mut c_void) -> Self {
+    pub(crate) fn new(ptr: *mut c_void) -> Self {
         QObjectPtr {
             ptr: ptr,
         }
     }
 
-    pub fn as_mut(&mut self) -> *mut c_void {
+    pub(crate) fn as_mut(&mut self) -> *mut c_void {
         self.ptr
     }
 }

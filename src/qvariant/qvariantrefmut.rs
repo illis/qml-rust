@@ -1,5 +1,4 @@
 use libc::{c_char, c_double, c_float, c_int, c_void};
-use qvariant;
 use qvariant::QVariant;
 use internal::CStringWrapper;
 
@@ -8,24 +7,20 @@ pub struct QVariantRefMut<'a> {
 }
 
 impl<'a> QVariantRefMut<'a> {
-    fn from_ptr(ptr: *mut c_void) -> Self {
+    pub fn set<'b: 'a>(&mut self, value: &'a QVariant) {
+        unsafe { dos_qvariant_assign(self.ptr, value.get_ptr()) }
+    }
+
+    pub(crate) fn from_ptr(ptr: *mut c_void) -> Self {
         let ptr = unsafe { ptr.as_mut().unwrap() };
         QVariantRefMut {
             ptr: ptr
         }
     }
 
-    pub fn set<'b: 'a>(&mut self, value: &'a QVariant) {
-        unsafe { dos_qvariant_assign(self.ptr, qvariant::qvariant::get_ptr(value)) }
+    pub(crate) fn get_ptr(&self) -> &c_void {
+        self.ptr
     }
-}
-
-pub(crate) fn get_ptr<'a>(instance: &'a QVariantRefMut) -> &'a c_void {
-    instance.ptr
-}
-
-pub(crate) fn from_ptr<'a>(ptr: *mut c_void) -> QVariantRefMut<'a> {
-    QVariantRefMut::from_ptr(ptr)
 }
 
 // i32

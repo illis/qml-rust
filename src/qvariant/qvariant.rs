@@ -1,6 +1,5 @@
 use std::ffi::CString;
 use libc::{c_char, c_double, c_float, c_int, c_void};
-use qobject;
 use qobject::QObjectRefMut;
 use internal::CStringWrapper;
 
@@ -11,6 +10,20 @@ pub struct QVariant<'a> {
 impl<'a> QVariant<'a> {
     pub fn set(&mut self, value: &QVariant) {
         unsafe { dos_qvariant_assign(self.ptr, value.ptr) }
+    }
+
+    pub(crate) fn new(ptr: &'a mut c_void) -> QVariant<'a> {
+        QVariant {
+            ptr: ptr,
+        }
+    }
+
+    pub(crate) fn get_ptr(&self) -> &c_void {
+        self.ptr
+    }
+
+    pub(crate) fn get_mut(&mut self) -> &mut c_void {
+        self.ptr
     }
 }
 
@@ -28,20 +41,6 @@ impl<'a> Drop for QVariant<'a> {
     fn drop(&mut self) {
         unsafe { dos_qvariant_delete(self.ptr); }
     }
-}
-
-pub fn new<'a>(ptr: &'a mut c_void) -> QVariant<'a> {
-    QVariant {
-        ptr: ptr,
-    }
-}
-
-pub(crate) fn get_ptr<'a>(instance: &'a QVariant) -> &'a c_void {
-    instance.ptr
-}
-
-pub(crate) fn get_mut<'a>(instance: &'a mut QVariant) -> &'a mut c_void {
-    instance.ptr
 }
 
 // i32
@@ -143,7 +142,7 @@ impl<'a, 'b: 'a> From<QObjectRefMut<'a>> for QVariant<'b> {
 impl<'a, 'b: 'a> From<&'b QVariant<'a>> for QObjectRefMut<'a> {
     fn from(value: &QVariant) -> Self {
         let ptr = unsafe { dos_qvariant_toQObject(value.ptr) };
-        unsafe { qobject::qobjectrefmut::new(ptr.as_mut().unwrap()) }
+        unsafe { QObjectRefMut::new(ptr.as_mut().unwrap()) }
     }
 }
 

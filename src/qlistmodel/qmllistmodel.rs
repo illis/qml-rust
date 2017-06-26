@@ -13,6 +13,6 @@ pub struct QQmlListModel<T, I>
 impl<T, I> QQmlListModel<T, I>
     where T: QObjectContent + QListModelContentConstructor, I: QListModelItem {
     pub fn new(wrapper: *mut c_void) -> QListModel<T, I> {
-        super::qlistmodel::new_with_signal_emitter(Box::new(QQmlObjectSignalEmitter::new(wrapper)))
+        QListModel::new_with_signal_emitter(Box::new(QQmlObjectSignalEmitter::new(wrapper)))
     }
 }

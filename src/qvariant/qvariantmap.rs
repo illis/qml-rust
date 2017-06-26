@@ -2,9 +2,7 @@ use libc::{c_int, c_void};
 use std::collections::HashMap;
 use std::ffi::{CStr, CString};
 use std::slice::from_raw_parts_mut;
-use qvariant::qvariant;
 use qvariant::QVariant;
-use qvariant::qvariantrefmut;
 use qvariant::QVariantRefMut;
 use internal::{CQVariantMap, CQVariantMapEntry, QVariantMapEntry};
 
@@ -16,7 +14,7 @@ impl<'a, 'b> From<QVariantMap<'a>> for QVariant<'b> {
             .map(|(key, value)| {
                 QVariantMapEntry {
                     key: CString::new(key.as_str()).unwrap(),
-                    value: qvariant::get_ptr(&value),
+                    value: value.get_ptr(),
                 }
             }).collect::<Vec<_>>();
 
@@ -33,25 +31,25 @@ impl<'a, 'b> From<QVariantMap<'a>> for QVariant<'b> {
             values: entries.as_mut_ptr(),
         };
 
-        qvariant::new(unsafe { de_qvariant_create_qvariantmap(&map).as_mut().unwrap() })
+        QVariant::new(unsafe { de_qvariant_create_qvariantmap(&map).as_mut().unwrap() })
     }
 }
 
 impl<'a, 'b> From<QVariant<'a>> for QVariantMap<'b> {
     fn from(value: QVariant) -> Self {
-        from_ptr(qvariant::get_ptr(&value))
+        from_ptr(value.get_ptr())
     }
 }
 
 impl<'a, 'b> From<QVariantRefMut<'a>> for QVariantMap<'b> {
     fn from(value: QVariantRefMut) -> Self {
-        from_ptr(qvariantrefmut::get_ptr(&value))
+        from_ptr(value.get_ptr())
     }
 }
 
 impl<'a, 'b: 'a, 'c> From<&'b QVariantRefMut<'a>> for QVariantMap<'c> {
     fn from(value: &QVariantRefMut) -> Self {
-        from_ptr(qvariantrefmut::get_ptr(&value))
+        from_ptr(value.get_ptr())
     }
 }
 
@@ -62,7 +60,7 @@ fn from_ptr<'a, 'b>(ptr: &'a c_void) -> QVariantMap<'b> {
     slice.iter().map(|value| {
         let key = unsafe { CStr::from_ptr(value.key) };
         let key = key.to_string_lossy().into_owned();
-        let value = qvariant::new(unsafe { dos_qvariant_create_qvariant(value.value).as_mut().unwrap() });
+        let value = QVariant::new(unsafe { dos_qvariant_create_qvariant(value.value).as_mut().unwrap() });
         (key, value)
     }).collect::<QVariantMap>()
 }

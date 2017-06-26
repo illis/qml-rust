@@ -6,7 +6,7 @@ pub(crate) struct CStringWrapper {
 }
 
 impl CStringWrapper {
-    pub fn new(ptr: *const c_char) -> CStringWrapper {
+    pub(crate) fn new(ptr: *const c_char) -> CStringWrapper {
         CStringWrapper {
             ptr: ptr,
         }

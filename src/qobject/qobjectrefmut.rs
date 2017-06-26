@@ -8,6 +8,12 @@ pub struct QObjectRefMut<'a> {
 }
 
 impl<'a> QObjectRefMut<'a> {
+    pub(crate) fn new(ptr: &'a mut c_void) -> Self {
+        QObjectRefMut {
+            ptr,
+        }
+    }
+
     pub fn as_mut(&mut self) -> &mut c_void {
         self.ptr
     }
@@ -26,14 +32,8 @@ impl<'a, T> From<&'a mut QObject<T>> for QObjectRefMut<'a>
     where T: QObjectContent {
     fn from(value: &'a mut QObject<T>) -> Self {
         QObjectRefMut {
-            ptr: super::qobject::get_mut(value),
+            ptr: value.get_mut(),
         }
-    }
-}
-
-pub(crate) fn new<'a>(ptr: &'a mut c_void) -> QObjectRefMut<'a> {
-    QObjectRefMut {
-        ptr,
     }
 }
 

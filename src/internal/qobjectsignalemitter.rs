@@ -4,15 +4,16 @@ use std::rc::Weak;
 use libc::{c_char, c_int, c_void};
 use internal::QObjectPtr;
 use qobject::QSignalEmitter;
-use qvariant;
 use qvariant::QVariant;
+
+type QObjectWeakPtr = Weak<RefCell<QObjectPtr>>;
 
 pub(crate) struct QObjectSignalEmitter {
     ptr: QObjectWeakPtr,
 }
 
 impl QObjectSignalEmitter {
-    pub fn new(ptr: QObjectWeakPtr) -> Self {
+    pub(crate) fn new(ptr: QObjectWeakPtr) -> Self {
         QObjectSignalEmitter {
             ptr: ptr,
         }
@@ -23,7 +24,7 @@ impl QSignalEmitter for QObjectSignalEmitter {
     fn emit_signal(&self, name: &str, mut args: Vec<QVariant>) {
         let string = CString::new(name).unwrap();
         let mut args: Vec<*mut c_void> = args.iter_mut()
-            .map(|item| qvariant::qvariant::get_mut(item) as *mut c_void)
+            .map(|item| item.get_mut() as *mut c_void)
             .collect();
 
         self.ptr.upgrade().and_then::<(), _>(|ptr| {
@@ -37,8 +38,6 @@ impl QSignalEmitter for QObjectSignalEmitter {
         });
     }
 }
-
-type QObjectWeakPtr = Weak<RefCell<QObjectPtr>>;
 
 extern "C" {
     fn dos_qobject_signal_emit(vptr: *mut c_void, name: *const c_char,

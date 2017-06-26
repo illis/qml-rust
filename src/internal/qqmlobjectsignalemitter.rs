@@ -1,7 +1,6 @@
 use std::ffi::CString;
 use libc::{c_char, c_int, c_void};
 use qobject::QSignalEmitter;
-use qvariant;
 use qvariant::QVariant;
 
 pub(crate) struct QQmlObjectSignalEmitter {
@@ -9,7 +8,7 @@ pub(crate) struct QQmlObjectSignalEmitter {
 }
 
 impl QQmlObjectSignalEmitter {
-    pub fn new(ptr: *mut c_void) -> QQmlObjectSignalEmitter {
+    pub(crate) fn new(ptr: *mut c_void) -> QQmlObjectSignalEmitter {
         QQmlObjectSignalEmitter {
             ptr: ptr,
         }
@@ -20,7 +19,7 @@ impl QSignalEmitter for QQmlObjectSignalEmitter {
     fn emit_signal(&self, name: &str, mut args: Vec<QVariant>) {
         let string = CString::new(name).unwrap();
         let mut args: Vec<*mut c_void> = args.iter_mut()
-            .map(|item| qvariant::qvariant::get_mut(item) as *mut c_void)
+            .map(|item| item.get_mut() as *mut c_void)
             .collect();
 
         unsafe {

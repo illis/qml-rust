@@ -16,6 +16,23 @@ pub struct QListModel<T, I>
 }
 
 impl<T, I> QListModel<T, I>
+    where T: QObjectContent, I: QListModelItem {
+
+    pub fn get_content(&self) -> Ref<T> {
+        self.content.deref().borrow()
+    }
+
+    pub fn get_content_mut(&mut self) -> RefMut<T> {
+        self.content.deref().borrow_mut()
+    }
+
+    pub(crate) fn get_mut(&mut self) -> &mut c_void {
+        let ptr = self.ptr.borrow_mut().as_mut();
+        unsafe { ptr.as_mut().unwrap() }
+    }
+}
+
+impl<T, I> QListModel<T, I>
     where T: QObjectContent + QListModelContentConstructor, I: QListModelItem {
     pub fn new() -> Self {
         let ptr = QListModel::<T, I>::new_ptr(I::role_names());
@@ -24,7 +41,7 @@ impl<T, I> QListModel<T, I>
         QListModel::new_listmodel(ptr, content)
     }
 
-    fn new_with_signal_emitter(signal_emitter: Box<QSignalEmitter>) -> Self {
+    pub(crate) fn new_with_signal_emitter(signal_emitter: Box<QSignalEmitter>) -> Self {
         let ptr = QListModel::<T, I>::new_ptr(I::role_names());
         let interface = Box::new(ListModelInterface::new());
         let content = Box::new(RefCell::new(T::new(signal_emitter, interface)));
@@ -60,14 +77,6 @@ impl<T, I> QListModel<T, I>
         returned
     }
 
-    pub fn get_content(&self) -> Ref<T> {
-        self.content.deref().borrow()
-    }
-
-    pub fn get_content_mut(&mut self) -> RefMut<T> {
-        self.content.deref().borrow_mut()
-    }
-
     extern "C" fn qslot_callback(object: *mut c_void, slot_name: *mut c_void,
                                  argc: c_int, argv: *mut *mut c_void) {
         invoke_slot::<T>(object, slot_name, argc, argv);
@@ -83,17 +92,6 @@ impl ListModelInterface {
 }
 
 impl QListModelInterface for ListModelInterface {}
-
-pub(crate) fn get_mut<'a, T, I>(instance: &'a mut QListModel<T, I>) -> &'a mut c_void
-    where T: QObjectContent, I: QListModelItem {
-    let ptr = instance.ptr.borrow_mut().as_mut();
-    unsafe { ptr.as_mut().unwrap() }
-}
-
-pub(crate) fn new_with_signal_emitter<T, I>(signal_emitter: Box<QSignalEmitter>) -> QListModel<T, I>
-    where T: QObjectContent + QListModelContentConstructor, I: QListModelItem {
-    QListModel::new_with_signal_emitter(signal_emitter)
-}
 
 type DObjectCallback = extern "C" fn(*mut c_void, *mut c_void, c_int, *mut *mut c_void);
 
