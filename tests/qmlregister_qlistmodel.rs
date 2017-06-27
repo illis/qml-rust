@@ -35,8 +35,8 @@ impl TestListModel {
     }
 }
 
-impl QListModelContentConstructor for TestListModel {
-    fn new(signal_emitter: Box<QSignalEmitter>, _: Box<QListModelInterface>) -> Self {
+impl QListModelContentConstructor<TestListModelItem> for TestListModel {
+    fn new(signal_emitter: Box<QSignalEmitter>, _: Box<QListModelInterface<TestListModelItem>>) -> Self {
         TestListModel {
             signal_emitter: signal_emitter,
             value: 0,
@@ -53,7 +53,7 @@ impl QListModelItem for TestListModelItem {
         HashMap::new()
     }
 
-    fn from_variant_map<'a>(_: HashMap<&'static str, QVariant<'a>>) -> Self {
+    fn from_variant_map<'a>(_: QVariantMap<'a>) -> Self {
         TestListModelItem {}
     }
 }

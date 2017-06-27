@@ -44,14 +44,18 @@ void de_qguiapplication_delete(DEApplication *vptr);
 DosQQuickView *de_qquickview_create();
 void de_qquickview_set_source_url(DosQQuickView *vptr, const DosQUrl *url);
 
-DosQObject *de_qobject_create(const DosQMetaObject *metaObject, DObjectCallback dObjectCallback);
-void de_qobject_set_dobject(DosQObject *vptr, void *dObject);
-void *de_qobject_check_and_get_dobject(DosQObject *vptr, const DosQMetaObject *meta);
+DEObject *de_qobject_create(const DosQMetaObject *metaObject, DObjectCallback dObjectCallback);
+void de_qobject_set_dobject(DEObject *vptr, void *dObject);
+void *de_qobject_check_and_get_dobject(DEObject *vptr, const DosQMetaObject *meta);
 
 DosQMetaObject *de_qlistmodel_qmetaobject();
-void *de_qlistmodel_create(const DosQMetaObject *metaObject, const char *const *roleArray, int roleArrayLength,
-                           DObjectCallback dObjectCallback);
-void de_qlistmodel_set_dobject(DosQAbstractListModel *vptr, void *dObject);
+DEListModel *de_qlistmodel_create(const DosQMetaObject *metaObject, const char *const *roleArray, int roleArrayLength,
+                                  DObjectCallback dObjectCallback);
+void de_qlistmodel_set_dobject(DEListModel *vptr, void *dObject);
+int de_qlistmodel_count(const DEListModel *vptr);
+void de_qlistmodel_insert(DEListModel *vptr, int row, const DEQvariantMapList *values);
+void de_qlistmodel_remove(DEListModel *vptr, int row, int count);
+DEQVariantMap *de_qlistmodel_get(const DEListModel *vptr, int index);
 
 int de_qqml_qmlregisterobject(const QmlRegisterType *qmlRegisterType);
 

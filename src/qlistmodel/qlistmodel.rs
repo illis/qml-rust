@@ -4,9 +4,9 @@ use std::marker::PhantomData;
 use std::ops::Deref;
 use std::rc::Rc;
 use libc::{c_char, c_int, c_void};
-use internal::{QObjectPtr, QObjectSharedPtr, QObjectSignalEmitter, invoke_slot};
+use internal::{QListModelInterfaceImpl, QObjectPtr, QObjectSharedPtr, QObjectSignalEmitter, invoke_slot};
 use qobject::{QObjectContent, QSignalEmitter};
-use qlistmodel::{QListModelContentConstructor, QListModelInterface, QListModelItem};
+use qlistmodel::{QListModelContentConstructor, QListModelItem};
 
 pub struct QListModel<T, I>
     where T: QObjectContent, I: QListModelItem {
@@ -27,23 +27,22 @@ impl<T, I> QListModel<T, I>
     }
 
     pub(crate) fn get_mut(&mut self) -> &mut c_void {
-        let ptr = self.ptr.borrow_mut().as_mut();
-        unsafe { ptr.as_mut().unwrap() }
+        self.ptr.borrow_mut().as_mut()
     }
 }
 
 impl<T, I> QListModel<T, I>
-    where T: QObjectContent + QListModelContentConstructor, I: QListModelItem {
+    where T: QObjectContent + QListModelContentConstructor<I>, I: QListModelItem + 'static {
     pub fn new() -> Self {
         let ptr = QListModel::<T, I>::new_ptr(I::role_names());
-        let interface = Box::new(ListModelInterface::new());
+        let interface = Box::new(QListModelInterfaceImpl::new(Rc::downgrade(&ptr)));
         let content = Box::new(RefCell::new(T::new(Box::new(QObjectSignalEmitter::new(Rc::downgrade(&ptr))), interface)));
         QListModel::new_listmodel(ptr, content)
     }
 
     pub(crate) fn new_with_signal_emitter(signal_emitter: Box<QSignalEmitter>) -> Self {
         let ptr = QListModel::<T, I>::new_ptr(I::role_names());
-        let interface = Box::new(ListModelInterface::new());
+        let interface = Box::new(QListModelInterfaceImpl::new(Rc::downgrade(&ptr)));
         let content = Box::new(RefCell::new(T::new(signal_emitter, interface)));
         QListModel::new_listmodel(ptr, content)
     }
@@ -83,16 +82,6 @@ impl<T, I> QListModel<T, I>
     }
 }
 
-struct ListModelInterface {}
-
-impl ListModelInterface {
-    fn new() -> Self {
-        ListModelInterface {}
-    }
-}
-
-impl QListModelInterface for ListModelInterface {}
-
 type DObjectCallback = extern "C" fn(*mut c_void, *mut c_void, c_int, *mut *mut c_void);
 
 extern "C" {
@@ -105,10 +94,10 @@ extern "C" {
 mod tests {
     use super::{QListModel};
     use std::collections::HashMap;
+    use qlistmodel::{QListModelContentConstructor, QListModelInterface, QListModelItem};
     use qmetaobject::QMetaObject;
     use qobject::{QObjectContent, QSignalEmitter};
-    use qlistmodel::{QListModelContentConstructor, QListModelInterface, QListModelItem};
-    use qvariant::{QVariant, QVariantRefMut};
+    use qvariant::{QVariant, QVariantMap, QVariantRefMut};
 
     struct Content {}
 
@@ -124,8 +113,8 @@ mod tests {
         }
     }
 
-    impl QListModelContentConstructor for Content {
-        fn new(_: Box<QSignalEmitter>, _: Box<QListModelInterface>) -> Self {
+    impl QListModelContentConstructor<Item> for Content {
+        fn new(_: Box<QSignalEmitter>, _: Box<QListModelInterface<Item>>) -> Self {
             Content {}
         }
     }
@@ -139,7 +128,7 @@ mod tests {
             HashMap::new()
         }
 
-        fn from_variant_map<'a>(_: HashMap<&'static str, QVariant<'a>>) -> Self {
+        fn from_variant_map<'a>(_: QVariantMap<'a>) -> Self {
             Item {}
         }
     }

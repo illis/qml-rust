@@ -23,4 +23,4 @@ pub use qmlregister::{QmlRegisterableObject, QmlRegisterType, qml_register_type}
 pub use qobject::{QQmlObject, QObject, QObjectContent, QObjectContentConstructor, QObjectRefMut, QSignalEmitter};
 pub use qquickview::QQuickView;
 pub use qurl::QUrl;
-pub use qvariant::{QVariant, QVariantRefMut};
+pub use qvariant::{QVariant, QVariantMap, QVariantRefMut};

@@ -24,8 +24,7 @@ impl<T> QObject<T>
 
     pub(crate) fn get_mut(&mut self) -> &mut c_void
         where T: QObjectContent {
-        let ptr = self.ptr.borrow_mut().as_mut();
-        unsafe { ptr.as_mut().unwrap() }
+        self.ptr.borrow_mut().as_mut()
     }
 }
 

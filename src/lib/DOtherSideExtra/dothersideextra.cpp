@@ -116,6 +116,98 @@ private:
     std::vector<char *> m_argv{};
 };
 
+template <class T>
+static T fromDeQvariantMap(const DEQVariantMap *value)
+{
+    T returned{};
+    for (int i = 0; i < value->count; ++i) {
+        auto entry = value->values[i];
+        returned[QString::fromLocal8Bit(entry.key)] = *(static_cast<const QVariant *>(entry.value));
+    }
+    return returned;
+}
+
+template <class T>
+class IteratorProvider;
+
+template <>
+class IteratorProvider<QVariantMap>
+{
+public:
+    static QVariantMap::ConstIterator begin(const QVariantMap &value)
+    {
+        return value.constBegin();
+    }
+    static QVariantMap::ConstIterator end(const QVariantMap &value)
+    {
+        return value.constEnd();
+    }
+    static QString key(const QVariantMap::ConstIterator &it)
+    {
+        return it.key();
+    }
+    static QVariant value(const QVariantMap::ConstIterator &it)
+    {
+        return it.value();
+    }
+};
+
+template <>
+class IteratorProvider<std::map<QString, QVariant>>
+{
+public:
+    static std::map<QString, QVariant>::const_iterator begin(const std::map<QString, QVariant> &value)
+    {
+        return value.begin();
+    }
+    static std::map<QString, QVariant>::const_iterator end(const std::map<QString, QVariant> &value)
+    {
+        return value.end();
+    }
+    static QString key(const std::map<QString, QVariant>::const_iterator &it)
+    {
+        return it->first;
+    }
+    static QVariant value(const std::map<QString, QVariant>::const_iterator &it)
+    {
+        return it->second;
+    }
+};
+
+template <class T>
+static DEQVariantMap *toDeQVariantMap(const T &value)
+{
+    DEQVariantMap *returned = new DEQVariantMap{static_cast<int>(value.size()), new DEQVariantMapEntry[value.size()]};
+
+    std::size_t index = 0;
+    for (auto it = IteratorProvider<T>::begin(value); it != IteratorProvider<T>::end(value); ++it) {
+        auto key{IteratorProvider<T>::key(it)};
+        char *keyPtr = new char[key.size() + 1]{0};
+        std::strncpy(keyPtr, key.toLocal8Bit().data(), static_cast<std::size_t>(key.size() + 1));
+        returned->values[index].key = keyPtr;
+        returned->values[index].value = new QVariant{IteratorProvider<T>::value(it)};
+        ++index;
+    }
+
+    return returned;
+}
+
+static DOS::QmlRegisterType fromRawQmlRegisterType(const QmlRegisterType *qmlRegisterType)
+{
+    auto holder = static_cast<DOS::DosIQMetaObjectHolder *>(qmlRegisterType->staticMetaObject);
+
+    DOS::QmlRegisterType returned;
+    returned.major = qmlRegisterType->major;
+    returned.minor = qmlRegisterType->minor;
+    returned.uri = qmlRegisterType->uri;
+    returned.qml = qmlRegisterType->qml;
+    returned.staticMetaObject = holder->data();
+    returned.createDObject = qmlRegisterType->createDObject;
+    returned.deleteDObject = qmlRegisterType->deleteDObject;
+
+    return returned;
+}
+
 DEApplication *de_qguiapplication_create(int argc, const char *const *argv)
 {
     return new DEApplicationImpl{argc, argv};
@@ -138,21 +230,21 @@ void de_qquickview_set_source_url(DosQQuickView *vptr, const DosQUrl *url)
     view->setSource(*_url);
 }
 
-DosQObject *de_qobject_create(const DosQMetaObject *metaObject, DObjectCallback dObjectCallback)
+DEObject *de_qobject_create(const DosQMetaObject *metaObject, DObjectCallback dObjectCallback)
 {
     auto metaObjectHolder = static_cast<const DOS::DosIQMetaObjectHolder *>(metaObject);
-    auto dosQObject = new DEQObject(metaObjectHolder->data(), dObjectCallback);
-    QQmlEngine::setObjectOwnership(dosQObject, QQmlEngine::CppOwnership);
-    return static_cast<QObject *>(dosQObject);
+    auto deQObject = new DEQObject(metaObjectHolder->data(), dObjectCallback);
+    QQmlEngine::setObjectOwnership(deQObject, QQmlEngine::CppOwnership);
+    return static_cast<QObject *>(deQObject);
 }
 
-void de_qobject_set_dobject(DosQObject *vptr, void *dObject)
+void de_qobject_set_dobject(DEObject *vptr, void *dObject)
 {
-    auto dosQObject = static_cast<DEQObject *>(vptr);
-    dosQObject->setDObject(dObject);
+    auto deQObject = static_cast<DEQObject *>(vptr);
+    deQObject->setDObject(dObject);
 }
 
-void *de_qobject_check_and_get_dobject(DosQObject *vptr, const DosQMetaObject *meta)
+void *de_qobject_check_and_get_dobject(DEObject *vptr, const DosQMetaObject *meta)
 {
     auto qobject = static_cast<QObject *>(vptr);
     auto objectContainer = dynamic_cast<IDeDObjectContainer *>(qobject);
@@ -175,8 +267,8 @@ DosQMetaObject *de_qlistmodel_qmetaobject()
     return new DOS::DosIQMetaObjectHolder(std::make_shared<DEQListModelMetaObject>());
 }
 
-void *de_qlistmodel_create(const DosQMetaObject *metaObject, const char *const *roleArray, int roleArrayLength,
-                           DObjectCallback dObjectCallback)
+DEListModel *de_qlistmodel_create(const DosQMetaObject *metaObject, const char *const *roleArray, int roleArrayLength,
+                                  DObjectCallback dObjectCallback)
 {
     std::map<int, QByteArray> roleNames{};
     for (int i = 0; i < roleArrayLength; ++i) {
@@ -190,26 +282,44 @@ void *de_qlistmodel_create(const DosQMetaObject *metaObject, const char *const *
     return static_cast<QObject *>(model);
 }
 
-void de_qlistmodel_set_dobject(DosQAbstractListModel *vptr, void *dObject)
+void de_qlistmodel_set_dobject(DEListModel *vptr, void *dObject)
 {
-    auto dosListModel = static_cast<DEQListModel *>(vptr);
-    dosListModel->setDObject(dObject);
+    auto deListModel = static_cast<DEQListModel *>(vptr);
+    deListModel->setDObject(dObject);
 }
 
-static DOS::QmlRegisterType fromRawQmlRegisterType(const QmlRegisterType *qmlRegisterType)
+int de_qlistmodel_count(const DEListModel *vptr)
 {
-    auto holder = static_cast<DOS::DosIQMetaObjectHolder *>(qmlRegisterType->staticMetaObject);
+    auto deListModel = static_cast<const DEQListModel *>(vptr);
+    return deListModel->count();
+}
 
-    DOS::QmlRegisterType returned;
-    returned.major = qmlRegisterType->major;
-    returned.minor = qmlRegisterType->minor;
-    returned.uri = qmlRegisterType->uri;
-    returned.qml = qmlRegisterType->qml;
-    returned.staticMetaObject = holder->data();
-    returned.createDObject = qmlRegisterType->createDObject;
-    returned.deleteDObject = qmlRegisterType->deleteDObject;
+void de_qlistmodel_insert(DEListModel *vptr, int row, const DEQvariantMapList *values)
+{
+    auto deListModel = static_cast<DEQListModel *>(vptr);
+    std::vector<DEQBaseListModel::Data> entries{};
+    for (int i = 0; i < values->count; ++i) {
+        entries.push_back(
+            deListModel->fromKeyValue(fromDeQvariantMap<std::map<QString, QVariant>>(&values->values[i])));
+    }
+    deListModel->insert(row, std::move(entries));
+}
 
-    return returned;
+void de_qlistmodel_remove(DEListModel *vptr, int row, int count)
+{
+    auto deListModel = static_cast<DEQListModel *>(vptr);
+    deListModel->remove(row, count);
+}
+
+DEQVariantMap *de_qlistmodel_get(const DEListModel *vptr, int index)
+{
+    auto deListModel = static_cast<const DEQListModel *>(vptr);
+    if (index < 0 || index >= deListModel->count()) {
+        return nullptr;
+    }
+
+    auto item = deListModel->toKeyValue(deListModel->get(index));
+    return toDeQVariantMap<std::map<QString, QVariant>>(item);
 }
 
 int de_qqml_qmlregisterobject(const QmlRegisterType *qmlRegisterType)
@@ -219,12 +329,7 @@ int de_qqml_qmlregisterobject(const QmlRegisterType *qmlRegisterType)
 
 DosQVariant *de_qvariant_create_qvariantmap(const DEQVariantMap *value)
 {
-    QVariantMap returned{};
-    for (int i = 0; i < value->count; ++i) {
-        auto entry = value->values[i];
-        returned.insert(QString::fromLocal8Bit(entry.key), *(static_cast<const QVariant *>(entry.value)));
-    }
-    return new QVariant{std::move(returned)};
+    return new QVariant{fromDeQvariantMap<QVariantMap>(value)};
 }
 
 DEQVariantMap *de_qvariant_to_qvariantmap(const DosQVariant *vptr)
@@ -232,19 +337,7 @@ DEQVariantMap *de_qvariant_to_qvariantmap(const DosQVariant *vptr)
     auto variant = static_cast<const QVariant *>(vptr);
     auto map = variant->toMap();
 
-    DEQVariantMap *returned = new DEQVariantMap{static_cast<int>(map.size()), new DEQVariantMapEntry[map.size()]};
-
-    std::size_t index = 0;
-    for (auto it = map.constBegin(); it != map.constEnd(); ++it) {
-        auto key{it.key()};
-        char *keyPtr = new char[key.size() + 1]{0};
-        std::strncpy(keyPtr, key.toLocal8Bit().data(), static_cast<std::size_t>(key.size() + 1));
-        returned->values[index].key = keyPtr;
-        returned->values[index].value = new QVariant{it.value()};
-        ++index;
-    }
-
-    return returned;
+    return toDeQVariantMap<QVariantMap>(map);
 }
 
 void de_qvariantmap_delete(const DEQVariantMap *vptr)

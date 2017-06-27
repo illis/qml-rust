@@ -39,6 +39,8 @@ extern "C" {
 #endif
 
 typedef void DEApplication;
+typedef void DEObject;
+typedef void DEListModel;
 
 struct DEQVariantMapEntry
 {
@@ -54,6 +56,12 @@ struct DEQVariantMap
 {
     int count;
     DEQVariantMapEntry *values;
+};
+
+struct DEQvariantMapList
+{
+    int count;
+    DEQVariantMap *values;
 };
 
 #ifndef __cplusplus

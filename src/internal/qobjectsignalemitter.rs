@@ -1,12 +1,8 @@
-use std::cell::RefCell;
 use std::ffi::CString;
-use std::rc::Weak;
 use libc::{c_char, c_int, c_void};
-use internal::QObjectPtr;
+use internal::{QObjectWeakPtr};
 use qobject::QSignalEmitter;
 use qvariant::QVariant;
-
-type QObjectWeakPtr = Weak<RefCell<QObjectPtr>>;
 
 pub(crate) struct QObjectSignalEmitter {
     ptr: QObjectWeakPtr,
@@ -15,7 +11,7 @@ pub(crate) struct QObjectSignalEmitter {
 impl QObjectSignalEmitter {
     pub(crate) fn new(ptr: QObjectWeakPtr) -> Self {
         QObjectSignalEmitter {
-            ptr: ptr,
+            ptr,
         }
     }
 }
@@ -27,14 +23,13 @@ impl QSignalEmitter for QObjectSignalEmitter {
             .map(|item| item.get_mut() as *mut c_void)
             .collect();
 
-        self.ptr.upgrade().and_then::<(), _>(|ptr| {
+        self.ptr.upgrade().map(|ptr| {
             let ptr = ptr.borrow_mut().as_mut();
 
             unsafe {
                 dos_qobject_signal_emit(ptr, string.as_ptr(), args.len() as c_int,
                                         args.as_mut_ptr());
             }
-            None
         });
     }
 }

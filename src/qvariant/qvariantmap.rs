@@ -1,37 +1,19 @@
-use libc::{c_int, c_void};
+use libc::c_void;
 use std::collections::HashMap;
-use std::ffi::{CStr, CString};
+use std::ffi::CStr;
 use std::slice::from_raw_parts_mut;
 use qvariant::QVariant;
 use qvariant::QVariantRefMut;
-use internal::{CQVariantMap, CQVariantMapEntry, QVariantMapEntry};
+use internal::{CQVariantMap, CQVariantMapWrapper, c_entries_to_c_map, entries_to_c_entries, variantmap_to_entries};
 
 pub type QVariantMap<'a> = HashMap<String, QVariant<'a>>;
 
 impl<'a, 'b> From<QVariantMap<'a>> for QVariant<'b> {
     fn from(value: QVariantMap<'a>) -> Self {
-        let wrappers = value.iter()
-            .map(|(key, value)| {
-                QVariantMapEntry {
-                    key: CString::new(key.as_str()).unwrap(),
-                    value: value.get_ptr(),
-                }
-            }).collect::<Vec<_>>();
-
-        let mut entries = wrappers.iter()
-            .map(|entry| {
-                CQVariantMapEntry {
-                    key: entry.key.as_ptr(),
-                    value: entry.value,
-                }
-            }).collect::<Vec<_>>();
-
-        let map = CQVariantMap {
-            count: entries.len() as c_int,
-            values: entries.as_mut_ptr(),
-        };
-
-        QVariant::new(unsafe { de_qvariant_create_qvariantmap(&map).as_mut().unwrap() })
+        let entries = variantmap_to_entries(&value);
+        let mut c_entries = entries_to_c_entries(&entries);
+        let c_map = c_entries_to_c_map(&mut c_entries);
+        QVariant::new(unsafe { de_qvariant_create_qvariantmap(&c_map).as_mut().unwrap() })
     }
 }
 
@@ -54,7 +36,7 @@ impl<'a, 'b: 'a, 'c> From<&'b QVariantRefMut<'a>> for QVariantMap<'c> {
 }
 
 fn from_ptr<'a, 'b>(ptr: &'a c_void) -> QVariantMap<'b> {
-    let wrapper = QVariantMapWrapper::new(ptr);
+    let wrapper = CQVariantMapWrapper::from_variant_ptr(ptr);
     let slice = unsafe { from_raw_parts_mut(wrapper.ptr.values, wrapper.ptr.count as usize) };
 
     slice.iter().map(|value| {
@@ -65,21 +47,11 @@ fn from_ptr<'a, 'b>(ptr: &'a c_void) -> QVariantMap<'b> {
     }).collect::<QVariantMap>()
 }
 
-struct QVariantMapWrapper<'a> {
-    ptr: &'a mut CQVariantMap,
-}
-
-impl<'a> QVariantMapWrapper<'a> {
-    fn new(value: &'a c_void) -> Self {
-        QVariantMapWrapper {
+impl<'a> CQVariantMapWrapper<'a> {
+    fn from_variant_ptr(value: &'a c_void) -> Self {
+        CQVariantMapWrapper {
             ptr: unsafe { de_qvariant_to_qvariantmap(value).as_mut().unwrap() },
         }
-    }
-}
-
-impl<'a> Drop for QVariantMapWrapper<'a> {
-    fn drop(&mut self) {
-        unsafe { de_qvariantmap_delete(self.ptr) }
     }
 }
 
@@ -87,7 +59,6 @@ extern "C" {
     fn dos_qvariant_create_qvariant(value: *const c_void) -> *mut c_void;
     fn de_qvariant_create_qvariantmap(value: *const CQVariantMap) -> *mut c_void;
     fn de_qvariant_to_qvariantmap(value: *const c_void) -> *mut CQVariantMap;
-    fn de_qvariantmap_delete(vptr: *const CQVariantMap);
 }
 
 #[cfg(test)]

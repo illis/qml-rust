@@ -53,6 +53,8 @@ public:
     bool set(int row, Data &&value);
     bool insert(int row, std::vector<Data> &&values);
     bool remove(int row, int count);
+    Data fromKeyValue(std::map<QString, QVariant> &&value) const;
+    std::map<QString, QVariant> toKeyValue(Data &&data) const;
 signals:
     void countChanged();
 

@@ -100,8 +100,8 @@ impl QObjectContentConstructor for ObjectContent {
     }
 }
 
-impl QListModelContentConstructor for ListModelContent {
-    fn new(_: Box<QSignalEmitter>, _: Box<QListModelInterface>) -> Self {
+impl QListModelContentConstructor<ListModelItem> for ListModelContent {
+    fn new(_: Box<QSignalEmitter>, _: Box<QListModelInterface<ListModelItem>>) -> Self {
         ListModelContent {
             invoked: false,
         }
@@ -117,7 +117,7 @@ impl QListModelItem for ListModelItem {
         HashMap::new()
     }
 
-    fn from_variant_map<'a>(_: HashMap<&'static str, QVariant<'a>>) -> Self {
+    fn from_variant_map<'a>(_: QVariantMap<'a>) -> Self {
         ListModelItem {}
     }
 }

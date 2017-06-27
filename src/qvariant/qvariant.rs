@@ -111,7 +111,7 @@ impl<'a, 'b: 'a> From<&'b QVariant<'a>> for String {
     }
 }
 
-impl<'a> From<&'a str> for QVariant<'a> {
+impl<'a, 'b> From<&'a str> for QVariant<'b> {
     fn from(value: &'a str) -> Self {
         let string = CString::new(value).unwrap();
         QVariant {
@@ -123,6 +123,15 @@ impl<'a> From<&'a str> for QVariant<'a> {
 impl<'a> From<String> for QVariant<'a> {
     fn from(value: String) -> Self {
         let string = CString::new(value).unwrap();
+        QVariant {
+            ptr: unsafe { dos_qvariant_create_string(string.as_ptr()).as_mut().unwrap() },
+        }
+    }
+}
+
+impl<'a, 'b> From<&'a String> for QVariant<'b> {
+    fn from(value: &String) -> Self {
+        let string = CString::new(value.as_str()).unwrap();
         QVariant {
             ptr: unsafe { dos_qvariant_create_string(string.as_ptr()).as_mut().unwrap() },
         }

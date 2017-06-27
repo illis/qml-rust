@@ -149,6 +149,26 @@ bool DEQBaseListModel::remove(int row, int count)
     return true;
 }
 
+DEQBaseListModel::Data DEQBaseListModel::fromKeyValue(std::map<QString, QVariant> &&value) const
+{
+    Data returned{};
+    for (QHash<int, QByteArray>::const_iterator it = m_roleNames.begin(); it != m_roleNames.end(); ++it) {
+        auto valueIt = value.find(QString::fromLocal8Bit(it.value()));
+        returned[it.key()] = valueIt != value.end() ? valueIt->second : QVariant{};
+    }
+    return returned;
+}
+
+std::map<QString, QVariant> DEQBaseListModel::toKeyValue(DEQBaseListModel::Data &&data) const
+{
+    std::map<QString, QVariant> returned{};
+    std::transform(data.begin(), data.end(), std::inserter(returned, returned.end()),
+                   [this](DEQBaseListModel::Data::value_type entry) {
+                       return std::make_pair(m_roleNames.value(entry.first), entry.second);
+                   });
+    return returned;
+}
+
 DEQBaseListModel::Data DEQBaseListModel::filterCompatible(DEQBaseListModel::Data &&data) const
 {
     Data returned{};
