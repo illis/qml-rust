@@ -60,7 +60,7 @@ impl QListModelItem for TestListModelItem {
 
 qml_register_qlistmodel!(TestListModel<TestListModelItem> as QTestListModel, "test.submodule", 1, 0);
 
-#[link(name = "testresources", kind = "static")]
+#[cfg(debug_assertions)]
 #[test]
 fn test_qmlregister_qlistmodel() {
     qml_register_type::<TestListModel>();
@@ -74,5 +74,6 @@ fn test_qmlregister_qlistmodel() {
 }
 
 extern "C" {
+    #[cfg(debug_assertions)]
     fn init_testresources();
 }

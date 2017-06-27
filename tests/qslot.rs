@@ -1,11 +1,12 @@
 extern crate qml;
 extern crate libc;
 
-use std::collections::hash_map::HashMap;
+use std::collections::HashMap;
+#[cfg(debug_assertions)]
 use libc::c_void;
 use qml::*;
 
-#[link(name = "testresources", kind = "static")]
+#[cfg(debug_assertions)]
 #[test]
 fn test_qobject_invoke_slot() {
     let mut qobject = QObject::<ObjectContent>::new();
@@ -16,6 +17,7 @@ fn test_qobject_invoke_slot() {
     assert!(qobject.get_content().is_invoked());
 }
 
+#[cfg(debug_assertions)]
 #[test]
 fn test_qlistmdel_invoke_slot() {
     let mut qlistmodel = QListModel::<ListModelContent, ListModelItem>::new();
@@ -39,12 +41,14 @@ trait InvokableContent {
 }
 
 impl ObjectContent {
+    #[cfg(debug_assertions)]
     fn is_invoked(&self) -> bool {
         self.invoked
     }
 }
 
 impl ListModelContent {
+    #[cfg(debug_assertions)]
     fn is_invoked(&self) -> bool {
         self.invoked
     }
@@ -135,5 +139,6 @@ fn do_invoke_slot<'a, T: InvokableContent>(instance: &mut T, name: &str, args: V
 }
 
 extern "C" {
+    #[cfg(debug_assertions)]
     fn invoke_slot(vptr: *mut c_void) -> bool;
 }

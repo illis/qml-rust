@@ -2,6 +2,7 @@ extern crate libc;
 #[macro_use]
 extern crate qml;
 
+#[cfg(debug_assertions)]
 use libc::c_void;
 use qml::*;
 
@@ -33,6 +34,7 @@ impl TestObject {
     }
 }
 
+#[cfg(debug_assertions)]
 #[test]
 #[should_panic(expected = "BorrowMutError")]
 fn test_qobject_ownership() {
@@ -48,6 +50,8 @@ fn test_qobject_ownership() {
 }
 
 extern "C" {
+    #[cfg(debug_assertions)]
     fn connect_qobject_ownership(vptr: *mut c_void);
+    #[cfg(debug_assertions)]
     fn invoke_qobject_ownership_slot(vptr: *mut c_void);
 }

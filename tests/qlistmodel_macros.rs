@@ -3,6 +3,7 @@ extern crate libc;
 extern crate qml;
 
 use std::collections::HashMap;
+#[cfg(debug_assertions)]
 use libc::c_void;
 use qml::*;
 
@@ -43,7 +44,7 @@ impl QListModelContentConstructor for TestListModel {
     }
 }
 
-#[link(name = "testresources", kind = "static")]
+#[cfg(debug_assertions)]
 #[test]
 fn test_qobject_macro_creates_correct_metatype() {
     let mut qobject = QListModel::<TestListModel, TestListModelItem>::new();
@@ -52,5 +53,6 @@ fn test_qobject_macro_creates_correct_metatype() {
 }
 
 extern "C" {
+    #[cfg(debug_assertions)]
     fn check_metatype(vptr: *const c_void) -> bool;
 }

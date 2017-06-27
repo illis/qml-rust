@@ -1,8 +1,9 @@
 extern crate qml;
 
-use qml::{QQuickView, QUrl};
+#[cfg(debug_assertions)]
+use qml::*;
 
-#[link(name = "testresources", kind = "static")]
+#[cfg(debug_assertions)]
 #[test]
 fn test_qquickview_memory() {
     let mut view = QQuickView::new();
@@ -15,5 +16,6 @@ fn test_qquickview_memory() {
 }
 
 extern "C" {
+    #[cfg(debug_assertions)]
     fn init_testresources();
 }

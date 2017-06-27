@@ -2,6 +2,7 @@ extern crate libc;
 #[macro_use]
 extern crate qml;
 
+#[cfg(debug_assertions)]
 use libc::c_void;
 use qml::*;
 
@@ -35,7 +36,7 @@ impl QObjectContentConstructor for TestObject {
     }
 }
 
-#[link(name = "testresources", kind = "static")]
+#[cfg(debug_assertions)]
 #[test]
 fn test_qobject_macro_creates_correct_metatype() {
     let mut qobject = QObject::<TestObject>::new();
@@ -44,5 +45,6 @@ fn test_qobject_macro_creates_correct_metatype() {
 }
 
 extern "C" {
+    #[cfg(debug_assertions)]
     fn check_metatype(vptr: *const c_void) -> bool;
 }

@@ -2,10 +2,11 @@ extern crate qml;
 extern crate libc;
 
 use std::collections::HashMap;
+#[cfg(debug_assertions)]
 use libc::{c_int, c_void};
 use qml::*;
 
-#[link(name = "testresources", kind = "static")]
+#[cfg(debug_assertions)]
 #[test]
 fn test_qobject_set_value() {
     let mut qobject = QObject::<TestObject>::new();
@@ -16,6 +17,7 @@ fn test_qobject_set_value() {
     assert_eq!(qobject.get_content().get_value(), 42);
 }
 
+#[cfg(debug_assertions)]
 #[test]
 fn test_qlistmodel_set_value() {
     let mut qlistmodel = QListModel::<TestListModel, TestListModelItem>::new();
@@ -26,6 +28,7 @@ fn test_qlistmodel_set_value() {
     assert_eq!(qlistmodel.get_content().get_value(), 42);
 }
 
+#[cfg(debug_assertions)]
 #[test]
 fn test_qobject_value_changed() {
     let mut qobject = QObject::<TestObject>::new();
@@ -40,6 +43,7 @@ fn test_qobject_value_changed() {
     unsafe { delete_value_changed_spy(spy); }
 }
 
+#[cfg(debug_assertions)]
 #[test]
 fn test_qlistmodel_value_changed() {
     let mut qlistmodel = QListModel::<TestListModel, TestListModelItem>::new();
@@ -105,12 +109,14 @@ impl InvokableContent for TestListModel {
 }
 
 impl TestObject {
+    #[cfg(debug_assertions)]
     fn get_value(&self) -> i32 {
         self.value
     }
 }
 
 impl TestListModel {
+    #[cfg(debug_assertions)]
     fn get_value(&self) -> i32 {
         self.value
     }
@@ -193,8 +199,12 @@ fn do_invoke_slot<'a, T: InvokableContent>(instance: &mut T, name: &str, args: V
 }
 
 extern "C" {
+    #[cfg(debug_assertions)]
     fn set_value(vptr: *mut c_void, value: c_int);
+    #[cfg(debug_assertions)]
     fn create_value_changed_spy(vptr: *mut c_void) -> *mut c_void;
+    #[cfg(debug_assertions)]
     fn delete_value_changed_spy(vptr: *mut c_void);
+    #[cfg(debug_assertions)]
     fn value_changed_spy_get_value(ptr: *const c_void) -> c_int;
 }

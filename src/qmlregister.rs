@@ -1,6 +1,5 @@
 use std::ffi::CString;
 use libc::{c_char, c_int, c_void};
-use qmetaobject::get_mut;
 use qobject::QObjectContent;
 
 pub struct QmlRegisterType {
@@ -41,7 +40,7 @@ pub fn qml_register_type<T>()
         minor: register_type.minor,
         uri: uri.as_ptr(),
         qml: qml.as_ptr(),
-        static_meta_object: get_mut(&mut qmeta),
+        static_meta_object: qmeta.get_mut(),
         create_dobject: T::create_dobject,
         delete_dobject: T::delete_dobject,
     };

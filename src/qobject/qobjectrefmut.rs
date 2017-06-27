@@ -1,7 +1,6 @@
 use std::cell::RefCell;
 use libc::c_void;
 use qobject::{QObject, QObjectContent};
-use qmetaobject;
 
 pub struct QObjectRefMut<'a> {
     ptr: &'a mut c_void,
@@ -22,7 +21,7 @@ impl<'a> QObjectRefMut<'a> {
         where T: QObjectContent {
         let meta = T::get_metaobject();
         unsafe {
-            let ptr = de_qobject_check_and_get_dobject(self.ptr, qmetaobject::get_ptr(&meta));
+            let ptr = de_qobject_check_and_get_dobject(self.ptr, meta.get_ptr());
             (ptr as *const RefCell<T>).as_ref()
         }
     }

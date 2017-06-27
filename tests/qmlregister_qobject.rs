@@ -43,7 +43,7 @@ impl QObjectContentConstructor for TestObject {
 
 qml_register_qobject!(TestObject as QTestObject, "test.submodule", 1, 0);
 
-#[link(name = "testresources", kind = "static")]
+#[cfg(debug_assertions)]
 #[test]
 fn test_qmlregister_qobject() {
     qml_register_type::<TestObject>();
@@ -58,5 +58,6 @@ fn test_qmlregister_qobject() {
 }
 
 extern "C" {
+    #[cfg(debug_assertions)]
     fn init_testresources();
 }

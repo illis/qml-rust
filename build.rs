@@ -57,6 +57,7 @@ fn find_and_link_de(cmake_cfg: &mut cmake::Config) {
     println!("cargo:rustc-link-lib=static=dothersideextra");
 }
 
+#[cfg(debug_assertions)]
 fn find_resources(cmake_cfg: &mut cmake::Config) {
     let dst = cmake_cfg.build();
     let path = dst.join("build")
@@ -87,7 +88,10 @@ fn main() {
     }
 
     println!("cargo:rustc-link-search=native={}", cmake_cfg.build().join("lib").display());
+
+    #[cfg(debug_assertions)]
     find_resources(&mut cmake_cfg);
+
     find_and_link_de(&mut cmake_cfg);
     find_and_link_dos(&mut cmake_cfg);
     find_and_link_qt5();

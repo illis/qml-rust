@@ -46,7 +46,7 @@ impl<T> QObject<T>
     fn new_ptr() -> QObjectSharedPtr {
         let mut meta = T::get_metaobject();
         let ptr = unsafe {
-            de_qobject_create(::qmetaobject::get_mut(&mut meta), QObject::<T>::qslot_callback)
+            de_qobject_create(meta.get_mut(), QObject::<T>::qslot_callback)
         };
 
         Rc::new(RefCell::new(QObjectPtr::new(ptr)))

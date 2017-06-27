@@ -58,7 +58,7 @@ impl<T, I> QListModel<T, I>
             .collect();
 
         let ptr = unsafe {
-            de_qlistmodel_create(::qmetaobject::get_mut(&mut meta), role_name_cstring.as_ptr(),
+            de_qlistmodel_create(meta.get_mut(), role_name_cstring.as_ptr(),
                                  role_name_cstring.len() as c_int, QListModel::<T, I>::qslot_callback)
         };
 

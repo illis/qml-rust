@@ -1,6 +1,6 @@
-pub mod qvariant;
+mod qvariant;
 mod qvariantmap;
-pub mod qvariantrefmut;
+mod qvariantrefmut;
 
 pub use self::qvariant::QVariant;
 pub use self::qvariantmap::QVariantMap;
