@@ -33,3 +33,8 @@ set(${PROJECT_NAME}_SRCS
 add_library(${PROJECT_NAME} STATIC ${${PROJECT_NAME}_SRCS})
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 14)
 target_link_libraries(${PROJECT_NAME} PUBLIC DOtherSideStatic Qt5::Core Qt5::Gui Qt5::Qml Qt5::Quick)
+
+if (SAILFISHAPP_FOUND)
+    target_include_directories(${PROJECT_NAME} PUBLIC ${SAILFISHAPP_INCLUDE_DIRS})
+    target_link_libraries(${PROJECT_NAME} PUBLIC sailfishapp)
+endif ()

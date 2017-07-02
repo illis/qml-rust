@@ -36,6 +36,9 @@
 #include "deqobject.h"
 #include "idedobjectcontainer.h"
 #include <DOtherSide/DosQMetaObject.h>
+#include <QGuiApplication>
+#include <QQmlEngine>
+#include <QQuickView>
 #include <algorithm>
 #include <cstring>
 #include <memory>
@@ -43,10 +46,6 @@
 
 #ifdef SAILFISH
 #include <sailfishapp.h>
-#else
-#include <QGuiApplication>
-#include <QQmlEngine>
-#include <QQuickView>
 #endif
 
 static QGuiApplication *createGuiApplication(int &argc, char **argv)
@@ -61,12 +60,12 @@ static QGuiApplication *createGuiApplication(int &argc, char **argv)
 static QQuickView *createQuickView()
 {
 #ifdef SAILFISH
-    return SailfishApp::createView();
+    QQuickView *view{SailfishApp::createView()};
 #else
     QQuickView *view{new QQuickView{}};
+#endif
     QObject::connect(view->engine(), &QQmlEngine::quit, QCoreApplication::instance(), &QCoreApplication::quit);
     return view;
-#endif
 }
 
 template <typename T>

@@ -57,6 +57,22 @@ fn find_and_link_de(cmake_cfg: &mut cmake::Config) {
     println!("cargo:rustc-link-lib=static=dothersideextra");
 }
 
+fn find_and_link_sailfishapp() {
+    use pkg_config;
+
+    if let Ok(lib) = pkg_config::find_library("sailfishapp") {
+        for p in lib.link_paths {
+            println!("cargo:rustc-link-search=native={}", p.display());
+        }
+        for p in lib.libs {
+            println!("cargo:rustc-link-lib=dylib={}", p);
+        }
+        for p in lib.include_paths {
+            println!("cargo:include={}", p.display());
+        }
+    }
+}
+
 #[cfg(debug_assertions)]
 fn find_resources(cmake_cfg: &mut cmake::Config) {
     let dst = cmake_cfg.build();
@@ -94,5 +110,6 @@ fn main() {
 
     find_and_link_de(&mut cmake_cfg);
     find_and_link_dos(&mut cmake_cfg);
+    find_and_link_sailfishapp();
     find_and_link_qt5();
 }
