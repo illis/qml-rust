@@ -45,8 +45,8 @@ DOS::DosQObjectImpl::ParentMetaCall createParentMetaCall(QObject *parent)
 }
 
 DEQObject::DEQObject(DOS::DosIQMetaObjectPtr metaObject, DObjectCallback callback)
-    : m_impl{new DOS::DosQObjectImpl(this, ::createParentMetaCall(this), std::move(metaObject),
-                                     DESlotExecutor<DEQObject>(*this, callback))}
+    : m_impl(new DOS::DosQObjectImpl(this, ::createParentMetaCall(this), std::move(metaObject),
+                                     DESlotExecutor<DEQObject>(*this, callback)))
 {
 }
 

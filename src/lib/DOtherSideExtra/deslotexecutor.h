@@ -39,8 +39,8 @@ class DESlotExecutor
 {
 public:
     DESlotExecutor(const QObject &qObject, DObjectCallback callback)
-        : m_qObject{qObject}
-        , m_callback{callback}
+        : m_qObject(qObject)
+        , m_callback(callback)
     {
     }
     QVariant operator()(const QString &name, const std::vector<QVariant> &arguments) const

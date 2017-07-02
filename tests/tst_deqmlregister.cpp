@@ -61,8 +61,8 @@ public:
         Q_UNUSED(wrapper);
         *bindedQObject = new int{42};
 
-        auto metaObject{std::make_shared<DOS::DosQObjectMetaObject>()};
-        *dosQObject = new DEQObject{metaObject, nullptr};
+        auto metaObject = std::make_shared<DOS::DosQObjectMetaObject>();
+        *dosQObject = new DEQObject(metaObject, nullptr);
 
         properties().constructorCalled = true;
     }
@@ -82,11 +82,31 @@ public:
 private slots:
     void registerType()
     {
-        auto metaObject{std::make_shared<DOS::DosQObjectMetaObject>()};
+        auto metaObject = std::make_shared<DOS::DosQObjectMetaObject>();
         auto createObject = TestQObject::createObject;
         auto deleteObject = TestQObject::deleteObject;
-        deQmlRegisterQObject({1, 0, "testing", "TestQObject", metaObject, createObject, deleteObject});
-        deQmlRegisterQObject({1, 0, "testing", "OtherObject", metaObject, createObject, deleteObject});
+        DOS::QmlRegisterType testObject;
+        {
+            testObject.major = 1;
+            testObject.minor = 0;
+            testObject.uri = "testing";
+            testObject.qml = "TestQObject";
+            testObject.staticMetaObject = metaObject;
+            testObject.createDObject = createObject;
+            testObject.deleteDObject = deleteObject;
+        }
+        deQmlRegisterQObject(std::move(testObject));
+        DOS::QmlRegisterType otherObject;
+        {
+            otherObject.major = 1;
+            otherObject.minor = 0;
+            otherObject.uri = "testing";
+            otherObject.qml = "OtherObject";
+            otherObject.staticMetaObject = metaObject;
+            otherObject.createDObject = createObject;
+            otherObject.deleteDObject = deleteObject;
+        }
+        deQmlRegisterQObject(std::move(otherObject));
     }
     void checkRegistration()
     {

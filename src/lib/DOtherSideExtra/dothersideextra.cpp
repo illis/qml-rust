@@ -72,8 +72,8 @@ template <typename T>
 struct WrappedArray
 {
     WrappedArray(const T *first, std::ptrdiff_t size)
-        : m_begin{first}
-        , m_end{first + size}
+        : m_begin(first)
+        , m_end(first + size)
     {
     }
     const T *begin() const noexcept
@@ -93,7 +93,7 @@ class DEApplicationImpl
 {
 public:
     explicit DEApplicationImpl(int argc, const char *const *argv)
-        : m_argc{argc}
+        : m_argc(argc)
     {
         const WrappedArray<const char *> array{argv, static_cast<std::ptrdiff_t>(argc)};
         std::transform(array.begin(), array.end(), std::back_inserter(m_arguments),
@@ -118,7 +118,7 @@ private:
 template <class T>
 static T fromDeQvariantMap(const DEQVariantMap *value)
 {
-    T returned{};
+    T returned;
     for (int i = 0; i < value->count; ++i) {
         auto entry = value->values[i];
         returned[QString::fromLocal8Bit(entry.key)] = *(static_cast<const QVariant *>(entry.value));
@@ -176,15 +176,18 @@ public:
 template <class T>
 static DEQVariantMap *toDeQVariantMap(const T &value)
 {
-    DEQVariantMap *returned = new DEQVariantMap{static_cast<int>(value.size()), new DEQVariantMapEntry[value.size()]};
+    DEQVariantMap *returned = new DEQVariantMap;
+    returned->count = static_cast<int>(value.size());
+    returned->values = new DEQVariantMapEntry[value.size()];
 
     std::size_t index = 0;
     for (auto it = IteratorProvider<T>::begin(value); it != IteratorProvider<T>::end(value); ++it) {
-        auto key{IteratorProvider<T>::key(it)};
-        char *keyPtr = new char[key.size() + 1]{0};
+        auto key = IteratorProvider<T>::key(it);
+        char *keyPtr = new char[key.size() + 1];
+        std::fill(keyPtr, keyPtr + key.size() + 1, 0);
         std::strncpy(keyPtr, key.toLocal8Bit().data(), static_cast<std::size_t>(key.size() + 1));
         returned->values[index].key = keyPtr;
-        returned->values[index].value = new QVariant{IteratorProvider<T>::value(it)};
+        returned->values[index].value = new QVariant(IteratorProvider<T>::value(it));
         ++index;
     }
 

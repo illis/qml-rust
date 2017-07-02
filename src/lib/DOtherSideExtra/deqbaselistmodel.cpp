@@ -34,7 +34,7 @@
 
 static QHash<int, QByteArray> makeRoleNames(std::map<int, QByteArray> &&roleNames)
 {
-    QHash<int, QByteArray> returned{};
+    QHash<int, QByteArray> returned;
     for (auto pair : roleNames) {
         returned.insert(pair.first, pair.second);
     }
@@ -42,8 +42,8 @@ static QHash<int, QByteArray> makeRoleNames(std::map<int, QByteArray> &&roleName
 }
 
 DEQBaseListModel::DEQBaseListModel(std::map<int, QByteArray> &&roleNames, QObject *parent)
-    : QAbstractListModel{parent}
-    , m_roleNames{makeRoleNames(std::move(roleNames))}
+    : QAbstractListModel(parent)
+    , m_roleNames(makeRoleNames(std::move(roleNames)))
 {
 }
 
@@ -109,10 +109,10 @@ bool DEQBaseListModel::insert(int row, std::vector<DEQBaseListModel::Data> &&val
         return false;
     }
 
-    std::vector<Data> newValues{filterCompatible(std::move(values))};
+    std::vector<Data> newValues = filterCompatible(std::move(values));
     beginInsertRows(QModelIndex{}, row, row + static_cast<int>(newValues.size()));
 
-    auto it{m_data.begin()};
+    auto it = m_data.begin();
     std::advance(it, static_cast<std::size_t>(row));
     m_data.insert(it, newValues.begin(), newValues.end());
 
@@ -136,9 +136,9 @@ bool DEQBaseListModel::remove(int row, int count)
 
     beginRemoveRows(QModelIndex{}, row, end);
 
-    auto firstIt{m_data.begin()};
+    auto firstIt = m_data.begin();
     std::advance(firstIt, static_cast<std::size_t>(row));
-    auto lastIt{m_data.begin()};
+    auto lastIt = m_data.begin();
     std::advance(lastIt, static_cast<std::size_t>(end + 1));
 
     m_data.erase(firstIt, lastIt);
@@ -151,7 +151,7 @@ bool DEQBaseListModel::remove(int row, int count)
 
 DEQBaseListModel::Data DEQBaseListModel::fromKeyValue(std::map<QString, QVariant> &&value) const
 {
-    Data returned{};
+    Data returned;
     for (QHash<int, QByteArray>::const_iterator it = m_roleNames.begin(); it != m_roleNames.end(); ++it) {
         auto valueIt = value.find(QString::fromLocal8Bit(it.value()));
         returned[it.key()] = valueIt != value.end() ? valueIt->second : QVariant{};
@@ -161,7 +161,7 @@ DEQBaseListModel::Data DEQBaseListModel::fromKeyValue(std::map<QString, QVariant
 
 std::map<QString, QVariant> DEQBaseListModel::toKeyValue(DEQBaseListModel::Data &&data) const
 {
-    std::map<QString, QVariant> returned{};
+    std::map<QString, QVariant> returned;
     std::transform(data.begin(), data.end(), std::inserter(returned, returned.end()),
                    [this](DEQBaseListModel::Data::value_type entry) {
                        return std::make_pair(m_roleNames.value(entry.first), entry.second);
@@ -171,7 +171,7 @@ std::map<QString, QVariant> DEQBaseListModel::toKeyValue(DEQBaseListModel::Data 
 
 DEQBaseListModel::Data DEQBaseListModel::filterCompatible(DEQBaseListModel::Data &&data) const
 {
-    Data returned{};
+    Data returned;
     std::copy_if(
         data.begin(), data.end(), std::inserter(returned, returned.end()),
         [this](DEQBaseListModel::Data::value_type item) { return m_roleNames.find(item.first) != m_roleNames.end(); });
