@@ -3,7 +3,7 @@ use qobject::QSignalEmitter;
 use qvariant::{QVariant, QVariantRefMut};
 
 pub trait QObjectContent {
-    fn get_metaobject() -> QMetaObject;
+    fn metaobject() -> QMetaObject;
     fn invoke_slot(&mut self, name: &str, args: Vec<QVariantRefMut>) -> Option<QVariant>;
 }
 

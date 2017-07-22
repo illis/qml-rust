@@ -18,11 +18,11 @@ impl<'a> QVariant<'a> {
         }
     }
 
-    pub(crate) fn get_ptr(&self) -> &c_void {
+    pub(crate) fn as_cref(&self) -> &c_void {
         self.ptr
     }
 
-    pub(crate) fn get_mut(&mut self) -> &mut c_void {
+    pub(crate) fn as_cref_mut(&mut self) -> &mut c_void {
         self.ptr
     }
 }
@@ -141,7 +141,7 @@ impl<'a, 'b> From<&'a String> for QVariant<'b> {
 // QObjectRefMut
 impl<'a, 'b: 'a> From<QObjectRefMut<'a>> for QVariant<'b> {
     fn from(mut value: QObjectRefMut<'a>) -> Self {
-        let ptr = value.as_mut();
+        let ptr = value.as_cref_mut();
         QVariant {
             ptr: unsafe { dos_qvariant_create_qobject(ptr).as_mut().unwrap() },
         }

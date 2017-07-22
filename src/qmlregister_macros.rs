@@ -9,7 +9,7 @@ macro_rules! qml_register_qobject {
                     let mut dobject = QQmlObject::<$name>::new(wrapper);
                     {
                         let mut dqobjectref = QObjectRefMut::from(&mut dobject);
-                        *qobject_ptr = dqobjectref.as_mut() as *mut c_void;
+                        *qobject_ptr = dqobjectref.as_cref_mut() as *mut c_void;
                     }
                     *dobject_ptr = Box::into_raw(Box::new(dobject)) as *mut c_void;
                 }
@@ -35,7 +35,7 @@ macro_rules! qml_register_qlistmodel {
                     let mut dobject = QQmlListModel::<$name, $item>::new(wrapper);
                     {
                         let mut dqobjectref = QObjectRefMut::from(&mut dobject);
-                        *qobject_ptr = dqobjectref.as_mut() as *mut c_void;
+                        *qobject_ptr = dqobjectref.as_cref_mut() as *mut c_void;
                     }
                     *dobject_ptr = Box::into_raw(Box::new(dobject)) as *mut c_void;
                 }
@@ -53,7 +53,7 @@ macro_rules! qml_register_qlistmodel {
 #[macro_export]
 macro_rules! qml_register_base {
     ($name:ident, $qml:expr, $uri:expr, $major:expr, $minor:expr) => {
-        fn get_register_type() -> QmlRegisterType {
+        fn register_type() -> QmlRegisterType {
             QmlRegisterType::new($uri, $major, $minor, stringify!($qml))
         }
     }

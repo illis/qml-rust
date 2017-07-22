@@ -94,7 +94,7 @@ macro_rules! q_object_generate_content {
     ($name:ident, $meta:ident, $($definitions:tt)*) => {
         impl QObjectContent for $name {
             #[allow(unused_mut)]
-            fn get_metaobject() -> QMetaObject {
+            fn metaobject() -> QMetaObject {
                 let mut signals = Vec::<SignalDefinition>::new();
                 q_object_generate_signal_metas!(signals => {$($definitions)*});
 
@@ -273,10 +273,10 @@ mod tests {
         pub struct TestObject(signal_emitter: TestObjectSignals) {
             signal fn value_changed(value: i32);
             slot fn set_value(value: i32);
-            slot fn get_value() -> i32;
-            property value: i32, read: get_value;
-            property value2: i32, read: get_value, notify: value_changed;
-            property value3: i32, read: get_value, write: set_value, notify: value_changed;
+            slot fn value() -> i32;
+            property value: i32, read: value;
+            property value2: i32, read: value, notify: value_changed;
+            property value3: i32, read: value, write: set_value, notify: value_changed;
         }
     }
 
@@ -286,7 +286,7 @@ mod tests {
 
     impl TestObject {
         fn set_value(&mut self, _: i32) {}
-        fn get_value(&self) -> i32 {
+        fn value(&self) -> i32 {
             123
         }
     }

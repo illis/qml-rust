@@ -17,11 +17,11 @@ impl QObjectPtr {
         }
     }
 
-    pub(crate) fn as_ptr<'a>(&self) -> &'a c_void {
+    pub(crate) fn as_cref<'a>(&self) -> &'a c_void {
         unsafe {self.ptr.as_ref() }.unwrap()
     }
 
-    pub(crate) fn as_mut<'a>(&mut self) -> &'a mut c_void {
+    pub(crate) fn as_cref_mut<'a>(&mut self) -> &'a mut c_void {
         unsafe {self.ptr.as_mut() }.unwrap()
     }
 }

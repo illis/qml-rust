@@ -41,11 +41,11 @@ fn test_qobject_ownership() {
     let mut qobject = QObject::<TestObject>::new();
     {
         let mut qobjectref = QObjectRefMut::from(&mut qobject);
-        unsafe { connect_qobject_ownership(qobjectref.as_mut()) };
+        unsafe { connect_qobject_ownership(qobjectref.as_cref_mut()) };
     }
     {
         let mut qobjectref = QObjectRefMut::from(&mut qobject);
-        unsafe { invoke_qobject_ownership_slot(qobjectref.as_mut()) };
+        unsafe { invoke_qobject_ownership_slot(qobjectref.as_cref_mut()) };
     }
 }
 

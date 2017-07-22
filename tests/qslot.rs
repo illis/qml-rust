@@ -12,9 +12,9 @@ fn test_qobject_invoke_slot() {
     let mut qobject = QObject::<ObjectContent>::new();
     {
         let mut qobjectref = QObjectRefMut::from(&mut qobject);
-        assert!(unsafe { invoke_slot(qobjectref.as_mut()) });
+        assert!(unsafe { invoke_slot(qobjectref.as_cref_mut()) });
     }
-    assert!(qobject.get_content().is_invoked());
+    assert!(qobject.content().is_invoked());
 }
 
 #[cfg(debug_assertions)]
@@ -23,9 +23,9 @@ fn test_qlistmdel_invoke_slot() {
     let mut qlistmodel = QListModel::<ListModelContent, ListModelItem>::new();
     {
         let mut qlistmodelref = QObjectRefMut::from(&mut qlistmodel);
-        assert!(unsafe { invoke_slot(qlistmodelref.as_mut()) });
+        assert!(unsafe { invoke_slot(qlistmodelref.as_cref_mut()) });
     }
-    assert!(qlistmodel.get_content().is_invoked());
+    assert!(qlistmodel.content().is_invoked());
 }
 
 struct ObjectContent {
@@ -69,7 +69,7 @@ impl InvokableContent for ListModelContent {
 }
 
 impl QObjectContent for ObjectContent {
-    fn get_metaobject() -> QMetaObject {
+    fn metaobject() -> QMetaObject {
         let paramters = vec![ParameterDefinition::new("param", QMetaType::Int)];
         let slot = SlotDefinition::new("test_slot", QMetaType::Int, paramters);
         QMetaObject::new_qobject("TestQObject", Vec::new(), vec![slot], Vec::new())
@@ -81,7 +81,7 @@ impl QObjectContent for ObjectContent {
 }
 
 impl QObjectContent for ListModelContent {
-    fn get_metaobject() -> QMetaObject {
+    fn metaobject() -> QMetaObject {
         let paramters = vec![ParameterDefinition::new("param", QMetaType::Int)];
         let slot = SlotDefinition::new("test_slot", QMetaType::Int, paramters);
         QMetaObject::new_qlistmodel("TestQObject", Vec::new(), vec![slot], Vec::new())

@@ -8,7 +8,7 @@ pub struct QVariantRefMut<'a> {
 
 impl<'a> QVariantRefMut<'a> {
     pub fn set<'b: 'a>(&mut self, value: &'a QVariant) {
-        unsafe { dos_qvariant_assign(self.ptr, value.get_ptr()) }
+        unsafe { dos_qvariant_assign(self.ptr, value.as_cref()) }
     }
 
     pub(crate) fn from_ptr(ptr: *mut c_void) -> Self {
@@ -18,7 +18,7 @@ impl<'a> QVariantRefMut<'a> {
         }
     }
 
-    pub(crate) fn get_ptr(&self) -> &c_void {
+    pub(crate) fn as_cref(&self) -> &c_void {
         self.ptr
     }
 }

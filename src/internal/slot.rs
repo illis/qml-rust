@@ -5,7 +5,7 @@ use qobject::QObjectContent;
 use qvariant::QVariantRefMut;
 
 pub(crate) fn invoke_slot<T>(object: *mut c_void, slot_name: *mut c_void,
-                                argc: c_int, argv: *mut *mut c_void)
+                             argc: c_int, argv: *mut *mut c_void)
     where T: QObjectContent {
     let object_ptr = object as *mut RefCell<T>;
     let object = unsafe { object_ptr.as_mut() }.unwrap();

@@ -24,7 +24,7 @@ impl<I> QListModelInterfaceImpl<I>
 
     fn insert_list(&mut self, row: usize, items: Vec<I>) {
         let ptr = self.ptr.upgrade().unwrap();
-        let ptr = ptr.borrow_mut().as_mut();
+        let ptr = ptr.borrow_mut().as_cref_mut();
 
         let variant_maps = items.iter()
             .map(|item| item.to_variant_map())
@@ -50,7 +50,7 @@ impl<I> QListModelInterface<I> for QListModelInterfaceImpl<I>
     where I: QListModelItem {
     fn len(&self) -> usize {
         let ptr = self.ptr.upgrade().unwrap();
-        let ptr = ptr.borrow().as_ptr();
+        let ptr = ptr.borrow().as_cref();
         unsafe { de_qlistmodel_count(ptr) as usize }
     }
 
@@ -74,7 +74,7 @@ impl<I> QListModelInterface<I> for QListModelInterfaceImpl<I>
 
     fn drain(&mut self, begin: usize, end: usize) {
         let ptr = self.ptr.upgrade().unwrap();
-        let ptr = ptr.borrow_mut().as_mut();
+        let ptr = ptr.borrow_mut().as_cref_mut();
         unsafe { de_qlistmodel_remove(ptr, begin as c_int, (end - begin) as c_int) }
     }
 
@@ -85,7 +85,7 @@ impl<I> QListModelInterface<I> for QListModelInterfaceImpl<I>
 
     fn get(&self, index: usize) -> Option<I> {
         let ptr = self.ptr.upgrade().unwrap();
-        let ptr = ptr.borrow().as_ptr();
+        let ptr = ptr.borrow().as_cref();
         CQVariantMapWrapper::from_model(&*ptr, index).map(|wrapper| {
             let slice = unsafe { from_raw_parts_mut(wrapper.ptr.values, wrapper.ptr.count as usize) };
 
@@ -200,7 +200,7 @@ mod tests {
     }
 
     impl QObjectContent for Content {
-        fn get_metaobject() -> QMetaObject {
+        fn metaobject() -> QMetaObject {
             QMetaObject::new_qobject("Meta", Vec::new(), Vec::new(), Vec::new())
         }
 
@@ -237,53 +237,53 @@ mod tests {
     #[test]
     fn test_qlistmodelinterfaceimpl_len_0() {
         let model = QListModel::<Content, Item>::new();
-        assert_eq!(model.get_content().len(), 0);
+        assert_eq!(model.content().len(), 0);
     }
 
     #[test]
     fn test_qlistmodelinterfaceimpl_len_1() {
         let mut model = QListModel::<Content, Item>::new();
-        model.get_content_mut().append(vec![Item::new(123, String::from("abc"))]);
-        assert_eq!(model.get_content().len(), 1);
+        model.content_mut().append(vec![Item::new(123, String::from("abc"))]);
+        assert_eq!(model.content().len(), 1);
     }
 
     #[test]
     fn test_qlistmodelinterfaceimpl_len_3() {
         let mut model = QListModel::<Content, Item>::new();
-        model.get_content_mut().append(vec![
+        model.content_mut().append(vec![
             Item::new(123, String::from("abc")),
             Item::new(234, String::from("def")),
             Item::new(345, String::from("ghi"))
         ]);
-        assert_eq!(model.get_content().len(), 3);
+        assert_eq!(model.content().len(), 3);
     }
 
     #[test]
     fn test_qlistmodelinterfaceimpl_clear() {
         let mut model = QListModel::<Content, Item>::new();
-        model.get_content_mut().append(vec![Item::new(123, String::from("abc"))]);
-        model.get_content_mut().clear();
-        assert_eq!(model.get_content().len(), 0);
+        model.content_mut().append(vec![Item::new(123, String::from("abc"))]);
+        model.content_mut().clear();
+        assert_eq!(model.content().len(), 0);
     }
 
     #[test]
     fn test_qlistmodelinterfaceimpl_get() {
         let mut model = QListModel::<Content, Item>::new();
-        model.get_content_mut().append(vec![Item::new(123, String::from("abc"))]);
-        assert_eq!(model.get_content().get(0), Some(Item::new(123, String::from("abc"))));
-        assert_eq!(model.get_content().get(1), None);
+        model.content_mut().append(vec![Item::new(123, String::from("abc"))]);
+        assert_eq!(model.content().get(0), Some(Item::new(123, String::from("abc"))));
+        assert_eq!(model.content().get(1), None);
     }
 
     #[test]
     fn test_qlistmodelinterfaceimpl_push() {
         let mut model = QListModel::<Content, Item>::new();
-        model.get_content_mut().append(vec![
+        model.content_mut().append(vec![
             Item::new(123, String::from("abc")),
             Item::new(234, String::from("def"))
         ]);
-        model.get_content_mut().push(Item::new(345, String::from("ghi")));
+        model.content_mut().push(Item::new(345, String::from("ghi")));
 
-        assert_eq!(model.get_content().as_list(), vec![
+        assert_eq!(model.content().as_list(), vec![
             Item::new(123, String::from("abc")),
             Item::new(234, String::from("def")),
             Item::new(345, String::from("ghi"))
@@ -293,13 +293,13 @@ mod tests {
     #[test]
     fn test_qlistmodelinterfaceimpl_insert_middle() {
         let mut model = QListModel::<Content, Item>::new();
-        model.get_content_mut().append(vec![
+        model.content_mut().append(vec![
             Item::new(123, String::from("abc")),
             Item::new(234, String::from("def"))
         ]);
-        model.get_content_mut().insert(1, Item::new(345, String::from("ghi")));
+        model.content_mut().insert(1, Item::new(345, String::from("ghi")));
 
-        assert_eq!(model.get_content().as_list(), vec![
+        assert_eq!(model.content().as_list(), vec![
             Item::new(123, String::from("abc")),
             Item::new(345, String::from("ghi")),
             Item::new(234, String::from("def"))
@@ -309,13 +309,13 @@ mod tests {
     #[test]
     fn test_qlistmodelinterfaceimpl_insert_beginning() {
         let mut model = QListModel::<Content, Item>::new();
-        model.get_content_mut().append(vec![
+        model.content_mut().append(vec![
             Item::new(123, String::from("abc")),
             Item::new(234, String::from("def"))
         ]);
-        model.get_content_mut().insert(0, Item::new(345, String::from("ghi")));
+        model.content_mut().insert(0, Item::new(345, String::from("ghi")));
 
-        assert_eq!(model.get_content().as_list(), vec![
+        assert_eq!(model.content().as_list(), vec![
             Item::new(345, String::from("ghi")),
             Item::new(123, String::from("abc")),
             Item::new(234, String::from("def"))
@@ -325,13 +325,13 @@ mod tests {
     #[test]
     fn test_qlistmodelinterfaceimpl_insert_end() {
         let mut model = QListModel::<Content, Item>::new();
-        model.get_content_mut().append(vec![
+        model.content_mut().append(vec![
             Item::new(123, String::from("abc")),
             Item::new(234, String::from("def"))
         ]);
-        model.get_content_mut().insert(2, Item::new(345, String::from("ghi")));
+        model.content_mut().insert(2, Item::new(345, String::from("ghi")));
 
-        assert_eq!(model.get_content().as_list(), vec![
+        assert_eq!(model.content().as_list(), vec![
             Item::new(123, String::from("abc")),
             Item::new(234, String::from("def")),
             Item::new(345, String::from("ghi"))
@@ -341,13 +341,13 @@ mod tests {
     #[test]
     fn test_qlistmodelinterfaceimpl_insert_after_end() {
         let mut model = QListModel::<Content, Item>::new();
-        model.get_content_mut().append(vec![
+        model.content_mut().append(vec![
             Item::new(123, String::from("abc")),
             Item::new(234, String::from("def"))
         ]);
-        model.get_content_mut().insert(3, Item::new(345, String::from("ghi")));
+        model.content_mut().insert(3, Item::new(345, String::from("ghi")));
 
-        assert_eq!(model.get_content().as_list(), vec![
+        assert_eq!(model.content().as_list(), vec![
             Item::new(123, String::from("abc")),
             Item::new(234, String::from("def"))
         ]);
@@ -356,13 +356,13 @@ mod tests {
     #[test]
     fn test_qlistmodelinterfaceimpl_remove_0() {
         let mut model = QListModel::<Content, Item>::new();
-        model.get_content_mut().append(vec![
+        model.content_mut().append(vec![
             Item::new(123, String::from("abc")),
             Item::new(234, String::from("def"))
         ]);
-        model.get_content_mut().remove(0);
+        model.content_mut().remove(0);
 
-        assert_eq!(model.get_content().as_list(), vec![
+        assert_eq!(model.content().as_list(), vec![
             Item::new(234, String::from("def"))
         ]);
     }
@@ -370,13 +370,13 @@ mod tests {
     #[test]
     fn test_qlistmodelinterfaceimpl_remove_1() {
         let mut model = QListModel::<Content, Item>::new();
-        model.get_content_mut().append(vec![
+        model.content_mut().append(vec![
             Item::new(123, String::from("abc")),
             Item::new(234, String::from("def"))
         ]);
-        model.get_content_mut().remove(1);
+        model.content_mut().remove(1);
 
-        assert_eq!(model.get_content().as_list(), vec![
+        assert_eq!(model.content().as_list(), vec![
             Item::new(123, String::from("abc"))
         ]);
     }
@@ -384,13 +384,13 @@ mod tests {
     #[test]
     fn test_qlistmodelinterfaceimpl_remove_after_end() {
         let mut model = QListModel::<Content, Item>::new();
-        model.get_content_mut().append(vec![
+        model.content_mut().append(vec![
             Item::new(123, String::from("abc")),
             Item::new(234, String::from("def"))
         ]);
-        model.get_content_mut().remove(2);
+        model.content_mut().remove(2);
 
-        assert_eq!(model.get_content().as_list(), vec![
+        assert_eq!(model.content().as_list(), vec![
             Item::new(123, String::from("abc")),
             Item::new(234, String::from("def"))
         ]);
@@ -399,25 +399,25 @@ mod tests {
     #[test]
     fn test_qlistmodelinterfaceimpl_drain() {
         let mut model = QListModel::<Content, Item>::new();
-        model.get_content_mut().append(vec![
+        model.content_mut().append(vec![
             Item::new(123, String::from("abc")),
             Item::new(234, String::from("def"))
         ]);
-        model.get_content_mut().drain(0, 2);
+        model.content_mut().drain(0, 2);
 
-        assert_eq!(model.get_content().as_list(), vec![]);
+        assert_eq!(model.content().as_list(), vec![]);
     }
 
     #[test]
     fn test_qlistmodelinterfaceimpl_drain_after_end() {
         let mut model = QListModel::<Content, Item>::new();
-        model.get_content_mut().append(vec![
+        model.content_mut().append(vec![
             Item::new(123, String::from("abc")),
             Item::new(234, String::from("def"))
         ]);
-        model.get_content_mut().drain(0, 3);
+        model.content_mut().drain(0, 3);
 
-        assert_eq!(model.get_content().as_list(), vec![
+        assert_eq!(model.content().as_list(), vec![
             Item::new(123, String::from("abc")),
             Item::new(234, String::from("def"))
         ]);

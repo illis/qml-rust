@@ -25,22 +25,22 @@ pub trait QmlRegisterableObject {
                                  dobject_ptr: *mut *mut c_void,
                                  qobject_ptr: *mut *mut c_void);
     extern "C" fn delete_dobject(id: i32, dobject_ptr: *mut c_void);
-    fn get_register_type() -> QmlRegisterType;
+    fn register_type() -> QmlRegisterType;
 }
 
 pub fn qml_register_type<T>()
     where T: QObjectContent + QmlRegisterableObject {
-    let register_type = T::get_register_type();
+    let register_type = T::register_type();
     let uri = CString::new(register_type.uri).unwrap();
     let qml = CString::new(register_type.name).unwrap();
-    let mut qmeta = T::get_metaobject();
+    let mut qmeta = T::metaobject();
 
     let c_register_type = CQmlRegisterType {
         major: register_type.major,
         minor: register_type.minor,
         uri: uri.as_ptr(),
         qml: qml.as_ptr(),
-        static_meta_object: qmeta.get_mut(),
+        static_meta_object: qmeta.as_ptr_mut(),
         create_dobject: T::create_dobject,
         delete_dobject: T::delete_dobject,
     };

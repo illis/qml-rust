@@ -19,19 +19,19 @@ impl<'a, 'b> From<QVariantMap<'a>> for QVariant<'b> {
 
 impl<'a, 'b> From<QVariant<'a>> for QVariantMap<'b> {
     fn from(value: QVariant) -> Self {
-        from_ptr(value.get_ptr())
+        from_ptr(value.as_cref())
     }
 }
 
 impl<'a, 'b> From<QVariantRefMut<'a>> for QVariantMap<'b> {
     fn from(value: QVariantRefMut) -> Self {
-        from_ptr(value.get_ptr())
+        from_ptr(value.as_cref())
     }
 }
 
 impl<'a, 'b: 'a, 'c> From<&'b QVariantRefMut<'a>> for QVariantMap<'c> {
     fn from(value: &QVariantRefMut) -> Self {
-        from_ptr(value.get_ptr())
+        from_ptr(value.as_cref())
     }
 }
 

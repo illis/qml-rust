@@ -25,7 +25,7 @@ pub(crate) fn variantmap_to_entries<'a>(value: &QVariantMap<'a>) -> Vec<QVariant
         .map(|(key, value)| {
             QVariantMapEntry {
                 key: CString::new(key.as_str()).unwrap(),
-                value: value.get_ptr(),
+                value: value.as_cref(),
             }
         }).collect::<Vec<_>>()
 }
@@ -35,7 +35,7 @@ pub(crate) fn static_variantmap_to_entries<'a>(value: &HashMap<&'static str, QVa
         .map(|(key, value)| {
             QVariantMapEntry {
                 key: CString::new(*key).unwrap(),
-                value: value.get_ptr(),
+                value: value.as_cref(),
             }
         }).collect::<Vec<_>>()
 }

@@ -191,12 +191,12 @@ static bool do_check_metatype(const QObject *qobject)
         }
     }
     {
-        int slotIndex = metaObject->indexOfMethod("get_value()");
+        int slotIndex = metaObject->indexOfMethod("value()");
         if (slotIndex == -1) {
-            std::cout << "[C++] Method get_value not found" << std::endl;
+            std::cout << "[C++] Method value not found" << std::endl;
             return false;
         } else {
-            std::cout << "[C++] Method get_value found: " << slotIndex << std::endl;
+            std::cout << "[C++] Method value found: " << slotIndex << std::endl;
         }
     }
     {

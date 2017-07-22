@@ -14,17 +14,17 @@ pub struct QObject<T>
 impl<T> QObject<T>
     where T: QObjectContent {
 
-    pub fn get_content(&self) -> Ref<T> {
+    pub fn content(&self) -> Ref<T> {
         self.content.deref().borrow()
     }
 
-    pub fn get_content_mut(&mut self) -> RefMut<T> {
+    pub fn content_mut(&mut self) -> RefMut<T> {
         self.content.deref().borrow_mut()
     }
 
-    pub(crate) fn get_mut(&mut self) -> &mut c_void
+    pub(crate) fn as_cref_mut(&mut self) -> &mut c_void
         where T: QObjectContent {
-        self.ptr.borrow_mut().as_mut()
+        self.ptr.borrow_mut().as_cref_mut()
     }
 }
 
@@ -43,9 +43,9 @@ impl<T> QObject<T>
     }
 
     fn new_ptr() -> QObjectSharedPtr {
-        let mut meta = T::get_metaobject();
+        let meta = T::metaobject();
         let ptr = unsafe {
-            de_qobject_create(meta.get_mut(), QObject::<T>::qslot_callback)
+            de_qobject_create(meta.as_ptr(), QObject::<T>::qslot_callback)
         };
 
         Rc::new(RefCell::new(QObjectPtr::new(ptr)))
@@ -53,7 +53,7 @@ impl<T> QObject<T>
 
     fn new_qobject(ptr: QObjectSharedPtr, content: Box<RefCell<T>>) -> Self {
         let content_ptr = Box::into_raw(content);
-        unsafe { de_qobject_set_dobject(ptr.borrow_mut().as_mut(), content_ptr as *mut c_void); }
+        unsafe { de_qobject_set_dobject(ptr.borrow_mut().as_cref_mut(), content_ptr as *mut c_void); }
 
         let returned = QObject {
             ptr: ptr.clone(),
@@ -85,7 +85,7 @@ mod tests {
     struct Content {}
 
     impl QObjectContent for Content {
-        fn get_metaobject() -> QMetaObject {
+        fn metaobject() -> QMetaObject {
             QMetaObject::new_qobject("Meta", Vec::new(), Vec::new(), Vec::new())
         }
 

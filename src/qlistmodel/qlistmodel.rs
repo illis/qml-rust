@@ -18,16 +18,16 @@ pub struct QListModel<T, I>
 impl<T, I> QListModel<T, I>
     where T: QObjectContent, I: QListModelItem {
 
-    pub fn get_content(&self) -> Ref<T> {
+    pub fn content(&self) -> Ref<T> {
         self.content.deref().borrow()
     }
 
-    pub fn get_content_mut(&mut self) -> RefMut<T> {
+    pub fn content_mut(&mut self) -> RefMut<T> {
         self.content.deref().borrow_mut()
     }
 
-    pub(crate) fn get_mut(&mut self) -> &mut c_void {
-        self.ptr.borrow_mut().as_mut()
+    pub(crate) fn as_cref_mut(&mut self) -> &mut c_void {
+        self.ptr.borrow_mut().as_cref_mut()
     }
 }
 
@@ -48,7 +48,7 @@ impl<T, I> QListModel<T, I>
     }
 
     fn new_ptr(role_names: Vec<&str>) -> QObjectSharedPtr {
-        let mut meta = T::get_metaobject();
+        let meta = T::metaobject();
         let role_name_wrapper: Vec<CString> = role_names.into_iter()
             .map(|role| CString::new(role).unwrap())
             .collect();
@@ -57,7 +57,7 @@ impl<T, I> QListModel<T, I>
             .collect();
 
         let ptr = unsafe {
-            de_qlistmodel_create(meta.get_mut(), role_name_cstring.as_ptr(),
+            de_qlistmodel_create(meta.as_ptr(), role_name_cstring.as_ptr(),
                                  role_name_cstring.len() as c_int, QListModel::<T, I>::qslot_callback)
         };
 
@@ -66,7 +66,7 @@ impl<T, I> QListModel<T, I>
 
     fn new_listmodel(ptr: QObjectSharedPtr, content: Box<RefCell<T>>) -> Self {
         let content_ptr = Box::into_raw(content);
-        unsafe { de_qlistmodel_set_dobject(ptr.borrow_mut().as_mut(), content_ptr as *mut c_void); }
+        unsafe { de_qlistmodel_set_dobject(ptr.borrow_mut().as_cref_mut(), content_ptr as *mut c_void); }
 
         let returned = QListModel {
             ptr: ptr.clone(),
@@ -104,7 +104,7 @@ mod tests {
     struct Item {}
 
     impl QObjectContent for Content {
-        fn get_metaobject() -> QMetaObject {
+        fn metaobject() -> QMetaObject {
             QMetaObject::new_qlistmodel("Meta", Vec::new(), Vec::new(), Vec::new())
         }
 

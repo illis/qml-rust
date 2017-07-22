@@ -32,7 +32,7 @@ impl<'a> QQuickView {
     }
 
     pub fn load_url(&mut self, mut url: QUrl) {
-        let ptr = url.get_mut();
+        let ptr = url.as_mut_ptr();
         unsafe { de_qquickview_set_source_url(self.view, ptr) }
     }
 

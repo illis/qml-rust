@@ -20,11 +20,11 @@ impl QSignalEmitter for QObjectSignalEmitter {
     fn emit_signal(&self, name: &str, mut args: Vec<QVariant>) {
         let string = CString::new(name).unwrap();
         let mut args: Vec<*mut c_void> = args.iter_mut()
-            .map(|item| item.get_mut() as *mut c_void)
+            .map(|item| item.as_cref_mut() as *mut c_void)
             .collect();
 
         self.ptr.upgrade().map(|ptr| {
-            let ptr = ptr.borrow_mut().as_mut();
+            let ptr = ptr.borrow_mut().as_cref_mut();
 
             unsafe {
                 dos_qobject_signal_emit(ptr, string.as_ptr(), args.len() as c_int,

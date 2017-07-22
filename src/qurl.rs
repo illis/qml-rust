@@ -14,7 +14,7 @@ impl QUrl {
         }
     }
 
-    pub(crate) fn get_mut(&mut self) -> *mut c_void {
+    pub(crate) fn as_mut_ptr(&mut self) -> *mut c_void {
         self.ptr
     }
 }

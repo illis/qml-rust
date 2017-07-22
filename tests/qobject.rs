@@ -12,9 +12,9 @@ fn test_qobject_set_value() {
     let mut qobject = QObject::<TestObject>::new();
     {
         let mut qobjectref = QObjectRefMut::from(&mut qobject);
-        unsafe { set_value(qobjectref.as_mut(), 42) };
+        unsafe { set_value(qobjectref.as_cref_mut(), 42) };
     }
-    assert_eq!(qobject.get_content().get_value(), 42);
+    assert_eq!(qobject.content().value(), 42);
 }
 
 #[cfg(debug_assertions)]
@@ -23,9 +23,9 @@ fn test_qlistmodel_set_value() {
     let mut qlistmodel = QListModel::<TestListModel, TestListModelItem>::new();
     {
         let mut qobjectref = QObjectRefMut::from(&mut qlistmodel);
-        unsafe { set_value(qobjectref.as_mut(), 42) };
+        unsafe { set_value(qobjectref.as_cref_mut(), 42) };
     }
-    assert_eq!(qlistmodel.get_content().get_value(), 42);
+    assert_eq!(qlistmodel.content().value(), 42);
 }
 
 #[cfg(debug_assertions)]
@@ -34,11 +34,11 @@ fn test_qobject_value_changed() {
     let mut qobject = QObject::<TestObject>::new();
     let ptr = {
         let mut qobjectref = QObjectRefMut::from(&mut qobject);
-        qobjectref.as_mut() as *mut c_void
+        qobjectref.as_cref_mut() as *mut c_void
     };
     let spy = unsafe { create_value_changed_spy(ptr) };
 
-    qobject.get_content_mut().set_value(42);
+    qobject.content_mut().set_value(42);
     assert_eq!(unsafe { value_changed_spy_get_value(spy) }, 42);
     unsafe { delete_value_changed_spy(spy); }
 }
@@ -49,11 +49,11 @@ fn test_qlistmodel_value_changed() {
     let mut qlistmodel = QListModel::<TestListModel, TestListModelItem>::new();
     let ptr = {
         let mut qobjectref = QObjectRefMut::from(&mut qlistmodel);
-        qobjectref.as_mut() as *mut c_void
+        qobjectref.as_cref_mut() as *mut c_void
     };
     let spy = unsafe { create_value_changed_spy(ptr) };
 
-    qlistmodel.get_content_mut().set_value(42);
+    qlistmodel.content_mut().set_value(42);
     assert_eq!(unsafe { value_changed_spy_get_value(spy) }, 42);
     unsafe { delete_value_changed_spy(spy); }
 }
@@ -110,20 +110,20 @@ impl InvokableContent for TestListModel {
 
 impl TestObject {
     #[cfg(debug_assertions)]
-    fn get_value(&self) -> i32 {
+    fn value(&self) -> i32 {
         self.value
     }
 }
 
 impl TestListModel {
     #[cfg(debug_assertions)]
-    fn get_value(&self) -> i32 {
+    fn value(&self) -> i32 {
         self.value
     }
 }
 
 impl QObjectContent for TestObject {
-    fn get_metaobject() -> QMetaObject {
+    fn metaobject() -> QMetaObject {
         let signal_parameters = vec![ParameterDefinition::new("param", QMetaType::Int)];
         let signal_definitions = vec![SignalDefinition::new("valueChanged", signal_parameters)];
         let slot_parameters = vec![ParameterDefinition::new("param", QMetaType::Int)];
@@ -139,7 +139,7 @@ impl QObjectContent for TestObject {
 }
 
 impl QObjectContent for TestListModel {
-    fn get_metaobject() -> QMetaObject {
+    fn metaobject() -> QMetaObject {
         let signal_parameters = vec![ParameterDefinition::new("param", QMetaType::Int)];
         let signal_definitions = vec![SignalDefinition::new("valueChanged", signal_parameters)];
         let slot_parameters = vec![ParameterDefinition::new("param", QMetaType::Int)];

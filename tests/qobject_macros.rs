@@ -10,10 +10,10 @@ q_object! {
     pub struct TestObject(signal_emitter: TestObjectSignals) {
         signal fn value_changed(value: i32);
         slot fn set_value(value: i32);
-        slot fn get_value() -> i32;
-        property value: i32, read: get_value;
-        property value2: i32, read: get_value, notify: value_changed;
-        property value3: i32, read: get_value, write: set_value, notify: value_changed;
+        slot fn value() -> i32;
+        property value: i32, read: value;
+        property value2: i32, read: value, notify: value_changed;
+        property value3: i32, read: value, write: set_value, notify: value_changed;
     }
 }
 
@@ -23,7 +23,7 @@ struct TestObject {
 
 impl TestObject {
     fn set_value(&mut self, _: i32) {}
-    fn get_value(&self) -> i32 {
+    fn value(&self) -> i32 {
         123
     }
 }
@@ -41,7 +41,7 @@ impl QObjectContentConstructor for TestObject {
 fn test_qobject_macro_creates_correct_metatype() {
     let mut qobject = QObject::<TestObject>::new();
     let mut qobjectref = QObjectRefMut::from(&mut qobject);
-    assert!(unsafe { check_metatype(qobjectref.as_mut()) });
+    assert!(unsafe { check_metatype(qobjectref.as_cref_mut()) });
 }
 
 extern "C" {

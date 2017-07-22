@@ -39,11 +39,11 @@ impl QMetaObject {
         }
     }
 
-    pub(crate) fn get_ptr(&self) -> *const c_void {
+    pub(crate) fn as_ptr(&self) -> *const c_void {
         self.ptr
     }
 
-    pub(crate) fn get_mut(&mut self) -> *mut c_void {
+    pub(crate) fn as_ptr_mut(&mut self) -> *mut c_void {
         self.ptr
     }
 
