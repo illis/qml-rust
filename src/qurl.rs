@@ -1,5 +1,5 @@
 use std::ffi::CString;
-use libc::{c_char, c_void};
+use libc::{c_char, c_int, c_void};
 
 pub struct QUrl {
     ptr: *mut c_void,
@@ -14,7 +14,7 @@ impl QUrl {
         }
     }
 
-    pub(crate) fn as_mut_ptr(&mut self) -> *mut c_void {
+    pub(crate) fn as_ptr(&self) -> *const c_void {
         self.ptr
     }
 }
@@ -26,7 +26,7 @@ impl Drop for QUrl {
 }
 
 extern "C" {
-    fn dos_qurl_create(url: *const c_char, parsing_mode: i32) -> *mut c_void;
+    fn dos_qurl_create(url: *const c_char, parsing_mode: c_int) -> *mut c_void;
     fn dos_qurl_delete(url: *mut c_void);
 }
 

@@ -10,15 +10,14 @@ pub struct QQuickView {
 
 impl<'a> QQuickView {
     pub fn new() -> Self {
+        let argv_strings = env::args()
+            .map(|arg| CString::new(arg).unwrap())
+            .collect::<Vec<_>>();
+        let argv = argv_strings.iter()
+            .map(|arg| arg.as_ptr())
+            .collect::<Vec<_>>();
+
         unsafe {
-            let argv_strings = env::args()
-                .map(|arg| CString::new(arg).unwrap())
-                .collect::<Vec<_>>();
-            let argv = argv_strings.iter()
-                .map(|arg| arg.as_ptr())
-                .collect::<Vec<_>>();
-
-
             let app = de_qguiapplication_create(argv.len() as c_int, argv.as_ptr());
             let view = de_qquickview_create();
 
@@ -31,8 +30,8 @@ impl<'a> QQuickView {
         }
     }
 
-    pub fn load_url(&mut self, mut url: QUrl) {
-        let ptr = url.as_mut_ptr();
+    pub fn load_url(&mut self, url: QUrl) {
+        let ptr = url.as_ptr();
         unsafe { de_qquickview_set_source_url(self.view, ptr) }
     }
 
