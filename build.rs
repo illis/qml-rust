@@ -27,7 +27,7 @@ fn find_and_link_qt5() {
 fn find_and_link_dos(cmake_cfg: &mut cmake::Config) {
     let dst = cmake_cfg.build();
     let path = dst.join("build")
-        .join("src")
+        .join("lib")
         .join("3rdparty")
         .join("DOtherSide")
         .join("lib");
@@ -44,9 +44,8 @@ fn find_and_link_dos(cmake_cfg: &mut cmake::Config) {
 fn find_and_link_de(cmake_cfg: &mut cmake::Config) {
     let dst = cmake_cfg.build();
     let path = dst.join("build")
-        .join("src")
         .join("lib")
-        .join("DOtherSideExtra");
+        .join("src");
 
     if cfg!(windows) {
         println!("cargo:rustc-link-search=native={}", path.join("Release").display());
@@ -77,6 +76,7 @@ fn find_and_link_sailfishapp() {
 fn find_resources(cmake_cfg: &mut cmake::Config) {
     let dst = cmake_cfg.build();
     let path = dst.join("build")
+        .join("lib")
         .join("tests")
         .join("resources");
 
@@ -90,7 +90,7 @@ fn find_resources(cmake_cfg: &mut cmake::Config) {
 }
 
 fn main() {
-    let dos_path = PathBuf::from("src")
+    let dos_path = PathBuf::from("lib")
         .join("3rdparty")
         .join("DOtherSide")
         .join("CMakeLists.txt");

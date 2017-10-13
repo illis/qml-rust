@@ -29,10 +29,10 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."
  */
 
-#include <DOtherSideExtra/deqbaselistmodel.h>
 #include <QObject>
 #include <QtTest/QSignalSpy>
 #include <QtTest/QTest>
+#include <deqbaselistmodel.h>
 
 class TestQListModel : public QObject
 {
@@ -59,8 +59,9 @@ private slots:
     void testInsertAndDataAccess()
     {
         DEQBaseListModel model{{{1, "data"}, {2, "otherData"}}};
-        model.insert(0, {{{1, QVariant{123}}, {2, QVariant{QLatin1String{"Test 1"}}}},
-                         {{1, QVariant{456}}, {2, QVariant{QLatin1String{"Test 2"}}}}});
+        model.insert(0,
+                     {{{1, QVariant{123}}, {2, QVariant{QLatin1String{"Test 1"}}}},
+                      {{1, QVariant{456}}, {2, QVariant{QLatin1String{"Test 2"}}}}});
 
         QCOMPARE(model.count(), 2);
         QCOMPARE(model.rowCount(), 2);
@@ -75,8 +76,9 @@ private slots:
     void testGet()
     {
         DEQBaseListModel model{{{1, "data"}, {2, "otherData"}}};
-        model.insert(0, {{{1, QVariant{123}}, {2, QVariant{QLatin1String{"Test 1"}}}},
-                         {{1, QVariant{456}}, {2, QVariant{QLatin1String{"Test 2"}}}}});
+        model.insert(0,
+                     {{{1, QVariant{123}}, {2, QVariant{QLatin1String{"Test 1"}}}},
+                      {{1, QVariant{456}}, {2, QVariant{QLatin1String{"Test 2"}}}}});
 
         QCOMPARE(mapGet(model.get(0), 1), QVariant{123});
         QCOMPARE(mapGet(model.get(2), 1), QVariant{});
@@ -85,8 +87,9 @@ private slots:
     void testSet()
     {
         DEQBaseListModel model{{{1, "data"}, {2, "otherData"}}};
-        model.insert(0, {{{1, QVariant{123}}, {2, QVariant{QLatin1String{"Test 1"}}}},
-                         {{1, QVariant{456}}, {2, QVariant{QLatin1String{"Test 2"}}}}});
+        model.insert(0,
+                     {{{1, QVariant{123}}, {2, QVariant{QLatin1String{"Test 1"}}}},
+                      {{1, QVariant{456}}, {2, QVariant{QLatin1String{"Test 2"}}}}});
 
         QSignalSpy spy{&model, SIGNAL(dataChanged(QModelIndex, QModelIndex, QVector<int>))};
         QVERIFY(model.set(1, {{{1, QVariant{789}}, {3, QVariant{123.456}}}}));
@@ -105,11 +108,13 @@ private slots:
     void testInsert1()
     {
         DEQBaseListModel model{{{1, "data"}, {2, "otherData"}}};
-        model.insert(0, {{{1, QVariant{123}}, {2, QVariant{QLatin1String{"Test 1"}}}},
-                         {{1, QVariant{456}}, {2, QVariant{QLatin1String{"Test 2"}}}}});
+        model.insert(0,
+                     {{{1, QVariant{123}}, {2, QVariant{QLatin1String{"Test 1"}}}},
+                      {{1, QVariant{456}}, {2, QVariant{QLatin1String{"Test 2"}}}}});
 
-        QVERIFY(model.insert(0, {{{1, QVariant{789}}, {2, QVariant{QLatin1String{"Test 3"}}}},
-                                 {{1, QVariant{123}}, {2, QVariant{QLatin1String{"Test 4"}}}}}));
+        QVERIFY(model.insert(0,
+                             {{{1, QVariant{789}}, {2, QVariant{QLatin1String{"Test 3"}}}},
+                              {{1, QVariant{123}}, {2, QVariant{QLatin1String{"Test 4"}}}}}));
 
         QCOMPARE(model.rowCount(), 4);
         QCOMPARE(model.data(model.index(0), 1), QVariant{789});
@@ -124,11 +129,13 @@ private slots:
     void testInsert2()
     {
         DEQBaseListModel model{{{1, "data"}, {2, "otherData"}}};
-        model.insert(0, {{{1, QVariant{123}}, {2, QVariant{QLatin1String{"Test 1"}}}},
-                         {{1, QVariant{456}}, {2, QVariant{QLatin1String{"Test 2"}}}}});
+        model.insert(0,
+                     {{{1, QVariant{123}}, {2, QVariant{QLatin1String{"Test 1"}}}},
+                      {{1, QVariant{456}}, {2, QVariant{QLatin1String{"Test 2"}}}}});
 
-        QVERIFY(model.insert(2, {{{1, QVariant{789}}, {2, QVariant{QLatin1String{"Test 3"}}}},
-                                 {{1, QVariant{123}}, {2, QVariant{QLatin1String{"Test 4"}}}}}));
+        QVERIFY(model.insert(2,
+                             {{{1, QVariant{789}}, {2, QVariant{QLatin1String{"Test 3"}}}},
+                              {{1, QVariant{123}}, {2, QVariant{QLatin1String{"Test 4"}}}}}));
 
         QCOMPARE(model.rowCount(), 4);
         QCOMPARE(model.data(model.index(0), 1), QVariant{123});
@@ -143,11 +150,13 @@ private slots:
     void testInsert3()
     {
         DEQBaseListModel model{{{1, "data"}, {2, "otherData"}}};
-        model.insert(0, {{{1, QVariant{123}}, {2, QVariant{QLatin1String{"Test 1"}}}},
-                         {{1, QVariant{456}}, {2, QVariant{QLatin1String{"Test 2"}}}}});
+        model.insert(0,
+                     {{{1, QVariant{123}}, {2, QVariant{QLatin1String{"Test 1"}}}},
+                      {{1, QVariant{456}}, {2, QVariant{QLatin1String{"Test 2"}}}}});
 
-        QVERIFY(model.insert(1, {{{1, QVariant{789}}, {2, QVariant{QLatin1String{"Test 3"}}}},
-                                 {{1, QVariant{123}}, {2, QVariant{QLatin1String{"Test 4"}}}}}));
+        QVERIFY(model.insert(1,
+                             {{{1, QVariant{789}}, {2, QVariant{QLatin1String{"Test 3"}}}},
+                              {{1, QVariant{123}}, {2, QVariant{QLatin1String{"Test 4"}}}}}));
 
         QCOMPARE(model.rowCount(), 4);
         QCOMPARE(model.data(model.index(0), 1), QVariant{123});
@@ -165,8 +174,9 @@ private slots:
         QSignalSpy spy1{&model, SIGNAL(rowsAboutToBeInserted(QModelIndex, int, int))};
         QSignalSpy spy2{&model, SIGNAL(rowsInserted(QModelIndex, int, int))};
 
-        QVERIFY(model.insert(0, {{{1, QVariant{123}}, {2, QVariant{QLatin1String{"Test 1"}}}},
-                                 {{1, QVariant{456}}, {2, QVariant{QLatin1String{"Test 2"}}}}}));
+        QVERIFY(model.insert(0,
+                             {{{1, QVariant{123}}, {2, QVariant{QLatin1String{"Test 1"}}}},
+                              {{1, QVariant{456}}, {2, QVariant{QLatin1String{"Test 2"}}}}}));
 
         QCOMPARE(spy1.size(), 1);
         QCOMPARE(spy2.size(), 1);
@@ -198,11 +208,12 @@ private slots:
     void testRemove1()
     {
         DEQBaseListModel model{{{1, "data"}, {2, "otherData"}}};
-        model.insert(0, {{{1, QVariant{123}}, {2, QVariant{QLatin1String{"Test 1"}}}},
-                         {{1, QVariant{456}}, {2, QVariant{QLatin1String{"Test 2"}}}},
-                         {{1, QVariant{789}}, {2, QVariant{QLatin1String{"Test 3"}}}},
-                         {{1, QVariant{123}}, {2, QVariant{QLatin1String{"Test 4"}}}},
-                         {{1, QVariant{456}}, {2, QVariant{QLatin1String{"Test 5"}}}}});
+        model.insert(0,
+                     {{{1, QVariant{123}}, {2, QVariant{QLatin1String{"Test 1"}}}},
+                      {{1, QVariant{456}}, {2, QVariant{QLatin1String{"Test 2"}}}},
+                      {{1, QVariant{789}}, {2, QVariant{QLatin1String{"Test 3"}}}},
+                      {{1, QVariant{123}}, {2, QVariant{QLatin1String{"Test 4"}}}},
+                      {{1, QVariant{456}}, {2, QVariant{QLatin1String{"Test 5"}}}}});
 
         QVERIFY(model.remove(0, 2));
 
@@ -217,11 +228,12 @@ private slots:
     void testRemove2()
     {
         DEQBaseListModel model{{{1, "data"}, {2, "otherData"}}};
-        model.insert(0, {{{1, QVariant{123}}, {2, QVariant{QLatin1String{"Test 1"}}}},
-                         {{1, QVariant{456}}, {2, QVariant{QLatin1String{"Test 2"}}}},
-                         {{1, QVariant{789}}, {2, QVariant{QLatin1String{"Test 3"}}}},
-                         {{1, QVariant{123}}, {2, QVariant{QLatin1String{"Test 4"}}}},
-                         {{1, QVariant{456}}, {2, QVariant{QLatin1String{"Test 5"}}}}});
+        model.insert(0,
+                     {{{1, QVariant{123}}, {2, QVariant{QLatin1String{"Test 1"}}}},
+                      {{1, QVariant{456}}, {2, QVariant{QLatin1String{"Test 2"}}}},
+                      {{1, QVariant{789}}, {2, QVariant{QLatin1String{"Test 3"}}}},
+                      {{1, QVariant{123}}, {2, QVariant{QLatin1String{"Test 4"}}}},
+                      {{1, QVariant{456}}, {2, QVariant{QLatin1String{"Test 5"}}}}});
 
         QVERIFY(model.remove(1, 2));
 
@@ -236,11 +248,12 @@ private slots:
     void testRemove3()
     {
         DEQBaseListModel model{{{1, "data"}, {2, "otherData"}}};
-        model.insert(0, {{{1, QVariant{123}}, {2, QVariant{QLatin1String{"Test 1"}}}},
-                         {{1, QVariant{456}}, {2, QVariant{QLatin1String{"Test 2"}}}},
-                         {{1, QVariant{789}}, {2, QVariant{QLatin1String{"Test 3"}}}},
-                         {{1, QVariant{123}}, {2, QVariant{QLatin1String{"Test 4"}}}},
-                         {{1, QVariant{456}}, {2, QVariant{QLatin1String{"Test 5"}}}}});
+        model.insert(0,
+                     {{{1, QVariant{123}}, {2, QVariant{QLatin1String{"Test 1"}}}},
+                      {{1, QVariant{456}}, {2, QVariant{QLatin1String{"Test 2"}}}},
+                      {{1, QVariant{789}}, {2, QVariant{QLatin1String{"Test 3"}}}},
+                      {{1, QVariant{123}}, {2, QVariant{QLatin1String{"Test 4"}}}},
+                      {{1, QVariant{456}}, {2, QVariant{QLatin1String{"Test 5"}}}}});
 
         QVERIFY(model.remove(3, 2));
 
@@ -255,11 +268,12 @@ private slots:
     void testRemove4()
     {
         DEQBaseListModel model{{{1, "data"}, {2, "otherData"}}};
-        model.insert(0, {{{1, QVariant{123}}, {2, QVariant{QLatin1String{"Test 1"}}}},
-                         {{1, QVariant{456}}, {2, QVariant{QLatin1String{"Test 2"}}}},
-                         {{1, QVariant{789}}, {2, QVariant{QLatin1String{"Test 3"}}}},
-                         {{1, QVariant{123}}, {2, QVariant{QLatin1String{"Test 4"}}}},
-                         {{1, QVariant{456}}, {2, QVariant{QLatin1String{"Test 5"}}}}});
+        model.insert(0,
+                     {{{1, QVariant{123}}, {2, QVariant{QLatin1String{"Test 1"}}}},
+                      {{1, QVariant{456}}, {2, QVariant{QLatin1String{"Test 2"}}}},
+                      {{1, QVariant{789}}, {2, QVariant{QLatin1String{"Test 3"}}}},
+                      {{1, QVariant{123}}, {2, QVariant{QLatin1String{"Test 4"}}}},
+                      {{1, QVariant{456}}, {2, QVariant{QLatin1String{"Test 5"}}}}});
 
         QSignalSpy spy1{&model, SIGNAL(rowsAboutToBeRemoved(QModelIndex, int, int))};
         QSignalSpy spy2{&model, SIGNAL(rowsRemoved(QModelIndex, int, int))};
@@ -272,11 +286,12 @@ private slots:
     void testRemoveInvalid()
     {
         DEQBaseListModel model{{{1, "data"}, {2, "otherData"}}};
-        model.insert(0, {{{1, QVariant{123}}, {2, QVariant{QLatin1String{"Test 1"}}}},
-                         {{1, QVariant{456}}, {2, QVariant{QLatin1String{"Test 2"}}}},
-                         {{1, QVariant{789}}, {2, QVariant{QLatin1String{"Test 3"}}}},
-                         {{1, QVariant{123}}, {2, QVariant{QLatin1String{"Test 4"}}}},
-                         {{1, QVariant{456}}, {2, QVariant{QLatin1String{"Test 5"}}}}});
+        model.insert(0,
+                     {{{1, QVariant{123}}, {2, QVariant{QLatin1String{"Test 1"}}}},
+                      {{1, QVariant{456}}, {2, QVariant{QLatin1String{"Test 2"}}}},
+                      {{1, QVariant{789}}, {2, QVariant{QLatin1String{"Test 3"}}}},
+                      {{1, QVariant{123}}, {2, QVariant{QLatin1String{"Test 4"}}}},
+                      {{1, QVariant{456}}, {2, QVariant{QLatin1String{"Test 5"}}}}});
 
         QSignalSpy spy1{&model, SIGNAL(rowsAboutToBeRemoved(QModelIndex, int, int))};
         QSignalSpy spy2{&model, SIGNAL(rowsRemoved(QModelIndex, int, int))};

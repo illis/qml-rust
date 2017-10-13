@@ -3,3 +3,5 @@ Cargo.lock
 /*.qml
 .idea
 *.iml
+CMakeLists.txt.user
+build

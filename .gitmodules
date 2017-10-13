@@ -1,3 +1,3 @@
 [submodule "DOtherSide"]
-	path = src/3rdparty/DOtherSide
+	path = lib/3rdparty/DOtherSide
 	url = https://github.com/SfietKonstantin/DOtherSide.git

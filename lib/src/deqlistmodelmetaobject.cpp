@@ -31,7 +31,7 @@
 
 #include "deqlistmodelmetaobject.h"
 #include "deqlistmodel.h"
-#include "private/qmetaobjectbuilder_p.h"
+#include <Qt/private/qmetaobjectbuilder_p.h>
 
 static QMetaObject *createDynamicMetaObject()
 {

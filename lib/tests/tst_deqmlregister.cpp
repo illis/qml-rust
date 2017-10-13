@@ -30,12 +30,12 @@
  */
 
 #include <DOtherSide/DosQMetaObject.h>
-#include <DOtherSideExtra/deqml.h>
-#include <DOtherSideExtra/deqmlregister.h>
-#include <DOtherSideExtra/deqobjectwrapper.h>
 #include <QQmlEngine>
 #include <QQuickView>
 #include <QtTest/QTest>
+#include <deqml.h>
+#include <deqmlregister.h>
+#include <deqobjectwrapper.h>
 
 class TestQObject : public QObject
 {

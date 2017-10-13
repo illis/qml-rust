@@ -8,7 +8,7 @@ find_package(Qt5Qml)
 find_package(Qt5Quick)
 find_package(Qt5Test)
 
-include_directories(../src/lib/)
+include_directories(../src)
 
 set(${PROJECT_NAME}_QMLREGISTER_SRCS
     tst_deqmlregister.cpp
