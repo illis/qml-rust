@@ -55,16 +55,22 @@ impl<T> QObject<T>
         let content_ptr = Box::into_raw(content);
         unsafe { de_qobject_set_dobject(ptr.borrow_mut().as_cref_mut(), content_ptr as *mut c_void); }
 
-        let returned = QObject {
-            ptr: ptr.clone(),
+        QObject {
+            ptr: Rc::clone(&ptr),
             content: unsafe { Box::from_raw(content_ptr) },
-        };
-        returned
+        }
     }
 
     extern "C" fn qslot_callback(object: *mut c_void, slot_name: *mut c_void,
                                  argc: c_int, argv: *mut *mut c_void) {
         invoke_slot::<T>(object, slot_name, argc, argv);
+    }
+}
+
+impl<T> Default for QObject<T>
+    where T: QObjectContent + QObjectContentConstructor {
+    fn default() -> Self {
+        QObject::new()
     }
 }
 

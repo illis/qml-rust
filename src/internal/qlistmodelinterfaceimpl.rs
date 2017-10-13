@@ -30,10 +30,10 @@ impl<I> QListModelInterfaceImpl<I>
             .map(|item| item.to_variant_map())
             .collect::<Vec<_>>();
         let entries = variant_maps.iter()
-            .map(|item| static_variantmap_to_entries(&item))
+            .map(|item| static_variantmap_to_entries(item))
             .collect::<Vec<_>>();
         let mut c_entries = entries.iter()
-            .map(|item| entries_to_c_entries(&item))
+            .map(|item| entries_to_c_entries(item))
             .collect::<Vec<_>>();
         let c_maps = c_entries.iter_mut()
             .map(|mut item| c_entries_to_c_map(&mut item))
@@ -52,6 +52,12 @@ impl<I> QListModelInterface<I> for QListModelInterfaceImpl<I>
         let ptr = self.ptr.upgrade().unwrap();
         let ptr = ptr.borrow().as_cref();
         unsafe { de_qlistmodel_count(ptr) as usize }
+    }
+
+    fn is_empty(&self) -> bool {
+        let ptr = self.ptr.upgrade().unwrap();
+        let ptr = ptr.borrow().as_cref();
+        unsafe { de_qlistmodel_empty(ptr) }
     }
 
     fn push(&mut self, item: I) {
@@ -95,7 +101,7 @@ impl<I> QListModelInterface<I> for QListModelInterfaceImpl<I>
                 let value = QVariant::new(unsafe { dos_qvariant_create_qvariant(value.value).as_mut().unwrap() });
                 (key, value)
             }).collect::<QVariantMap>()
-        }).map(|variant| I::from_variant_map(variant))
+        }).map(I::from_variant_map)
     }
 
     fn as_list(&self) -> Vec<I> {
@@ -122,6 +128,7 @@ impl<'a> CQVariantMapWrapper<'a> {
 
 extern "C" {
     fn de_qlistmodel_count(vptr: *const c_void) -> c_int;
+    fn de_qlistmodel_empty(vptr: *const c_void) -> bool;
     fn de_qlistmodel_insert(vptr: *mut c_void, row: c_int, values: *const CQVariantMapList);
     fn de_qlistmodel_remove(vptr: *mut c_void, row: c_int, count: c_int);
     fn de_qlistmodel_get(vptr: *const c_void, index: c_int) -> *mut CQVariantMap;
@@ -229,7 +236,7 @@ mod tests {
             returned
         }
 
-        fn from_variant_map<'a>(input: QVariantMap<'a>) -> Self {
+        fn from_variant_map(input: QVariantMap) -> Self {
             Item::new(input.get("number").unwrap().into(), input.get("string").unwrap().into())
         }
     }

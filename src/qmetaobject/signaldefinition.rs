@@ -18,12 +18,12 @@ impl SignalDefinition {
     }
 }
 
-struct SignalDefinitionWrapper {
+pub(crate) struct SignalDefinitionWrapper {
     name: CString,
     parameter_definitions: Vec<ParameterDefinitionWrapper>,
 }
 
-struct IntermediateCSignalDefinition<'a> {
+pub(crate) struct IntermediateCSignalDefinition<'a> {
     name: &'a CString,
     parameter_definitions: Vec<CParameterDefinition>,
 }

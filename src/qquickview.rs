@@ -57,6 +57,12 @@ impl Drop for QQuickView {
     }
 }
 
+impl Default for QQuickView {
+    fn default() -> Self {
+        QQuickView::new()
+    }
+}
+
 extern "C" {
     fn de_qguiapplication_create(argc: c_int, argv: *const *const c_char) -> *mut c_void;
     fn dos_qguiapplication_exec();

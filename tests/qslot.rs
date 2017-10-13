@@ -76,7 +76,7 @@ impl QObjectContent for ObjectContent {
     }
 
     fn invoke_slot(&mut self, name: &str, args: Vec<QVariantRefMut>) -> Option<QVariant> {
-        do_invoke_slot(self, &name, args)
+        do_invoke_slot(self, name, &args)
     }
 }
 
@@ -88,7 +88,7 @@ impl QObjectContent for ListModelContent {
     }
 
     fn invoke_slot(&mut self, name: &str, args: Vec<QVariantRefMut>) -> Option<QVariant> {
-        do_invoke_slot(self, &name, args)
+        do_invoke_slot(self, name, &args)
     }
 }
 
@@ -117,12 +117,12 @@ impl QListModelItem for ListModelItem {
         HashMap::new()
     }
 
-    fn from_variant_map<'a>(_: QVariantMap<'a>) -> Self {
+    fn from_variant_map(_: QVariantMap) -> Self {
         ListModelItem {}
     }
 }
 
-fn do_invoke_slot<'a, T: InvokableContent>(instance: &mut T, name: &str, args: Vec<QVariantRefMut>) -> Option<QVariant<'a>> {
+fn do_invoke_slot<'a, T: InvokableContent>(instance: &mut T, name: &str, args: &[QVariantRefMut]) -> Option<QVariant<'a>> {
     if name != "test_slot" {
         return None;
     }

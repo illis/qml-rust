@@ -12,10 +12,10 @@ pub struct QmlRegisterType {
 impl QmlRegisterType {
     pub fn new(uri: &'static str, major: i32, minor: i32, name: &'static str) -> Self {
         QmlRegisterType {
-            uri: uri,
-            major: major,
-            minor: minor,
-            name: name,
+            uri,
+            major,
+            minor,
+            name,
         }
     }
 }

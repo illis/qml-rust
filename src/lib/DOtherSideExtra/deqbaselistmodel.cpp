@@ -52,6 +52,11 @@ int DEQBaseListModel::count() const
     return static_cast<int>(m_data.size());
 }
 
+bool DEQBaseListModel::empty() const
+{
+    return m_data.empty();
+}
+
 QHash<int, QByteArray> DEQBaseListModel::roleNames() const
 {
     return m_roleNames;

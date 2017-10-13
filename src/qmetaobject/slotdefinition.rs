@@ -21,13 +21,13 @@ impl SlotDefinition {
     }
 }
 
-struct SlotDefinitionWrapper {
+pub(crate) struct SlotDefinitionWrapper {
     name: CString,
     return_metatype: c_int,
     parameter_definitions: Vec<ParameterDefinitionWrapper>,
 }
 
-struct IntermediateCSlotDefinition<'a> {
+pub(crate) struct IntermediateCSlotDefinition<'a> {
     name: &'a CString,
     return_metatype: c_int,
     parameter_definitions: Vec<CParameterDefinition>,

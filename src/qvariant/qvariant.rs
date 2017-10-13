@@ -14,7 +14,7 @@ impl<'a> QVariant<'a> {
 
     pub(crate) fn new(ptr: &'a mut c_void) -> QVariant<'a> {
         QVariant {
-            ptr: ptr,
+            ptr,
         }
     }
 

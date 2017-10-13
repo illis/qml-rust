@@ -134,7 +134,7 @@ impl QObjectContent for TestObject {
     }
 
     fn invoke_slot(&mut self, name: &str, args: Vec<QVariantRefMut>) -> Option<QVariant> {
-        do_invoke_slot(self, &name, args)
+        do_invoke_slot(self, name, &args)
     }
 }
 
@@ -150,14 +150,14 @@ impl QObjectContent for TestListModel {
     }
 
     fn invoke_slot(&mut self, name: &str, args: Vec<QVariantRefMut>) -> Option<QVariant> {
-        do_invoke_slot(self, &name, args)
+        do_invoke_slot(self, name, &args)
     }
 }
 
 impl QObjectContentConstructor for TestObject {
     fn new(signal_emitter: Box<QSignalEmitter>) -> Self {
         TestObject {
-            signal_emitter: signal_emitter,
+            signal_emitter,
             value: 123,
         }
     }
@@ -166,7 +166,7 @@ impl QObjectContentConstructor for TestObject {
 impl QListModelContentConstructor<TestListModelItem> for TestListModel {
     fn new(signal_emitter: Box<QSignalEmitter>, _: Box<QListModelInterface<TestListModelItem>>) -> Self {
         TestListModel {
-            signal_emitter: signal_emitter,
+            signal_emitter,
             value: 123,
         }
     }
@@ -181,12 +181,12 @@ impl QListModelItem for TestListModelItem {
         HashMap::new()
     }
 
-    fn from_variant_map<'a>(_: QVariantMap<'a>) -> Self {
+    fn from_variant_map(_: QVariantMap) -> Self {
         TestListModelItem {}
     }
 }
 
-fn do_invoke_slot<'a, T: InvokableContent>(instance: &mut T, name: &str, args: Vec<QVariantRefMut>) -> Option<QVariant<'a>> {
+fn do_invoke_slot<'a, T: InvokableContent>(instance: &mut T, name: &str, args: &[QVariantRefMut]) -> Option<QVariant<'a>> {
     if name != "setValue" {
         return None;
     }

@@ -296,6 +296,12 @@ int de_qlistmodel_count(const DEListModel *vptr)
     return deListModel->count();
 }
 
+bool de_qlistmodel_empty(const DEListModel *vptr)
+{
+    auto deListModel = static_cast<const DEQListModel *>(vptr);
+    return deListModel->empty();
+}
+
 void de_qlistmodel_insert(DEListModel *vptr, int row, const DEQvariantMapList *values)
 {
     auto deListModel = static_cast<DEQListModel *>(vptr);

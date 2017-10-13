@@ -42,7 +42,7 @@ impl PropertyDefinition {
     }
 }
 
-struct PropertyDefinitionWrapper {
+pub(crate) struct PropertyDefinitionWrapper {
     name: CString,
     property_metatype: c_int,
     read_slot: CString,

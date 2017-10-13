@@ -53,6 +53,7 @@ DEListModel *de_qlistmodel_create(const DosQMetaObject *metaObject, const char *
                                   DObjectCallback dObjectCallback);
 void de_qlistmodel_set_dobject(DEListModel *vptr, void *dObject);
 int de_qlistmodel_count(const DEListModel *vptr);
+bool de_qlistmodel_empty(const DEListModel *vptr);
 void de_qlistmodel_insert(DEListModel *vptr, int row, const DEQvariantMapList *values);
 void de_qlistmodel_remove(DEListModel *vptr, int row, int count);
 DEQVariantMap *de_qlistmodel_get(const DEListModel *vptr, int index);

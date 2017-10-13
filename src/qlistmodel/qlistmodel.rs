@@ -68,17 +68,23 @@ impl<T, I> QListModel<T, I>
         let content_ptr = Box::into_raw(content);
         unsafe { de_qlistmodel_set_dobject(ptr.borrow_mut().as_cref_mut(), content_ptr as *mut c_void); }
 
-        let returned = QListModel {
-            ptr: ptr.clone(),
+        QListModel {
+            ptr: Rc::clone(&ptr),
             content: unsafe { Box::from_raw(content_ptr) },
             _phantom: PhantomData,
-        };
-        returned
+        }
     }
 
     extern "C" fn qslot_callback(object: *mut c_void, slot_name: *mut c_void,
                                  argc: c_int, argv: *mut *mut c_void) {
         invoke_slot::<T>(object, slot_name, argc, argv);
+    }
+}
+
+impl<T, I> Default for QListModel<T, I>
+    where T: QObjectContent + QListModelContentConstructor<I>, I: QListModelItem + 'static {
+    fn default() -> Self {
+        QListModel::new()
     }
 }
 
@@ -128,7 +134,7 @@ mod tests {
             HashMap::new()
         }
 
-        fn from_variant_map<'a>(_: QVariantMap<'a>) -> Self {
+        fn from_variant_map(_: QVariantMap) -> Self {
             Item {}
         }
     }

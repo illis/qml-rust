@@ -81,7 +81,7 @@ impl QMetaObject {
                                    &c_slot_definitions, &c_property_definitions)
         };
         QMetaObject {
-            ptr: ptr
+            ptr
         }
     }
 }

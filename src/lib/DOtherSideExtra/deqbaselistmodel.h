@@ -46,6 +46,7 @@ public:
     using Data = std::map<int, QVariant>;
     explicit DEQBaseListModel(std::map<int, QByteArray> &&roleNames, QObject *parent = nullptr);
     int count() const;
+    bool empty() const;
     QHash<int, QByteArray> roleNames() const override;
     int rowCount(const QModelIndex &index = QModelIndex{}) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;

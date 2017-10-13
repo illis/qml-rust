@@ -13,7 +13,7 @@ pub(crate) type QObjectSharedPtr = Rc<RefCell<QObjectPtr>>;
 impl QObjectPtr {
     pub(crate) fn new(ptr: *mut c_void) -> Self {
         QObjectPtr {
-            ptr: ptr,
+            ptr,
         }
     }
 

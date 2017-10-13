@@ -3,6 +3,7 @@ use qlistmodel::QListModelItem;
 pub trait QListModelInterface<I>
     where I: QListModelItem {
     fn len(&self) -> usize;
+    fn is_empty(&self) -> bool;
     fn push(&mut self, item: I);
     fn append(&mut self, item: Vec<I>);
     fn insert(&mut self, row: usize, item: I);

@@ -10,7 +10,7 @@ pub(crate) struct QQmlObjectSignalEmitter {
 impl QQmlObjectSignalEmitter {
     pub(crate) fn new(ptr: *mut c_void) -> QQmlObjectSignalEmitter {
         QQmlObjectSignalEmitter {
-            ptr: ptr,
+            ptr,
         }
     }
 }

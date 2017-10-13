@@ -11,7 +11,7 @@ impl ParameterDefinition {
     pub fn new(name: &str, metatype: QMetaType) -> Self {
         ParameterDefinition {
             name: name.to_string(),
-            metatype: metatype,
+            metatype,
         }
     }
 }

@@ -40,7 +40,7 @@ pub(crate) fn static_variantmap_to_entries<'a>(value: &HashMap<&'static str, QVa
         }).collect::<Vec<_>>()
 }
 
-pub(crate) fn entries_to_c_entries(value: &Vec<QVariantMapEntry>) -> Vec<CQVariantMapEntry> {
+pub(crate) fn entries_to_c_entries(value: &[QVariantMapEntry]) -> Vec<CQVariantMapEntry> {
     value.iter()
         .map(|entry| {
             CQVariantMapEntry {

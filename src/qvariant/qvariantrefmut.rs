@@ -7,14 +7,14 @@ pub struct QVariantRefMut<'a> {
 }
 
 impl<'a> QVariantRefMut<'a> {
-    pub fn set<'b: 'a>(&mut self, value: &'a QVariant) {
+    pub fn set(&mut self, value: &'a QVariant) {
         unsafe { dos_qvariant_assign(self.ptr, value.as_cref()) }
     }
 
     pub(crate) fn from_ptr(ptr: *mut c_void) -> Self {
         let ptr = unsafe { ptr.as_mut().unwrap() };
         QVariantRefMut {
-            ptr: ptr
+            ptr
         }
     }
 

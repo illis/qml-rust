@@ -39,7 +39,7 @@ macro_rules! q_listmodelitem {
                 returned
             }
 
-            fn from_variant_map<'a>(input: QVariantMap<'a>) -> Self {
+            fn from_variant_map(input: QVariantMap) -> Self {
                 Self {
                     $(
                         $attribute: (&input[stringify!($attribute)]).into(),
