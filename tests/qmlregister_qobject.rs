@@ -2,6 +2,7 @@
 extern crate qml;
 
 use std::os::raw::c_void;
+
 use qml::*;
 
 q_object! {
@@ -46,11 +47,12 @@ qml_register_qobject!(TestObject as QTestObject, "test.submodule", 1, 0);
 #[test]
 fn test_qmlregister_qobject() {
     qml_register_type::<TestObject>();
-    unsafe { init_testresources(); }
+    unsafe {
+        init_testresources();
+    }
 
     let mut view = QQuickView::new();
     let url = QUrl::new("qrc:///qml/tst_qmlregister_qobject.qml").unwrap();
-
 
     view.load_url(url);
     view.exec();

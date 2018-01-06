@@ -2,6 +2,7 @@
 extern crate qml;
 
 use std::collections::HashMap;
+
 use qml::*;
 
 q_listmodel! {
@@ -49,7 +50,10 @@ impl QListModelItem for TestListModelItem {
 }
 
 impl QListModelContentConstructor<TestListModelItem> for TestListModel {
-    fn new(signal_emitter: Box<QSignalEmitter>, _: Box<QListModelInterface<TestListModelItem>>) -> Self {
+    fn new(
+        signal_emitter: Box<QSignalEmitter>,
+        _: Box<QListModelInterface<TestListModelItem>>,
+    ) -> Self {
         TestListModel {
             signal_emitter,
             value: 0,

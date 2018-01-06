@@ -3,6 +3,7 @@ extern crate qml;
 
 use std::collections::HashMap;
 use std::os::raw::c_void;
+
 use qml::*;
 
 q_listmodel! {
@@ -35,7 +36,10 @@ impl TestListModel {
 }
 
 impl QListModelContentConstructor<TestListModelItem> for TestListModel {
-    fn new(signal_emitter: Box<QSignalEmitter>, _: Box<QListModelInterface<TestListModelItem>>) -> Self {
+    fn new(
+        signal_emitter: Box<QSignalEmitter>,
+        _: Box<QListModelInterface<TestListModelItem>>,
+    ) -> Self {
         TestListModel {
             signal_emitter,
             value: 0,
@@ -63,7 +67,9 @@ qml_register_qlistmodel!(TestListModel<TestListModelItem> as QTestListModel, "te
 #[test]
 fn test_qmlregister_qlistmodel() {
     qml_register_type::<TestListModel>();
-    unsafe { init_testresources(); }
+    unsafe {
+        init_testresources();
+    }
 
     let mut view = QQuickView::new();
     let url = QUrl::new("qrc:///qml/tst_qmlregister_qlistmodel.qml").unwrap();

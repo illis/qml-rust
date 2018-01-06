@@ -1,7 +1,8 @@
 use std::ffi::CString;
 use std::os::raw::{c_char, c_int};
-use qmetaobject::conversionutils::{convert_as, convert_into};
+
 use qmetaobject::ParameterDefinition;
+use qmetaobject::conversionutils::{convert_as, convert_into};
 use qmetaobject::parameterdefinition::{CParameterDefinition, ParameterDefinitionWrapper};
 use qmetatype::QMetaType;
 
@@ -12,7 +13,11 @@ pub struct SlotDefinition {
 }
 
 impl SlotDefinition {
-    pub fn new(name: &str, return_metatype: QMetaType, parameter_definitions: Vec<ParameterDefinition>) -> Self {
+    pub fn new(
+        name: &str,
+        return_metatype: QMetaType,
+        parameter_definitions: Vec<ParameterDefinition>,
+    ) -> Self {
         SlotDefinition {
             name: name.to_string(),
             return_metatype,

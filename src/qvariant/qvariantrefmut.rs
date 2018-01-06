@@ -1,6 +1,7 @@
 use std::os::raw::{c_char, c_double, c_float, c_int, c_void};
-use qvariant::QVariant;
+
 use internal::CStringWrapper;
+use qvariant::QVariant;
 
 pub struct QVariantRefMut<'a> {
     ptr: &'a mut c_void,
@@ -13,9 +14,7 @@ impl<'a> QVariantRefMut<'a> {
 
     pub(crate) fn from_ptr(ptr: *mut c_void) -> Self {
         let ptr = unsafe { ptr.as_mut().unwrap() };
-        QVariantRefMut {
-            ptr
-        }
+        QVariantRefMut { ptr }
     }
 
     pub(crate) fn as_cref(&self) -> &c_void {

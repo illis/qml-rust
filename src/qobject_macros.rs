@@ -22,25 +22,39 @@ macro_rules! q_object_generate_signal_trait {
 
 #[macro_export]
 macro_rules! q_object_generate_signal_definitions {
-    (signal fn $name:ident($($param:ident: $paramtype:ident),*); $($rest:tt)*) => {
+    (
+        signal fn $name:ident($($param:ident: $paramtype:ident),*); $($rest:tt)*
+    ) => {
         #[allow(non_snake_case)]
         fn $name(&self, $($param: $paramtype),*);
 
         q_object_generate_signal_definitions!($($rest)*);
     };
-    (slot fn $name:ident($($param:ident: $paramtype:ident),*); $($rest:tt)*) => {
+    (
+        slot fn $name:ident($($param:ident: $paramtype:ident),*); $($rest:tt)*
+    ) => {
         q_object_generate_signal_definitions!($($rest)*);
     };
-    (slot fn $name:ident($($param:ident: $paramtype:ident),*) -> $returntype:ident; $($rest:tt)*) => {
+    (
+        slot fn $name:ident($($param:ident: $paramtype:ident),*) -> $returntype:ident; $($rest:tt)*
+    ) => {
         q_object_generate_signal_definitions!($($rest)*);
     };
-    (property $name:ident: $propertytype:ident, read: $accessor:ident; $($rest:tt)*) => {
+    (
+        property $name:ident: $propertytype:ident, read: $accessor:ident; $($rest:tt)*
+    ) => {
         q_object_generate_signal_definitions!($($rest)*);
     };
-    (property $name:ident: $propertytype:ident, read: $accessor:ident, notify: $notifier:ident; $($rest:tt)*) => {
+    (
+        property $name:ident: $propertytype:ident, read: $accessor:ident, notify: $notifier:ident;
+        $($rest:tt)*
+    ) => {
         q_object_generate_signal_definitions!($($rest)*);
     };
-    (property $name:ident: $propertytype:ident, read: $accessor:ident, write: $setter:ident, notify: $notifier:ident; $($rest:tt)*) => {
+    (
+        property $name:ident: $propertytype:ident, read: $accessor:ident, write: $setter:ident,
+        notify: $notifier:ident; $($rest:tt)*
+    ) => {
         q_object_generate_signal_definitions!($($rest)*);
     };
     () => {};
@@ -57,7 +71,9 @@ macro_rules! q_object_generate_signal_impl {
 
 #[macro_export]
 macro_rules! q_object_generate_signal_implementations {
-    (signal fn $name:ident($($param:ident: $paramtype:ident),*); $($rest:tt)*) => {
+    (
+        signal fn $name:ident($($param:ident: $paramtype:ident),*); $($rest:tt)*
+    ) => {
         #[allow(unused_mut)]
         #[allow(dead_code)]
         #[allow(non_snake_case)]
@@ -71,19 +87,31 @@ macro_rules! q_object_generate_signal_implementations {
 
         q_object_generate_signal_implementations!($($rest)*);
     };
-    (slot fn $name:ident($($param:ident: $paramtype:ident),*); $($rest:tt)*) => {
+    (
+        slot fn $name:ident($($param:ident: $paramtype:ident),*); $($rest:tt)*
+    ) => {
         q_object_generate_signal_implementations!($($rest)*);
     };
-    (slot fn $name:ident($($param:ident: $paramtype:ident),*) -> $returntype:ident; $($rest:tt)*) => {
+    (
+        slot fn $name:ident($($param:ident: $paramtype:ident),*) -> $returntype:ident; $($rest:tt)*
+    ) => {
         q_object_generate_signal_implementations!($($rest)*);
     };
-    (property $name:ident: $propertytype:ident, read: $accessor:ident; $($rest:tt)*) => {
+    (
+        property $name:ident: $propertytype:ident, read: $accessor:ident; $($rest:tt)*
+    ) => {
         q_object_generate_signal_implementations!($($rest)*);
     };
-    (property $name:ident: $propertytype:ident, read: $accessor:ident, notify: $notifier:ident; $($rest:tt)*) => {
+    (
+        property $name:ident: $propertytype:ident, read: $accessor:ident, notify: $notifier:ident;
+        $($rest:tt)*
+    ) => {
         q_object_generate_signal_implementations!($($rest)*);
     };
-    (property $name:ident: $propertytype:ident, read: $accessor:ident, write: $setter:ident, notify: $notifier:ident; $($rest:tt)*) => {
+    (
+        property $name:ident: $propertytype:ident, read: $accessor:ident, write: $setter:ident,
+        notify: $notifier:ident; $($rest:tt)*
+    ) => {
         q_object_generate_signal_implementations!($($rest)*);
     };
     () => {};
@@ -129,28 +157,60 @@ macro_rules! q_object_generate_content {
 
 #[macro_export]
 macro_rules! q_object_generate_signal_metas {
-    ($signals:ident => {signal fn $name:ident($($param:ident: $paramtype:ident),*); $($rest:tt)*}) => {
+    (
+        $signals:ident => {
+            signal fn $name:ident($($param:ident: $paramtype:ident),*); $($rest:tt)*
+        }
+    ) => {
         {
             let mut parameters_definitions = Vec::<ParameterDefinition>::new();
-            $(parameters_definitions.push(ParameterDefinition::new(stringify!($param), $paramtype::metatype()));)*
+            $(
+                parameters_definitions.push(
+                    ParameterDefinition::new(stringify!($param),
+                    $paramtype::metatype())
+                );
+            )*
             $signals.push(SignalDefinition::new(stringify!($name), parameters_definitions));
         }
 
         q_object_generate_signal_metas!($signals => {$($rest)*});
     };
-    ($signals:ident => {slot fn $name:ident($($param:ident: $paramtype:ident),*); $($rest:tt)*}) => {
+    (
+        $signals:ident => {
+            slot fn $name:ident($($param:ident: $paramtype:ident),*); $($rest:tt)*
+        }
+    ) => {
         q_object_generate_signal_metas!($signals => {$($rest)*});
     };
-    ($signals:ident => {slot fn $name:ident($($param:ident: $paramtype:ident),*) -> $returntype:ident; $($rest:tt)*}) => {
+    (
+        $signals:ident => {
+            slot fn $name:ident($($param:ident: $paramtype:ident),*) -> $returntype:ident;
+            $($rest:tt)*
+        }
+    ) => {
         q_object_generate_signal_metas!($signals => {$($rest)*});
     };
-    ($signals:ident => {property $name:ident: $propertytype:ident, read: $accessor:ident; $($rest:tt)*}) => {
+    (
+        $signals:ident => {
+            property $name:ident: $propertytype:ident, read: $accessor:ident; $($rest:tt)*
+        }
+    ) => {
         q_object_generate_signal_metas!($signals => {$($rest)*});
     };
-    ($signals:ident => {property $name:ident: $propertytype:ident, read: $accessor:ident, notify: $notifier:ident; $($rest:tt)*}) => {
+    (
+        $signals:ident => {
+            property $name:ident: $propertytype:ident, read: $accessor:ident,
+            notify: $notifier:ident; $($rest:tt)*
+        }
+    ) => {
         q_object_generate_signal_metas!($signals => {$($rest)*});
     };
-    ($signals:ident => {property $name:ident: $propertytype:ident, read: $accessor:ident, write: $setter:ident, notify: $notifier:ident; $($rest:tt)*}) => {
+    (
+        $signals:ident => {
+            property $name:ident: $propertytype:ident, read: $accessor:ident, write: $setter:ident,
+            notify: $notifier:ident; $($rest:tt)*
+        }
+    ) => {
         q_object_generate_signal_metas!($signals => {$($rest)*});
     };
     ($signals:ident => {}) => {};
@@ -158,34 +218,78 @@ macro_rules! q_object_generate_signal_metas {
 
 #[macro_export]
 macro_rules! q_object_generate_slot_metas {
-    ($slots:ident => {signal fn $name:ident($($param:ident: $paramtype:ident),*); $($rest:tt)*}) => {
+    (
+        $slots:ident => {
+            signal fn $name:ident($($param:ident: $paramtype:ident),*); $($rest:tt)*
+        }
+    ) => {
         q_object_generate_slot_metas!($slots => {$($rest)*});
     };
-    ($slots:ident => {slot fn $name:ident($($param:ident: $paramtype:ident),*); $($rest:tt)*}) => {
+    (
+        $slots:ident => {
+            slot fn $name:ident($($param:ident: $paramtype:ident),*); $($rest:tt)*
+        }
+    ) => {
         {
             let mut parameters_definitions = Vec::<ParameterDefinition>::new();
-            $(parameters_definitions.push(ParameterDefinition::new(stringify!($param), $paramtype::metatype()));)*
-            $slots.push(SlotDefinition::new(stringify!($name), QMetaType::Void, parameters_definitions));
+            $(
+                parameters_definitions.push(
+                    ParameterDefinition::new(stringify!($param),
+                    $paramtype::metatype())
+                );
+            )*
+            $slots.push(
+                SlotDefinition::new(stringify!($name), QMetaType::Void, parameters_definitions)
+            );
         }
 
         q_object_generate_slot_metas!($slots => {$($rest)*});
     };
-    ($slots:ident => {slot fn $name:ident($($param:ident: $paramtype:ident),*) -> $returntype:ident; $($rest:tt)*}) => {
+    (
+        $slots:ident => {
+            slot fn $name:ident($($param:ident: $paramtype:ident),*) -> $returntype:ident;
+            $($rest:tt)*
+        }
+    ) => {
         {
             let mut parameters_definitions = Vec::<ParameterDefinition>::new();
-            $(parameters_definitions.push(ParameterDefinition::new(stringify!($param), $paramtype::metatype()));)*
-            $slots.push(SlotDefinition::new(stringify!($name), $returntype::metatype(), parameters_definitions));
+            $(
+                parameters_definitions.push(
+                    ParameterDefinition::new(stringify!($param), $paramtype::metatype())
+                );
+            )*
+            $slots.push(
+                SlotDefinition::new(
+                    stringify!($name),
+                    $returntype::metatype(),
+                    parameters_definitions
+                )
+            );
         }
 
         q_object_generate_slot_metas!($slots => {$($rest)*});
     };
-    ($slots:ident => {property $name:ident: $propertytype:ident, read: $accessor:ident; $($rest:tt)*}) => {
+    (
+        $slots:ident => {
+            property $name:ident: $propertytype:ident, read: $accessor:ident; $($rest:tt)*
+        }
+    ) => {
         q_object_generate_slot_metas!($slots => {$($rest)*});
     };
-    ($slots:ident => {property $name:ident: $propertytype:ident, read: $accessor:ident, notify: $notifier:ident; $($rest:tt)*}) => {
+    (
+        $slots:ident => {
+            property $name:ident: $propertytype:ident, read: $accessor:ident,
+            notify: $notifier:ident; $($rest:tt)*
+        }
+    ) => {
         q_object_generate_slot_metas!($slots => {$($rest)*});
     };
-    ($slots:ident => {property $name:ident: $propertytype:ident, read: $accessor:ident, write: $setter:ident, notify: $notifier:ident; $($rest:tt)*}) => {
+    (
+        $slots:ident => {
+            property $name:ident: $propertytype:ident, read: $accessor:ident, write: $setter:ident,
+            notify: $notifier:ident; $($rest:tt)*
+        }
+    ) => {
         q_object_generate_slot_metas!($slots => {$($rest)*});
     };
     ($slots:ident => {}) => {};
@@ -193,27 +297,75 @@ macro_rules! q_object_generate_slot_metas {
 
 #[macro_export]
 macro_rules! q_object_generate_properties_metas {
-    ($properties:ident => {signal fn $name:ident($($param:ident: $paramtype:ident),*); $($rest:tt)*}) => {
+    (
+        $properties:ident => {
+            signal fn $name:ident($($param:ident: $paramtype:ident),*); $($rest:tt)*
+        }
+    ) => {
         q_object_generate_properties_metas!($properties => {$($rest)*});
     };
-    ($properties:ident => {slot fn $name:ident($($param:ident: $paramtype:ident),*); $($rest:tt)*}) => {
+    (
+        $properties:ident => {
+            slot fn $name:ident($($param:ident: $paramtype:ident),*); $($rest:tt)*
+        }
+    ) => {
         q_object_generate_properties_metas!($properties => {$($rest)*});
     };
-    ($properties:ident => {slot fn $name:ident($($param:ident: $paramtype:ident),*) -> $returntype:ident; $($rest:tt)*}) => {
+    (
+        $properties:ident => {
+            slot fn $name:ident($($param:ident: $paramtype:ident),*) -> $returntype:ident;
+            $($rest:tt)*
+        }
+    ) => {
         q_object_generate_properties_metas!($properties => {$($rest)*});
     };
-    ($properties:ident => {property $name:ident: $propertytype:ident, read: $accessor:ident; $($rest:tt)*}) => {
-        $properties.push(PropertyDefinition::new_const(stringify!($name), $propertytype::metatype(), stringify!($accessor)));
+    (
+        $properties:ident => {
+            property $name:ident: $propertytype:ident, read: $accessor:ident; $($rest:tt)*
+        }
+    ) => {
+        $properties.push(
+            PropertyDefinition::new_const(
+                stringify!($name),
+                $propertytype::metatype(),
+                stringify!($accessor)
+            )
+        );
 
         q_object_generate_properties_metas!($properties => {$($rest)*});
     };
-    ($properties:ident => {property $name:ident: $propertytype:ident, read: $accessor:ident, notify: $notifier:ident; $($rest:tt)*}) => {
-        $properties.push(PropertyDefinition::new_read_only(stringify!($name), $propertytype::metatype(), stringify!($accessor), stringify!($notifier)));
+    (
+        $properties:ident => {
+            property $name:ident: $propertytype:ident, read: $accessor:ident,
+            notify: $notifier:ident; $($rest:tt)*
+        }
+    ) => {
+        $properties.push(
+            PropertyDefinition::new_read_only(
+                stringify!($name),
+                $propertytype::metatype(),
+                stringify!($accessor),
+                stringify!($notifier)
+            )
+        );
 
         q_object_generate_properties_metas!($properties => {$($rest)*});
     };
-    ($properties:ident => {property $name:ident: $propertytype:ident, read: $accessor:ident, write: $setter:ident, notify: $notifier:ident; $($rest:tt)*}) => {
-        $properties.push(PropertyDefinition::new_read_write(stringify!($name), $propertytype::metatype(), stringify!($accessor), stringify!($setter), stringify!($notifier)));
+    (
+        $properties:ident => {
+            property $name:ident: $propertytype:ident, read: $accessor:ident, write: $setter:ident,
+            notify: $notifier:ident; $($rest:tt)*
+        }
+    ) => {
+        $properties.push(
+            PropertyDefinition::new_read_write(
+                stringify!($name),
+                $propertytype::metatype(),
+                stringify!($accessor),
+                stringify!($setter),
+                stringify!($notifier)
+            )
+        );
 
         q_object_generate_properties_metas!($properties => {$($rest)*});
     };
@@ -222,10 +374,18 @@ macro_rules! q_object_generate_properties_metas {
 
 #[macro_export]
 macro_rules! q_object_generate_slot_implementations {
-    ($_self:ident, $args:ident, $caller:ident => {signal fn $name:ident($($param:ident: $paramtype:ident),*); $($rest:tt)*}) => {
+    (
+        $_self:ident, $args:ident, $caller:ident => {
+            signal fn $name:ident($($param:ident: $paramtype:ident),*); $($rest:tt)*
+        }
+    ) => {
         q_object_generate_slot_implementations!($_self, $args, $caller => {$($rest)*});
     };
-    ($_self:ident, $args:ident, $caller:ident => {slot fn $name:ident($($param:ident: $paramtype:ident),*); $($rest:tt)*}) => {
+    (
+        $_self:ident, $args:ident, $caller:ident => {
+            slot fn $name:ident($($param:ident: $paramtype:ident),*); $($rest:tt)*
+        }
+    ) => {
         if $caller == stringify!($name) {
             let mut iter = $args.into_iter();
             $(
@@ -238,7 +398,12 @@ macro_rules! q_object_generate_slot_implementations {
 
         q_object_generate_slot_implementations!($_self, $args, $caller => {$($rest)*});
     };
-    ($_self:ident, $args:ident, $caller:ident => {slot fn $name:ident($($param:ident: $paramtype:ident),*) -> $returntype:ident; $($rest:tt)*}) => {
+    (
+        $_self:ident, $args:ident, $caller:ident => {
+            slot fn $name:ident($($param:ident: $paramtype:ident),*) -> $returntype:ident;
+            $($rest:tt)*
+        }
+    ) => {
         if $caller == stringify!($name) {
             let mut iter = $args.into_iter();
             $(
@@ -250,13 +415,27 @@ macro_rules! q_object_generate_slot_implementations {
 
         q_object_generate_slot_implementations!($_self, $args, $caller => {$($rest)*});
     };
-    ($_self:ident, $args:ident, $caller:ident => {property $name:ident: $propertytype:ident, read: $accessor:ident; $($rest:tt)*}) => {
+    (
+        $_self:ident, $args:ident, $caller:ident => {
+            property $name:ident: $propertytype:ident, read: $accessor:ident; $($rest:tt)*
+        }
+    ) => {
         q_object_generate_slot_implementations!($_self, $args, $caller => {$($rest)*});
     };
-    ($_self:ident, $args:ident, $caller:ident => {property $name:ident: $propertytype:ident, read: $accessor:ident, notify: $notifier:ident; $($rest:tt)*}) => {
+    (
+        $_self:ident, $args:ident, $caller:ident => {
+            property $name:ident: $propertytype:ident, read: $accessor:ident,
+            notify: $notifier:ident; $($rest:tt)*
+        }
+    ) => {
         q_object_generate_slot_implementations!($_self, $args, $caller => {$($rest)*});
     };
-    ($_self:ident, $args:ident, $caller:ident => {property $name:ident: $propertytype:ident, read: $accessor:ident, write: $setter:ident, notify: $notifier:ident; $($rest:tt)*}) => {
+    (
+        $_self:ident, $args:ident, $caller:ident => {
+            property $name:ident: $propertytype:ident, read: $accessor:ident, write: $setter:ident,
+            notify: $notifier:ident; $($rest:tt)*
+        }
+    ) => {
         q_object_generate_slot_implementations!($_self, $args, $caller => {$($rest)*});
     };
     ($_self:ident, $args:ident, $caller:ident => {}) => {};
@@ -264,7 +443,13 @@ macro_rules! q_object_generate_slot_implementations {
 
 #[cfg(test)]
 mod tests {
-    use qmetaobject::{ParameterDefinition, PropertyDefinition, QMetaObject, SignalDefinition, SlotDefinition};
+    use qmetaobject::{
+        ParameterDefinition,
+        PropertyDefinition,
+        QMetaObject,
+        SignalDefinition,
+        SlotDefinition,
+    };
     use qmetatype::{QMetaTypable, QMetaType};
     use qobject::{QObject, QObjectContent, QObjectContentConstructor, QSignalEmitter};
     use qvariant::{QVariant, QVariantRefMut};
@@ -293,9 +478,7 @@ mod tests {
 
     impl QObjectContentConstructor for TestObject {
         fn new(signal_emitter: Box<QSignalEmitter>) -> Self {
-            TestObject {
-                signal_emitter,
-            }
+            TestObject { signal_emitter }
         }
     }
 

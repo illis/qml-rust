@@ -3,6 +3,7 @@ extern crate qml;
 
 #[cfg(debug_assertions)]
 use std::os::raw::c_void;
+
 use qml::*;
 
 q_object! {
@@ -29,9 +30,7 @@ impl TestObject {
 
 impl QObjectContentConstructor for TestObject {
     fn new(signal_emitter: Box<QSignalEmitter>) -> Self {
-        TestObject {
-            signal_emitter,
-        }
+        TestObject { signal_emitter }
     }
 }
 

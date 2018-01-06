@@ -1,6 +1,7 @@
 use std::env;
 use std::ffi::CString;
 use std::os::raw::{c_char, c_int, c_void};
+
 use qurl::QUrl;
 
 pub struct QQuickView {
@@ -13,7 +14,8 @@ impl<'a> QQuickView {
         let argv_strings = env::args()
             .map(|arg| CString::new(arg).unwrap())
             .collect::<Vec<_>>();
-        let argv = argv_strings.iter()
+        let argv = argv_strings
+            .iter()
             .map(|arg| arg.as_ptr())
             .collect::<Vec<_>>();
 
@@ -23,10 +25,7 @@ impl<'a> QQuickView {
 
             dos_qquickview_set_resize_mode(view, 1);
 
-            QQuickView {
-                app,
-                view,
-            }
+            QQuickView { app, view }
         }
     }
 
@@ -42,7 +41,9 @@ impl<'a> QQuickView {
         }
     }
     pub fn quit(&mut self) {
-        unsafe { dos_qguiapplication_quit(); }
+        unsafe {
+            dos_qguiapplication_quit();
+        }
     }
 }
 

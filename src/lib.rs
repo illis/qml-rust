@@ -18,11 +18,30 @@ mod qquickview;
 mod qurl;
 mod qvariant;
 
-pub use qlistmodel::{QListModel, QListModelContentConstructor, QListModelInterface, QListModelItem, QQmlListModel};
-pub use qmetaobject::{ParameterDefinition, PropertyDefinition, QMetaObject, SignalDefinition, SlotDefinition};
+pub use qlistmodel::{
+    QListModel,
+    QListModelContentConstructor,
+    QListModelInterface,
+    QListModelItem,
+    QQmlListModel,
+};
+pub use qmetaobject::{
+    ParameterDefinition,
+    PropertyDefinition,
+    QMetaObject,
+    SignalDefinition,
+    SlotDefinition,
+};
 pub use qmetatype::{QMetaTypable, QMetaType};
-pub use qmlregister::{QmlRegisterableObject, QmlRegisterType, qml_register_type};
-pub use qobject::{QQmlObject, QObject, QObjectContent, QObjectContentConstructor, QObjectRefMut, QSignalEmitter};
+pub use qmlregister::{qml_register_type, QmlRegisterType, QmlRegisterableObject};
+pub use qobject::{
+    QObject,
+    QObjectContent,
+    QObjectContentConstructor,
+    QObjectRefMut,
+    QQmlObject,
+    QSignalEmitter,
+};
 pub use qquickview::QQuickView;
 pub use qurl::QUrl;
 pub use qvariant::{QVariant, QVariantMap, QVariantRefMut};

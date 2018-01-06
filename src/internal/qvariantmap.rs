@@ -1,6 +1,7 @@
-use std::os::raw::{c_char, c_int, c_void};
 use std::collections::HashMap;
 use std::ffi::CString;
+use std::os::raw::{c_char, c_int, c_void};
+
 use qvariant::{QVariant, QVariantMap};
 
 pub(crate) struct QVariantMapEntry {
@@ -21,33 +22,35 @@ pub(crate) struct CQVariantMap {
 }
 
 pub(crate) fn variantmap_to_entries<'a>(value: &QVariantMap<'a>) -> Vec<QVariantMapEntry> {
-    value.iter()
-        .map(|(key, value)| {
-            QVariantMapEntry {
-                key: CString::new(key.as_str()).unwrap(),
-                value: value.as_cref(),
-            }
-        }).collect::<Vec<_>>()
+    value
+        .iter()
+        .map(|(key, value)| QVariantMapEntry {
+            key: CString::new(key.as_str()).unwrap(),
+            value: value.as_cref(),
+        })
+        .collect::<Vec<_>>()
 }
 
-pub(crate) fn static_variantmap_to_entries<'a>(value: &HashMap<&'static str, QVariant<'a>>) -> Vec<QVariantMapEntry> {
-    value.iter()
-        .map(|(key, value)| {
-            QVariantMapEntry {
-                key: CString::new(*key).unwrap(),
-                value: value.as_cref(),
-            }
-        }).collect::<Vec<_>>()
+pub(crate) fn static_variantmap_to_entries<'a>(
+    value: &HashMap<&'static str, QVariant<'a>>,
+) -> Vec<QVariantMapEntry> {
+    value
+        .iter()
+        .map(|(key, value)| QVariantMapEntry {
+            key: CString::new(*key).unwrap(),
+            value: value.as_cref(),
+        })
+        .collect::<Vec<_>>()
 }
 
 pub(crate) fn entries_to_c_entries(value: &[QVariantMapEntry]) -> Vec<CQVariantMapEntry> {
-    value.iter()
-        .map(|entry| {
-            CQVariantMapEntry {
-                key: entry.key.as_ptr(),
-                value: entry.value,
-            }
-        }).collect::<Vec<_>>()
+    value
+        .iter()
+        .map(|entry| CQVariantMapEntry {
+            key: entry.key.as_ptr(),
+            value: entry.value,
+        })
+        .collect::<Vec<_>>()
 }
 
 pub(crate) fn c_entries_to_c_map(value: &mut Vec<CQVariantMapEntry>) -> CQVariantMap {

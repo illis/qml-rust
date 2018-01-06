@@ -4,6 +4,7 @@ extern crate qml;
 use std::collections::HashMap;
 #[cfg(debug_assertions)]
 use std::os::raw::c_void;
+
 use qml::*;
 
 q_listmodel! {
@@ -36,10 +37,11 @@ impl TestListModel {
 }
 
 impl QListModelContentConstructor<TestListModelItem> for TestListModel {
-    fn new(signal_emitter: Box<QSignalEmitter>, _: Box<QListModelInterface<TestListModelItem>>) -> Self {
-        TestListModel {
-            signal_emitter,
-        }
+    fn new(
+        signal_emitter: Box<QSignalEmitter>,
+        _: Box<QListModelInterface<TestListModelItem>>,
+    ) -> Self {
+        TestListModel { signal_emitter }
     }
 }
 

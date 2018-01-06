@@ -1,7 +1,8 @@
 use std::ffi::CString;
 use std::os::raw::{c_char, c_double, c_float, c_int, c_void};
-use qobject::QObjectRefMut;
+
 use internal::CStringWrapper;
+use qobject::QObjectRefMut;
 
 pub struct QVariant<'a> {
     ptr: &'a mut c_void,
@@ -13,9 +14,7 @@ impl<'a> QVariant<'a> {
     }
 
     pub(crate) fn new(ptr: &'a mut c_void) -> QVariant<'a> {
-        QVariant {
-            ptr,
-        }
+        QVariant { ptr }
     }
 
     pub(crate) fn as_cref(&self) -> &c_void {
@@ -39,7 +38,9 @@ impl<'a> Clone for QVariant<'a> {
 
 impl<'a> Drop for QVariant<'a> {
     fn drop(&mut self) {
-        unsafe { dos_qvariant_delete(self.ptr); }
+        unsafe {
+            dos_qvariant_delete(self.ptr);
+        }
     }
 }
 
@@ -68,7 +69,11 @@ impl<'a, 'b: 'a> From<&'b QVariant<'a>> for f32 {
 impl<'a> From<f32> for QVariant<'a> {
     fn from(value: f32) -> Self {
         QVariant {
-            ptr: unsafe { dos_qvariant_create_float(value as c_float).as_mut().unwrap() },
+            ptr: unsafe {
+                dos_qvariant_create_float(value as c_float)
+                    .as_mut()
+                    .unwrap()
+            },
         }
     }
 }
@@ -83,7 +88,11 @@ impl<'a, 'b: 'a> From<&'b QVariant<'a>> for f64 {
 impl<'a> From<f64> for QVariant<'a> {
     fn from(value: f64) -> Self {
         QVariant {
-            ptr: unsafe { dos_qvariant_create_double(value as c_double).as_mut().unwrap() },
+            ptr: unsafe {
+                dos_qvariant_create_double(value as c_double)
+                    .as_mut()
+                    .unwrap()
+            },
         }
     }
 }
@@ -115,7 +124,11 @@ impl<'a, 'b> From<&'a str> for QVariant<'b> {
     fn from(value: &'a str) -> Self {
         let string = CString::new(value).unwrap();
         QVariant {
-            ptr: unsafe { dos_qvariant_create_string(string.as_ptr()).as_mut().unwrap() },
+            ptr: unsafe {
+                dos_qvariant_create_string(string.as_ptr())
+                    .as_mut()
+                    .unwrap()
+            },
         }
     }
 }
@@ -124,7 +137,11 @@ impl<'a> From<String> for QVariant<'a> {
     fn from(value: String) -> Self {
         let string = CString::new(value).unwrap();
         QVariant {
-            ptr: unsafe { dos_qvariant_create_string(string.as_ptr()).as_mut().unwrap() },
+            ptr: unsafe {
+                dos_qvariant_create_string(string.as_ptr())
+                    .as_mut()
+                    .unwrap()
+            },
         }
     }
 }
@@ -133,7 +150,11 @@ impl<'a, 'b> From<&'a String> for QVariant<'b> {
     fn from(value: &String) -> Self {
         let string = CString::new(value.as_str()).unwrap();
         QVariant {
-            ptr: unsafe { dos_qvariant_create_string(string.as_ptr()).as_mut().unwrap() },
+            ptr: unsafe {
+                dos_qvariant_create_string(string.as_ptr())
+                    .as_mut()
+                    .unwrap()
+            },
         }
     }
 }
@@ -166,7 +187,8 @@ extern "C" {
     fn dos_qvariant_create_bool(value: bool) -> *mut c_void;
     fn dos_qvariant_create_string(value: *const c_char) -> *mut c_void;
     fn dos_qvariant_create_qobject(value: *mut c_void) -> *mut c_void;
-    // fn dos_qvariant_create_array(size: c_int, array: *const c_void) -> *mut c_void;
+    // fn dos_qvariant_create_array(size: c_int, array: *const c_void) -> *mut
+    // c_void;
 
     fn dos_qvariant_toInt(value: *const c_void) -> c_int;
     fn dos_qvariant_toFloat(value: *const c_void) -> c_float;

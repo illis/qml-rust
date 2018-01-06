@@ -3,6 +3,7 @@ extern crate qml;
 use std::collections::HashMap;
 #[cfg(debug_assertions)]
 use std::os::raw::c_void;
+
 use qml::*;
 
 #[cfg(debug_assertions)]
@@ -93,17 +94,13 @@ impl QObjectContent for ListModelContent {
 
 impl QObjectContentConstructor for ObjectContent {
     fn new(_: Box<QSignalEmitter>) -> Self {
-        ObjectContent {
-            invoked: false,
-        }
+        ObjectContent { invoked: false }
     }
 }
 
 impl QListModelContentConstructor<ListModelItem> for ListModelContent {
     fn new(_: Box<QSignalEmitter>, _: Box<QListModelInterface<ListModelItem>>) -> Self {
-        ListModelContent {
-            invoked: false,
-        }
+        ListModelContent { invoked: false }
     }
 }
 
@@ -121,7 +118,11 @@ impl QListModelItem for ListModelItem {
     }
 }
 
-fn do_invoke_slot<'a, T: InvokableContent>(instance: &mut T, name: &str, args: &[QVariantRefMut]) -> Option<QVariant<'a>> {
+fn do_invoke_slot<'a, T: InvokableContent>(
+    instance: &mut T,
+    name: &str,
+    args: &[QVariantRefMut],
+) -> Option<QVariant<'a>> {
     if name != "test_slot" {
         return None;
     }
@@ -131,7 +132,7 @@ fn do_invoke_slot<'a, T: InvokableContent>(instance: &mut T, name: &str, args: &
     let arg0 = &args[0];
     let value: i32 = arg0.into();
     if value != 42 {
-        return None
+        return None;
     }
     instance.set_invoked();
     Some(QVariant::from(42))

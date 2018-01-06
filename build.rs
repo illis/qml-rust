@@ -20,7 +20,7 @@ fn find_and_link_qt5() {
                 println!("cargo:include={}", p.display());
             }
         }
-        Err(e) => panic!("Qt5 was not found using pkg-config: {}", e)
+        Err(e) => panic!("Qt5 was not found using pkg-config: {}", e),
     }
 }
 
@@ -33,7 +33,10 @@ fn find_and_link_dos(cmake_cfg: &mut cmake::Config) {
         .join("lib");
 
     if cfg!(windows) {
-        println!("cargo:rustc-link-search=native={}", path.join("Release").display());
+        println!(
+            "cargo:rustc-link-search=native={}",
+            path.join("Release").display()
+        );
     } else {
         println!("cargo:rustc-link-search=native={}", path.display());
     }
@@ -43,12 +46,13 @@ fn find_and_link_dos(cmake_cfg: &mut cmake::Config) {
 
 fn find_and_link_de(cmake_cfg: &mut cmake::Config) {
     let dst = cmake_cfg.build();
-    let path = dst.join("build")
-        .join("lib")
-        .join("src");
+    let path = dst.join("build").join("lib").join("src");
 
     if cfg!(windows) {
-        println!("cargo:rustc-link-search=native={}", path.join("Release").display());
+        println!(
+            "cargo:rustc-link-search=native={}",
+            path.join("Release").display()
+        );
     } else {
         println!("cargo:rustc-link-search=native={}", path.display());
     }
@@ -81,7 +85,10 @@ fn find_resources(cmake_cfg: &mut cmake::Config) {
         .join("resources");
 
     if cfg!(windows) {
-        println!("cargo:rustc-link-search=native={}", path.join("Release").display());
+        println!(
+            "cargo:rustc-link-search=native={}",
+            path.join("Release").display()
+        );
     } else {
         println!("cargo:rustc-link-search=native={}", path.display());
     }
@@ -95,7 +102,9 @@ fn main() {
         .join("DOtherSide")
         .join("CMakeLists.txt");
     if !dos_path.exists() {
-        panic!("DOtherSide submodule not checked out. Please run 'git submodule init' followed by 'git submodule update'.");
+        panic!(
+            "DOtherSide submodule not checked out. Please run 'git submodule init' followed by 'git submodule update'."
+        );
     }
 
     let mut cmake_cfg = cmake::Config::new(".");
@@ -103,7 +112,10 @@ fn main() {
         cmake_cfg.generator(gen);
     }
 
-    println!("cargo:rustc-link-search=native={}", cmake_cfg.build().join("lib").display());
+    println!(
+        "cargo:rustc-link-search=native={}",
+        cmake_cfg.build().join("lib").display()
+    );
 
     #[cfg(debug_assertions)]
     find_resources(&mut cmake_cfg);

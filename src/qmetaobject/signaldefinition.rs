@@ -1,7 +1,8 @@
 use std::ffi::CString;
 use std::os::raw::{c_char, c_int};
-use qmetaobject::conversionutils::{convert_as, convert_into};
+
 use qmetaobject::ParameterDefinition;
+use qmetaobject::conversionutils::{convert_as, convert_into};
 use qmetaobject::parameterdefinition::{CParameterDefinition, ParameterDefinitionWrapper};
 
 pub struct SignalDefinition {

@@ -1,5 +1,6 @@
 use std::ffi::CString;
 use std::os::raw::{c_char, c_int};
+
 use qmetatype::QMetaType;
 
 pub struct PropertyDefinition {
@@ -21,7 +22,12 @@ impl PropertyDefinition {
         }
     }
 
-    pub fn new_read_only(name: &str, property_metatype: QMetaType, read_slot: &str, notify_signal: &str) -> Self {
+    pub fn new_read_only(
+        name: &str,
+        property_metatype: QMetaType,
+        read_slot: &str,
+        notify_signal: &str,
+    ) -> Self {
         PropertyDefinition {
             name: name.to_string(),
             property_metatype,
@@ -31,7 +37,13 @@ impl PropertyDefinition {
         }
     }
 
-    pub fn new_read_write(name: &str, property_metatype: QMetaType, read_slot: &str, write_slot: &str, notify_signal: &str) -> Self {
+    pub fn new_read_write(
+        name: &str,
+        property_metatype: QMetaType,
+        read_slot: &str,
+        write_slot: &str,
+        notify_signal: &str,
+    ) -> Self {
         PropertyDefinition {
             name: name.to_string(),
             property_metatype,

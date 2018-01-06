@@ -1,5 +1,6 @@
-use qvariant::QVariant;
 use std::collections::HashMap;
+
+use qvariant::QVariant;
 use qvariant::QVariantMap;
 
 pub trait QListModelItem {

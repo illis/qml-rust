@@ -1,6 +1,6 @@
 use std::cell::RefCell;
-use std::rc::{Rc, Weak};
 use std::os::raw::c_void;
+use std::rc::{Rc, Weak};
 
 pub(crate) type QObjectWeakPtr = Weak<RefCell<QObjectPtr>>;
 
@@ -12,17 +12,15 @@ pub(crate) type QObjectSharedPtr = Rc<RefCell<QObjectPtr>>;
 
 impl QObjectPtr {
     pub(crate) fn new(ptr: *mut c_void) -> Self {
-        QObjectPtr {
-            ptr,
-        }
+        QObjectPtr { ptr }
     }
 
     pub(crate) fn as_cref<'a>(&self) -> &'a c_void {
-        unsafe {self.ptr.as_ref() }.unwrap()
+        unsafe { self.ptr.as_ref() }.unwrap()
     }
 
     pub(crate) fn as_cref_mut<'a>(&mut self) -> &'a mut c_void {
-        unsafe {self.ptr.as_mut() }.unwrap()
+        unsafe { self.ptr.as_mut() }.unwrap()
     }
 }
 

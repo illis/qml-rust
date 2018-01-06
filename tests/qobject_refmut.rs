@@ -27,9 +27,7 @@ impl TestObject {
 
 impl QObjectContentConstructor for TestObject {
     fn new(signal_emitter: Box<QSignalEmitter>) -> Self {
-        TestObject {
-            signal_emitter,
-        }
+        TestObject { signal_emitter }
     }
 }
 
@@ -43,9 +41,7 @@ struct TestObject2 {
 
 impl QObjectContentConstructor for TestObject2 {
     fn new(signal_emitter: Box<QSignalEmitter>) -> Self {
-        TestObject2 {
-            signal_emitter,
-        }
+        TestObject2 { signal_emitter }
     }
 }
 

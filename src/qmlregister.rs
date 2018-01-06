@@ -1,5 +1,6 @@
 use std::ffi::CString;
 use std::os::raw::{c_char, c_int, c_void};
+
 use qobject::QObjectContent;
 
 pub struct QmlRegisterType {
@@ -21,15 +22,20 @@ impl QmlRegisterType {
 }
 
 pub trait QmlRegisterableObject {
-    extern "C" fn create_dobject(id: i32, wrapper: *mut c_void,
-                                 dobject_ptr: *mut *mut c_void,
-                                 qobject_ptr: *mut *mut c_void);
+    extern "C" fn create_dobject(
+        id: i32,
+        wrapper: *mut c_void,
+        dobject_ptr: *mut *mut c_void,
+        qobject_ptr: *mut *mut c_void,
+    );
     extern "C" fn delete_dobject(id: i32, dobject_ptr: *mut c_void);
     fn register_type() -> QmlRegisterType;
 }
 
 pub fn qml_register_type<T>()
-    where T: QObjectContent + QmlRegisterableObject {
+where
+    T: QObjectContent + QmlRegisterableObject,
+{
     let register_type = T::register_type();
     let uri = CString::new(register_type.uri).unwrap();
     let qml = CString::new(register_type.name).unwrap();
@@ -44,7 +50,9 @@ pub fn qml_register_type<T>()
         create_dobject: T::create_dobject,
         delete_dobject: T::delete_dobject,
     };
-    unsafe { de_qqml_qmlregisterobject(&c_register_type); }
+    unsafe {
+        de_qqml_qmlregisterobject(&c_register_type);
+    }
 }
 
 #[repr(C)]
@@ -63,5 +71,6 @@ type DeleteDObject = extern "C" fn(c_int, *mut c_void);
 
 extern "C" {
     fn de_qqml_qmlregisterobject(qml_register_type: *const CQmlRegisterType) -> c_int;
-    // fn dos_qdeclarative_qmlregistersingletontype(qmlRegisterType: *const QmlRegisterType) -> c_int;
+// fn dos_qdeclarative_qmlregistersingletontype(qmlRegisterType: *const
+// QmlRegisterType) -> c_int;
 }

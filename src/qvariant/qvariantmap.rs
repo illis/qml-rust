@@ -1,10 +1,17 @@
-use std::os::raw::c_void;
 use std::collections::HashMap;
 use std::ffi::CStr;
+use std::os::raw::c_void;
 use std::slice::from_raw_parts_mut;
+
+use internal::{
+    c_entries_to_c_map,
+    entries_to_c_entries,
+    variantmap_to_entries,
+    CQVariantMap,
+    CQVariantMapWrapper,
+};
 use qvariant::QVariant;
 use qvariant::QVariantRefMut;
-use internal::{CQVariantMap, CQVariantMapWrapper, c_entries_to_c_map, entries_to_c_entries, variantmap_to_entries};
 
 pub type QVariantMap<'a> = HashMap<String, QVariant<'a>>;
 
@@ -39,12 +46,17 @@ fn from_ptr<'a, 'b>(ptr: &'a c_void) -> QVariantMap<'b> {
     let wrapper = CQVariantMapWrapper::from_variant_ptr(ptr);
     let slice = unsafe { from_raw_parts_mut(wrapper.ptr.values, wrapper.ptr.count as usize) };
 
-    slice.iter().map(|value| {
-        let key = unsafe { CStr::from_ptr(value.key) };
-        let key = key.to_string_lossy().into_owned();
-        let value = QVariant::new(unsafe { dos_qvariant_create_qvariant(value.value).as_mut().unwrap() });
-        (key, value)
-    }).collect::<QVariantMap>()
+    slice
+        .iter()
+        .map(|value| {
+            let key = unsafe { CStr::from_ptr(value.key) };
+            let key = key.to_string_lossy().into_owned();
+            let value = QVariant::new(unsafe {
+                dos_qvariant_create_qvariant(value.value).as_mut().unwrap()
+            });
+            (key, value)
+        })
+        .collect::<QVariantMap>()
 }
 
 impl<'a> CQVariantMapWrapper<'a> {

@@ -3,6 +3,7 @@ extern crate qml;
 use std::collections::HashMap;
 #[cfg(debug_assertions)]
 use std::os::raw::{c_int, c_void};
+
 use qml::*;
 
 #[cfg(debug_assertions)]
@@ -39,7 +40,9 @@ fn test_qobject_value_changed() {
 
     qobject.content_mut().set_value(42);
     assert_eq!(unsafe { value_changed_spy_get_value(spy) }, 42);
-    unsafe { delete_value_changed_spy(spy); }
+    unsafe {
+        delete_value_changed_spy(spy);
+    }
 }
 
 #[cfg(debug_assertions)]
@@ -54,7 +57,9 @@ fn test_qlistmodel_value_changed() {
 
     qlistmodel.content_mut().set_value(42);
     assert_eq!(unsafe { value_changed_spy_get_value(spy) }, 42);
-    unsafe { delete_value_changed_spy(spy); }
+    unsafe {
+        delete_value_changed_spy(spy);
+    }
 }
 
 struct TestObject {
@@ -79,13 +84,15 @@ trait InvokableContent {
 
 impl QTestObjectSignals for TestObject {
     fn value_changed(&mut self) {
-        self.signal_emitter.emit_signal("valueChanged", vec![QVariant::from(self.value)]);
+        self.signal_emitter
+            .emit_signal("valueChanged", vec![QVariant::from(self.value)]);
     }
 }
 
 impl QTestObjectSignals for TestListModel {
     fn value_changed(&mut self) {
-        self.signal_emitter.emit_signal("valueChanged", vec![QVariant::from(self.value)]);
+        self.signal_emitter
+            .emit_signal("valueChanged", vec![QVariant::from(self.value)]);
     }
 }
 
@@ -126,10 +133,17 @@ impl QObjectContent for TestObject {
         let signal_parameters = vec![ParameterDefinition::new("param", QMetaType::Int)];
         let signal_definitions = vec![SignalDefinition::new("valueChanged", signal_parameters)];
         let slot_parameters = vec![ParameterDefinition::new("param", QMetaType::Int)];
-        let slot_definitions = vec![SlotDefinition::new("setValue", QMetaType::Void, slot_parameters)];
+        let slot_definitions = vec![
+            SlotDefinition::new("setValue", QMetaType::Void, slot_parameters),
+        ];
         let properties_definitions = vec![];
 
-        QMetaObject::new_qobject("QTestObject", signal_definitions, slot_definitions, properties_definitions)
+        QMetaObject::new_qobject(
+            "QTestObject",
+            signal_definitions,
+            slot_definitions,
+            properties_definitions,
+        )
     }
 
     fn invoke_slot(&mut self, name: &str, args: Vec<QVariantRefMut>) -> Option<QVariant> {
@@ -142,10 +156,17 @@ impl QObjectContent for TestListModel {
         let signal_parameters = vec![ParameterDefinition::new("param", QMetaType::Int)];
         let signal_definitions = vec![SignalDefinition::new("valueChanged", signal_parameters)];
         let slot_parameters = vec![ParameterDefinition::new("param", QMetaType::Int)];
-        let slot_definitions = vec![SlotDefinition::new("setValue", QMetaType::Void, slot_parameters)];
+        let slot_definitions = vec![
+            SlotDefinition::new("setValue", QMetaType::Void, slot_parameters),
+        ];
         let properties_definitions = vec![];
 
-        QMetaObject::new_qlistmodel("QTestListModel", signal_definitions, slot_definitions, properties_definitions)
+        QMetaObject::new_qlistmodel(
+            "QTestListModel",
+            signal_definitions,
+            slot_definitions,
+            properties_definitions,
+        )
     }
 
     fn invoke_slot(&mut self, name: &str, args: Vec<QVariantRefMut>) -> Option<QVariant> {
@@ -163,7 +184,10 @@ impl QObjectContentConstructor for TestObject {
 }
 
 impl QListModelContentConstructor<TestListModelItem> for TestListModel {
-    fn new(signal_emitter: Box<QSignalEmitter>, _: Box<QListModelInterface<TestListModelItem>>) -> Self {
+    fn new(
+        signal_emitter: Box<QSignalEmitter>,
+        _: Box<QListModelInterface<TestListModelItem>>,
+    ) -> Self {
         TestListModel {
             signal_emitter,
             value: 123,
@@ -185,7 +209,11 @@ impl QListModelItem for TestListModelItem {
     }
 }
 
-fn do_invoke_slot<'a, T: InvokableContent>(instance: &mut T, name: &str, args: &[QVariantRefMut]) -> Option<QVariant<'a>> {
+fn do_invoke_slot<'a, T: InvokableContent>(
+    instance: &mut T,
+    name: &str,
+    args: &[QVariantRefMut],
+) -> Option<QVariant<'a>> {
     if name != "setValue" {
         return None;
     }

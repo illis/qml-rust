@@ -1,19 +1,23 @@
 use std::cell::{Ref, RefCell, RefMut};
 use std::ops::Deref;
-use std::rc::Rc;
 use std::os::raw::{c_int, c_void};
-use internal::{QObjectPtr, QObjectSharedPtr, QObjectSignalEmitter, invoke_slot};
+use std::rc::Rc;
+
+use internal::{invoke_slot, QObjectPtr, QObjectSharedPtr, QObjectSignalEmitter};
 use qobject::{QObjectContent, QObjectContentConstructor, QSignalEmitter};
 
 pub struct QObject<T>
-    where T: QObjectContent {
+where
+    T: QObjectContent,
+{
     ptr: QObjectSharedPtr,
     content: Box<RefCell<T>>,
 }
 
 impl<T> QObject<T>
-    where T: QObjectContent {
-
+where
+    T: QObjectContent,
+{
     pub fn content(&self) -> Ref<T> {
         self.content.deref().borrow()
     }
@@ -23,16 +27,22 @@ impl<T> QObject<T>
     }
 
     pub(crate) fn as_cref_mut(&mut self) -> &mut c_void
-        where T: QObjectContent {
+    where
+        T: QObjectContent,
+    {
         self.ptr.borrow_mut().as_cref_mut()
     }
 }
 
 impl<T> QObject<T>
-    where T: QObjectContent + QObjectContentConstructor {
+where
+    T: QObjectContent + QObjectContentConstructor,
+{
     pub fn new() -> Self {
         let ptr = QObject::<T>::new_ptr();
-        let content = Box::new(RefCell::new(T::new(Box::new(QObjectSignalEmitter::new(Rc::downgrade(&ptr))))));
+        let content = Box::new(RefCell::new(T::new(Box::new(QObjectSignalEmitter::new(
+            Rc::downgrade(&ptr),
+        )))));
         QObject::new_qobject(ptr, content)
     }
 
@@ -44,16 +54,16 @@ impl<T> QObject<T>
 
     fn new_ptr() -> QObjectSharedPtr {
         let meta = T::metaobject();
-        let ptr = unsafe {
-            de_qobject_create(meta.as_ptr(), QObject::<T>::qslot_callback)
-        };
+        let ptr = unsafe { de_qobject_create(meta.as_ptr(), QObject::<T>::qslot_callback) };
 
         Rc::new(RefCell::new(QObjectPtr::new(ptr)))
     }
 
     fn new_qobject(ptr: QObjectSharedPtr, content: Box<RefCell<T>>) -> Self {
         let content_ptr = Box::into_raw(content);
-        unsafe { de_qobject_set_dobject(ptr.borrow_mut().as_cref_mut(), content_ptr as *mut c_void); }
+        unsafe {
+            de_qobject_set_dobject(ptr.borrow_mut().as_cref_mut(), content_ptr as *mut c_void);
+        }
 
         QObject {
             ptr: Rc::clone(&ptr),
@@ -61,14 +71,20 @@ impl<T> QObject<T>
         }
     }
 
-    extern "C" fn qslot_callback(object: *mut c_void, slot_name: *mut c_void,
-                                 argc: c_int, argv: *mut *mut c_void) {
+    extern "C" fn qslot_callback(
+        object: *mut c_void,
+        slot_name: *mut c_void,
+        argc: c_int,
+        argv: *mut *mut c_void,
+    ) {
         invoke_slot::<T>(object, slot_name, argc, argv);
     }
 }
 
 impl<T> Default for QObject<T>
-    where T: QObjectContent + QObjectContentConstructor {
+where
+    T: QObjectContent + QObjectContentConstructor,
+{
     fn default() -> Self {
         QObject::new()
     }

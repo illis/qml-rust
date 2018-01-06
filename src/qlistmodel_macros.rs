@@ -34,7 +34,10 @@ macro_rules! q_listmodelitem {
             fn to_variant_map<'a>(&self) -> HashMap<&'static str, QVariant<'a>> {
                 let mut returned = HashMap::new();
                 $(
-                    returned.insert(stringify!($attribute), QVariant::from(self.$attribute.clone()));
+                    returned.insert(
+                        stringify!($attribute),
+                        QVariant::from(self.$attribute.clone())
+                    );
                 )*
                 returned
             }

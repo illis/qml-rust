@@ -1,5 +1,6 @@
 use std::cell::RefCell;
 use std::os::raw::c_void;
+
 use qobject::{QObject, QObjectContent};
 
 pub struct QObjectRefMut<'a> {
@@ -8,9 +9,7 @@ pub struct QObjectRefMut<'a> {
 
 impl<'a> QObjectRefMut<'a> {
     pub(crate) fn new(ptr: &'a mut c_void) -> Self {
-        QObjectRefMut {
-            ptr,
-        }
+        QObjectRefMut { ptr }
     }
 
     pub fn as_cref_mut(&mut self) -> &mut c_void {
@@ -18,7 +17,9 @@ impl<'a> QObjectRefMut<'a> {
     }
 
     pub fn as_content<T>(&mut self) -> Option<&'a RefCell<T>>
-        where T: QObjectContent {
+    where
+        T: QObjectContent,
+    {
         let meta = T::metaobject();
         unsafe {
             let ptr = de_qobject_check_and_get_dobject(self.ptr, meta.as_ptr());
@@ -28,7 +29,9 @@ impl<'a> QObjectRefMut<'a> {
 }
 
 impl<'a, T> From<&'a mut QObject<T>> for QObjectRefMut<'a>
-    where T: QObjectContent {
+where
+    T: QObjectContent,
+{
     fn from(value: &'a mut QObject<T>) -> Self {
         QObjectRefMut {
             ptr: value.as_cref_mut(),

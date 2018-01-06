@@ -1,5 +1,6 @@
 use std::ffi::CString;
 use std::os::raw::{c_char, c_int, c_void};
+
 use errors::Result;
 
 pub struct QUrl {
@@ -11,7 +12,7 @@ impl QUrl {
         let url = CString::new(url)?;
 
         Ok(QUrl {
-            ptr: unsafe { dos_qurl_create(url.as_ptr(), 0) }
+            ptr: unsafe { dos_qurl_create(url.as_ptr(), 0) },
         })
     }
 
@@ -22,7 +23,9 @@ impl QUrl {
 
 impl Drop for QUrl {
     fn drop(&mut self) {
-        unsafe { dos_qurl_delete(self.ptr); }
+        unsafe {
+            dos_qurl_delete(self.ptr);
+        }
     }
 }
 
