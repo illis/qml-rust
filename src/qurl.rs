@@ -1,17 +1,18 @@
 use std::ffi::CString;
 use libc::{c_char, c_int, c_void};
+use errors::Result;
 
 pub struct QUrl {
     ptr: *mut c_void,
 }
 
 impl QUrl {
-    pub fn new(url: &str) -> Self {
-        let url = CString::new(url).unwrap();
+    pub fn new(url: &str) -> Result<Self> {
+        let url = CString::new(url)?;
 
-        QUrl {
+        Ok(QUrl {
             ptr: unsafe { dos_qurl_create(url.as_ptr(), 0) }
-        }
+        })
     }
 
     pub(crate) fn as_ptr(&self) -> *const c_void {
@@ -36,6 +37,6 @@ mod tests {
 
     #[test]
     fn test_qurl_memory() {
-        QUrl::new("http://some/url");
+        QUrl::new("http://some/url").unwrap();
     }
 }

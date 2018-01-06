@@ -50,7 +50,7 @@ fn test_qmlregister_qobject() {
     unsafe { init_testresources(); }
 
     let mut view = QQuickView::new();
-    let url = QUrl::new("qrc:///qml/tst_qmlregister_qobject.qml");
+    let url = QUrl::new("qrc:///qml/tst_qmlregister_qobject.qml").unwrap();
 
 
     view.load_url(url);

@@ -7,7 +7,7 @@ use qml::*;
 #[test]
 fn test_qquickview_memory() {
     let mut view = QQuickView::new();
-    let url = QUrl::new("qrc:///qml/tst_simple.qml");
+    let url = QUrl::new("qrc:///qml/tst_simple.qml").unwrap();
 
     unsafe { init_testresources(); }
 

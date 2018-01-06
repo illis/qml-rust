@@ -67,7 +67,7 @@ fn test_qmlregister_qlistmodel() {
     unsafe { init_testresources(); }
 
     let mut view = QQuickView::new();
-    let url = QUrl::new("qrc:///qml/tst_qmlregister_qlistmodel.qml");
+    let url = QUrl::new("qrc:///qml/tst_qmlregister_qlistmodel.qml").unwrap();
 
     view.load_url(url);
     view.exec();
