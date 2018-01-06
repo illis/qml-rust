@@ -1,7 +1,7 @@
 use std::cell::{Ref, RefCell, RefMut};
 use std::ops::Deref;
 use std::rc::Rc;
-use libc::{c_int, c_void};
+use std::os::raw::{c_int, c_void};
 use internal::{QObjectPtr, QObjectSharedPtr, QObjectSignalEmitter, invoke_slot};
 use qobject::{QObjectContent, QObjectContentConstructor, QSignalEmitter};
 

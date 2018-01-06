@@ -1,6 +1,6 @@
 use std::env;
 use std::ffi::CString;
-use libc::{c_char, c_int, c_void};
+use std::os::raw::{c_char, c_int, c_void};
 use qurl::QUrl;
 
 pub struct QQuickView {

@@ -1,6 +1,6 @@
 use std::cell::RefCell;
 use std::rc::{Rc, Weak};
-use libc::c_void;
+use std::os::raw::c_void;
 
 pub(crate) type QObjectWeakPtr = Weak<RefCell<QObjectPtr>>;
 

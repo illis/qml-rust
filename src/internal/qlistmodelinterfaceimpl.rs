@@ -5,7 +5,7 @@ use internal::{QObjectWeakPtr};
 use qlistmodel::{QListModelInterface, QListModelItem};
 use qvariant::{QVariant, QVariantMap};
 use internal::{CQVariantMap, CQVariantMapWrapper, c_entries_to_c_map, entries_to_c_entries, static_variantmap_to_entries};
-use libc::{c_int, c_void};
+use std::os::raw::{c_int, c_void};
 
 pub(crate) struct QListModelInterfaceImpl<I>
     where I: QListModelItem {

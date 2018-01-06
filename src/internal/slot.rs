@@ -1,6 +1,6 @@
 use std::cell::RefCell;
 use std::slice::from_raw_parts_mut;
-use libc::{c_int, c_void};
+use std::os::raw::{c_int, c_void};
 use qobject::QObjectContent;
 use qvariant::QVariantRefMut;
 

@@ -1,4 +1,4 @@
-use libc::c_void;
+use std::os::raw::c_void;
 use std::collections::HashMap;
 use std::ffi::CStr;
 use std::slice::from_raw_parts_mut;

@@ -1,5 +1,5 @@
 use std::cell::RefCell;
-use libc::c_void;
+use std::os::raw::c_void;
 use qobject::{QObject, QObjectContent};
 
 pub struct QObjectRefMut<'a> {

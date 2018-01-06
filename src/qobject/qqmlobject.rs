@@ -1,5 +1,5 @@
 use std::marker::PhantomData;
-use libc::c_void;
+use std::os::raw::c_void;
 use internal::QQmlObjectSignalEmitter;
 use qobject::{QObject, QObjectContent, QObjectContentConstructor};
 

@@ -1,9 +1,8 @@
 extern crate qml;
-extern crate libc;
 
 use std::collections::HashMap;
 #[cfg(debug_assertions)]
-use libc::c_void;
+use std::os::raw::c_void;
 use qml::*;
 
 #[cfg(debug_assertions)]

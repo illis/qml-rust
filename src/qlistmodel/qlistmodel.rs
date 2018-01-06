@@ -3,7 +3,7 @@ use std::ffi::CString;
 use std::marker::PhantomData;
 use std::ops::Deref;
 use std::rc::Rc;
-use libc::{c_char, c_int, c_void};
+use std::os::raw::{c_char, c_int, c_void};
 use internal::{QListModelInterfaceImpl, QObjectPtr, QObjectSharedPtr, QObjectSignalEmitter, invoke_slot};
 use qobject::{QObjectContent, QSignalEmitter};
 use qlistmodel::{QListModelContentConstructor, QListModelItem};

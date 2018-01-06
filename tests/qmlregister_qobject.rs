@@ -1,8 +1,7 @@
-extern crate libc;
 #[macro_use]
 extern crate qml;
 
-use libc::c_void;
+use std::os::raw::c_void;
 use qml::*;
 
 q_object! {

@@ -1,6 +1,5 @@
 #[macro_use]
 extern crate error_chain;
-extern crate libc;
 
 pub mod errors;
 mod internal;

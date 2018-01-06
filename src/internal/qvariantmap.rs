@@ -1,4 +1,4 @@
-use libc::{c_char, c_int, c_void};
+use std::os::raw::{c_char, c_int, c_void};
 use std::collections::HashMap;
 use std::ffi::CString;
 use qvariant::{QVariant, QVariantMap};

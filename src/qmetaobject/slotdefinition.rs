@@ -1,5 +1,5 @@
 use std::ffi::CString;
-use libc::{c_char, c_int};
+use std::os::raw::{c_char, c_int};
 use qmetaobject::conversionutils::{convert_as, convert_into};
 use qmetaobject::ParameterDefinition;
 use qmetaobject::parameterdefinition::{CParameterDefinition, ParameterDefinitionWrapper};

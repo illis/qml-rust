@@ -1,5 +1,5 @@
 use std::ffi::CString;
-use libc::{c_char, c_double, c_float, c_int, c_void};
+use std::os::raw::{c_char, c_double, c_float, c_int, c_void};
 use qobject::QObjectRefMut;
 use internal::CStringWrapper;
 
