@@ -1,3 +1,4 @@
+/*
 #[macro_use]
 extern crate qml;
 
@@ -62,3 +63,4 @@ extern "C" {
     #[cfg(debug_assertions)]
     fn init_testresources();
 }
+*/

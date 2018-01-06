@@ -1,3 +1,4 @@
+/*
 #[macro_use]
 extern crate qml;
 
@@ -46,3 +47,4 @@ extern "C" {
     #[cfg(debug_assertions)]
     fn check_metatype(vptr: *const c_void) -> bool;
 }
+*/

@@ -1,3 +1,4 @@
+/*
 extern crate qml;
 
 use std::collections::HashMap;
@@ -142,3 +143,4 @@ extern "C" {
     #[cfg(debug_assertions)]
     fn invoke_slot(vptr: *mut c_void) -> bool;
 }
+*/

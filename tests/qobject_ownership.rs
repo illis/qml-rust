@@ -1,3 +1,4 @@
+/*
 #[macro_use]
 extern crate qml;
 
@@ -53,3 +54,4 @@ extern "C" {
     #[cfg(debug_assertions)]
     fn invoke_qobject_ownership_slot(vptr: *mut c_void);
 }
+*/

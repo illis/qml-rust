@@ -1,3 +1,4 @@
+/*
 extern crate qml;
 
 use std::collections::HashMap;
@@ -235,3 +236,4 @@ extern "C" {
     #[cfg(debug_assertions)]
     fn value_changed_spy_get_value(ptr: *const c_void) -> c_int;
 }
+*/

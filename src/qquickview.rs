@@ -1,7 +1,19 @@
 use std::env;
 use std::ffi::CString;
-use std::os::raw::{c_char, c_int, c_void};
+use std::os::raw::{c_int, c_void};
 
+use internal::QUrlInternal;
+use internal::ffi::{
+    de_qguiapplication_create,
+    de_qguiapplication_delete,
+    de_qquickview_create,
+    de_qquickview_set_source_url,
+    dos_qguiapplication_exec,
+    dos_qguiapplication_quit,
+    dos_qquickview_delete,
+    dos_qquickview_set_resize_mode,
+    dos_qquickview_show,
+};
 use qurl::QUrl;
 
 pub struct QQuickView {
@@ -9,7 +21,7 @@ pub struct QQuickView {
     view: *mut c_void,
 }
 
-impl<'a> QQuickView {
+impl QQuickView {
     pub fn new() -> Self {
         let argv_strings = env::args()
             .map(|arg| CString::new(arg).unwrap())
@@ -30,6 +42,7 @@ impl<'a> QQuickView {
     }
 
     pub fn load_url(&mut self, url: QUrl) {
+        let url = QUrlInternal::from(url);
         let ptr = url.as_ptr();
         unsafe { de_qquickview_set_source_url(self.view, ptr) }
     }
@@ -61,17 +74,4 @@ impl Default for QQuickView {
     fn default() -> Self {
         QQuickView::new()
     }
-}
-
-extern "C" {
-    fn de_qguiapplication_create(argc: c_int, argv: *const *const c_char) -> *mut c_void;
-    fn dos_qguiapplication_exec();
-    fn dos_qguiapplication_quit();
-    fn de_qguiapplication_delete(vptr: *mut c_void);
-
-    fn de_qquickview_create() -> *mut c_void;
-    fn de_qquickview_set_source_url(vptr: *mut c_void, url: *const c_void);
-    fn dos_qquickview_show(vptr: *mut c_void);
-    fn dos_qquickview_delete(vptr: *mut c_void);
-    fn dos_qquickview_set_resize_mode(vptr: *mut c_void, resize_mode: c_int);
 }

@@ -1,4 +1,17 @@
-use qobject::QObjectRefMut;
+// use qobject::QObjectRefMut;
+
+pub enum QMetaType {
+    Void = 43,
+    Bool = 1,
+    Int = 2,
+    Double = 6,
+    Long = 32,
+    QString = 10,
+    Float = 38,
+    QVariantList = 9,
+    QVariantMap = 8,
+    QObject = 39,
+}
 
 pub trait QMetaTypable {
     fn metatype() -> QMetaType;
@@ -34,21 +47,10 @@ impl QMetaTypable for f32 {
     }
 }
 
+/*
 impl<'a> QMetaTypable for QObjectRefMut<'a> {
     fn metatype() -> QMetaType {
         QMetaType::QObject
     }
 }
-
-pub enum QMetaType {
-    Void = 43,
-    Bool = 1,
-    Int = 2,
-    Double = 6,
-    Long = 32,
-    QString = 10,
-    Float = 38,
-    QVariantList = 9,
-    QVariantMap = 8,
-    QObject = 39,
-}
+*/

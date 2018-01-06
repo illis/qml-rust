@@ -1,3 +1,4 @@
+/*
 #[macro_use]
 extern crate qml;
 
@@ -62,3 +63,4 @@ fn test_qobjectrefmut_cannot_convert_to_different_content() {
     let content = qobjectref.as_content::<TestObject2>();
     assert!(content.is_none());
 }
+*/

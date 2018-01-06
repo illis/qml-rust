@@ -1,3 +1,8 @@
+pub(crate) mod ffi;
+mod qurl;
+
+pub(crate) use self::qurl::QUrlInternal;
+/*
 mod cstringwrapper;
 mod qqmlobjectsignalemitter;
 mod qlistmodelinterfaceimpl;
@@ -20,3 +25,4 @@ pub(crate) use self::qvariantmap::{
     CQVariantMapWrapper,
 };
 pub(crate) use self::slot::invoke_slot;
+*/
