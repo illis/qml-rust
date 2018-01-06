@@ -55,14 +55,14 @@ where
             Box::new(QObjectSignalEmitter::new(Rc::downgrade(&ptr))),
             interface,
         )));
-        QListModel::new_listmodel(ptr, content)
+        QListModel::new_listmodel(&ptr, content)
     }
 
     pub(crate) fn new_with_signal_emitter(signal_emitter: Box<QSignalEmitter>) -> Self {
         let ptr = QListModel::<T, I>::new_ptr(I::role_names());
         let interface = Box::new(QListModelInterfaceImpl::new(Rc::downgrade(&ptr)));
         let content = Box::new(RefCell::new(T::new(signal_emitter, interface)));
-        QListModel::new_listmodel(ptr, content)
+        QListModel::new_listmodel(&ptr, content)
     }
 
     fn new_ptr(role_names: Vec<&str>) -> QObjectSharedPtr {
@@ -86,14 +86,14 @@ where
         Rc::new(RefCell::new(QObjectPtr::new(ptr)))
     }
 
-    fn new_listmodel(ptr: QObjectSharedPtr, content: Box<RefCell<T>>) -> Self {
+    fn new_listmodel(ptr: &QObjectSharedPtr, content: Box<RefCell<T>>) -> Self {
         let content_ptr = Box::into_raw(content);
         unsafe {
             de_qlistmodel_set_dobject(ptr.borrow_mut().as_cref_mut(), content_ptr as *mut c_void);
         }
 
         QListModel {
-            ptr: Rc::clone(&ptr),
+            ptr: Rc::clone(ptr),
             content: unsafe { Box::from_raw(content_ptr) },
             _phantom: PhantomData,
         }

@@ -33,7 +33,7 @@ where
         }
     }
 
-    fn insert_list(&mut self, row: usize, items: Vec<I>) {
+    fn insert_list(&mut self, row: usize, items: &[I]) {
         let ptr = self.ptr.upgrade().unwrap();
         let ptr = ptr.borrow_mut().as_cref_mut();
 
@@ -79,16 +79,18 @@ where
 
     fn push(&mut self, item: I) {
         let len = self.len();
-        self.insert_list(len, vec![item]);
+        let items = vec![item];
+        self.insert_list(len, &items);
     }
 
-    fn append(&mut self, items: Vec<I>) {
+    fn append(&mut self, items: &[I]) {
         let len = self.len();
         self.insert_list(len, items);
     }
 
     fn insert(&mut self, row: usize, item: I) {
-        self.insert_list(row, vec![item]);
+        let items = vec![item];
+        self.insert_list(row, &items);
     }
 
     fn remove(&mut self, row: usize) {
@@ -186,8 +188,8 @@ mod tests {
             self.interface.push(item)
         }
 
-        fn append(&mut self, item: Vec<Item>) {
-            self.interface.append(item)
+        fn append(&mut self, items: Vec<Item>) {
+            self.interface.append(&items)
         }
 
         fn insert(&mut self, row: usize, item: Item) {

@@ -7,7 +7,7 @@ where
     fn len(&self) -> usize;
     fn is_empty(&self) -> bool;
     fn push(&mut self, item: I);
-    fn append(&mut self, item: Vec<I>);
+    fn append(&mut self, items: &[I]);
     fn insert(&mut self, row: usize, item: I);
     fn remove(&mut self, row: usize);
     fn drain(&mut self, begin: usize, end: usize);
