@@ -1,75 +1,80 @@
-use std::collections::HashMap;
 use std::ffi::CString;
-use std::os::raw::{c_char, c_int, c_void};
+use std::os::raw::{c_int, c_void};
 
-use qvariant::{QVariant, QVariantMap};
+use errors::Result;
+use internal::ffi;
+use internal::ffi::{de_qvariant_to_qvariantmap, de_qvariantmap_delete};
+use qvariant::QVariant;
+use qvariantmap::QVariantMap;
 
 pub(crate) struct QVariantMapEntry {
     key: CString,
     value: *const c_void,
 }
 
-#[repr(C)]
-pub(crate) struct CQVariantMapEntry {
-    pub(crate) key: *const c_char,
-    pub(crate) value: *const c_void,
+impl QVariantMapEntry {
+    fn from_key_value(key: &str, value: &QVariant) -> Result<Self> {
+        let key = CString::new(key)?;
+
+        Ok(QVariantMapEntry {
+            key,
+            value: value.as_raw(),
+        })
+    }
 }
 
-#[repr(C)]
-pub(crate) struct CQVariantMap {
-    pub(crate) count: c_int,
-    pub(crate) values: *mut CQVariantMapEntry,
-}
-
-pub(crate) fn variantmap_to_entries<'a>(value: &QVariantMap<'a>) -> Vec<QVariantMapEntry> {
+pub(crate) fn as_entries(value: &QVariantMap) -> Result<Vec<QVariantMapEntry>> {
     value
         .iter()
-        .map(|(key, value)| QVariantMapEntry {
-            key: CString::new(key.as_str()).unwrap(),
-            value: value.as_cref(),
-        })
-        .collect::<Vec<_>>()
+        .map(|(key, value)| QVariantMapEntry::from_key_value(key, value))
+        .collect::<Result<Vec<_>>>()
 }
 
-pub(crate) fn static_variantmap_to_entries<'a>(
-    value: &HashMap<&'static str, QVariant<'a>>,
+/*
+pub(crate) fn static_variantmap_to_entries(
+    value: &HashMap<&'static str, QVariant>,
 ) -> Vec<QVariantMapEntry> {
     value
         .iter()
         .map(|(key, value)| QVariantMapEntry {
             key: CString::new(*key).unwrap(),
-            value: value.as_cref(),
+            value: value.as_raw(),
         })
         .collect::<Vec<_>>()
 }
+*/
 
-pub(crate) fn entries_to_c_entries(value: &[QVariantMapEntry]) -> Vec<CQVariantMapEntry> {
+pub(crate) fn as_ffi_entries(value: &[QVariantMapEntry]) -> Vec<ffi::QVariantMapEntry> {
     value
         .iter()
-        .map(|entry| CQVariantMapEntry {
+        .map(|entry| ffi::QVariantMapEntry {
             key: entry.key.as_ptr(),
             value: entry.value,
         })
         .collect::<Vec<_>>()
 }
 
-pub(crate) fn c_entries_to_c_map(value: &mut Vec<CQVariantMapEntry>) -> CQVariantMap {
-    CQVariantMap {
+pub(crate) fn as_ffi_map(value: &mut Vec<ffi::QVariantMapEntry>) -> ffi::QVariantMap {
+    ffi::QVariantMap {
         count: value.len() as c_int,
         values: value.as_mut_ptr(),
     }
 }
 
-pub(crate) struct CQVariantMapWrapper<'a> {
-    pub(crate) ptr: &'a mut CQVariantMap,
+pub(crate) struct FfiQVariantMapWrapper {
+    pub(crate) ptr: *mut ffi::QVariantMap,
 }
 
-impl<'a> Drop for CQVariantMapWrapper<'a> {
-    fn drop(&mut self) {
-        unsafe { de_qvariantmap_delete(self.ptr) }
+impl FfiQVariantMapWrapper {
+    pub(crate) fn from_variant_ptr(value: *const c_void) -> Self {
+        FfiQVariantMapWrapper {
+            ptr: unsafe { de_qvariant_to_qvariantmap(value) },
+        }
     }
 }
 
-extern "C" {
-    fn de_qvariantmap_delete(vptr: *const CQVariantMap);
+impl Drop for FfiQVariantMapWrapper {
+    fn drop(&mut self) {
+        unsafe { de_qvariantmap_delete(self.ptr) }
+    }
 }

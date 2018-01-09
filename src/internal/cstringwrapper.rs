@@ -1,13 +1,22 @@
 use std::ffi::CStr;
 use std::os::raw::c_char;
 
+use errors::Result;
+use internal::ffi::dos_chararray_delete;
+
 pub(crate) struct CStringWrapper {
     ptr: *const c_char,
 }
 
 impl CStringWrapper {
-    pub(crate) fn new(ptr: *const c_char) -> CStringWrapper {
+    pub(crate) fn from_raw(ptr: *const c_char) -> CStringWrapper {
         CStringWrapper { ptr }
+    }
+
+    pub(crate) fn into_str(self) -> Result<String> {
+        let string = unsafe { CStr::from_ptr(self.ptr) };
+        let string = string.to_str()?;
+        Ok(String::from(string))
     }
 }
 
@@ -15,15 +24,4 @@ impl Drop for CStringWrapper {
     fn drop(&mut self) {
         unsafe { dos_chararray_delete(self.ptr) }
     }
-}
-
-impl<'a> From<&'a CStringWrapper> for String {
-    fn from(value: &'a CStringWrapper) -> Self {
-        let string = unsafe { CStr::from_ptr(value.ptr) };
-        string.to_string_lossy().into_owned()
-    }
-}
-
-extern "C" {
-    fn dos_chararray_delete(vptr: *const c_char);
 }

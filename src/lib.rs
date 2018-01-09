@@ -2,6 +2,7 @@
 extern crate error_chain;
 extern crate futures;
 
+mod conversions;
 pub mod errors;
 mod internal;
 // mod qlistmodel;
@@ -17,8 +18,10 @@ mod qmetatype;
 // mod qobject_macros;
 mod qquickview;
 mod qurl;
-// mod qvariant;
+mod qvariant;
+mod qvariantmap;
 
+pub use conversions::{TryFrom, TryInto};
 /*
 pub use qlistmodel::{
     QListModel,
@@ -49,6 +52,5 @@ pub use qobject::{
 */
 pub use qquickview::QQuickView;
 pub use qurl::QUrl;
-/*
-pub use qvariant::{QVariant, QVariantMap, QVariantRefMut};
-*/
+pub use qvariant::QVariant;
+pub use qvariantmap::QVariantMap;
